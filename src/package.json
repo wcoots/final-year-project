@@ -7,9 +7,12 @@
     "author": "William Cooter",
     "license": "GNU GENERAL PUBLIC LICENSE",
     "scripts": {
-        "start-local": "node --inspect -r dotenv/config connection_test.js"
+        "connection-test": "node --inspect -r dotenv/config connection_test.js",
+        "login": "node --inspect -r dotenv/config login.js"
     },
     "dependencies": {
+        "express": "^4.16.4",
+        "express-session": "^1.15.6",
         "mysql": "^2.16.0"
     },
     "devDependencies": {
