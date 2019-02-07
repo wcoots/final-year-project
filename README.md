@@ -1,2 +1,12 @@
-# final-year-project
-Final project for third year of university
+## Start Backend
+
+```bash
+npm run server
+```
+
+## Start Frontend
+
+```bash
+cd frontend
+npm run dev
+```

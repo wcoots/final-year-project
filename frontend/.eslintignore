@@ -1,0 +1,10 @@
+/build/
+/config/
+/dist/
+/node_modules
+/test/unit/coverage/
+/src/services/
+/src/controllers/
+/src/directives/ 
+*.vue
+output.js
