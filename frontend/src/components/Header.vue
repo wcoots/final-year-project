@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar navbar-light bg-light">
     <template v-if="user != null">
-      <SideNav v-bind:first_name="user.first_name"/>
+      <SideNav v-bind:forename="user.forename"/>
     </template>
     <span class="navbar-brand mb-0 h1">{{title}}</span>
   </nav>

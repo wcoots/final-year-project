@@ -11,6 +11,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 import Header from './Header'
 import Page1 from './Page1'
 import Page2 from './Page2'
@@ -26,6 +27,19 @@ export default {
             isactive: 'goToPage1',
             title: 'App',
             user: this.$route.params.user ? this.$route.params.user : null,
+        }
+    },
+    created() {
+        if (localStorage.getItem('token') === 'null') {
+            const formData = new FormData()
+            axios.post('http://localhost:3128/logout', formData).then(res => {
+                localStorage.setItem('token', JSON.stringify(null))
+                localStorage.setItem('user', JSON.stringify(null))
+
+                this.$router.push({
+                    name: 'SignUp',
+                })
+            })
         }
     },
     mounted() {

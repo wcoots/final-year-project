@@ -30,7 +30,7 @@ function isEmpty(str) {
 app.post('/register', multipartMiddleware, async (req, res) => {
     try {
         if (
-            isEmpty(req.body.first_name) ||
+            isEmpty(req.body.forename) ||
             isEmpty(req.body.surname) ||
             isEmpty(req.body.email) ||
             isEmpty(req.body.password)
@@ -47,20 +47,20 @@ app.post('/register', multipartMiddleware, async (req, res) => {
         if (previous[0].count) {
             return res.json({
                 status: false,
-                message: 'Email already in use',
+                message: 'Please try again',
             })
         }
 
         const hash = await bcrypt.hash(req.body.password, saltRounds)
 
-        const prev_id = await db.qry('SELECT MAX(id) AS value FROM users')
+        const prev_id = await db.qry('SELECT MAX(user_id) AS value FROM users')
 
         await db.qry(
-            'INSERT INTO users(id,first_name,surname,email,password) VALUES(?, ?, ?, ?, ?)',
-            [prev_id[0].value + 1, req.body.first_name, req.body.surname, req.body.email, hash]
+            'INSERT INTO users(user_id,forename,surname,email,password) VALUES(?, ?, ?, ?, ?)',
+            [prev_id[0].value + 1, req.body.forename, req.body.surname, req.body.email, hash]
         )
 
-        const user = await db.qry('SELECT id,first_name,surname,email FROM users WHERE id = ?', [
+        const user = await db.qry('SELECT user_id,forename,surname,email FROM users WHERE user_id = ?', [
             prev_id[0].value + 1,
         ])
         const payload = {
@@ -85,7 +85,7 @@ app.post('/login', multipartMiddleware, async (req, res) => {
         if (!users.length) {
             return res.json({
                 status: false,
-                message: 'Wrong email',
+                message: 'Wrong email or password',
             })
         }
         const user = users[0]
@@ -103,11 +103,21 @@ app.post('/login', multipartMiddleware, async (req, res) => {
                 user,
                 token,
             })
+        } else {
+            return res.json({
+                status: false,
+                message: 'Wrong email or password',
+            })
         }
+    } catch (error) {
+        throw error
+    }
+})
 
+app.post('/logout', multipartMiddleware, async (req, res) => {
+    try {
         return res.json({
             status: false,
-            message: 'Wrong Password, please retry',
         })
     } catch (error) {
         throw error

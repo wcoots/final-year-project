@@ -79,13 +79,13 @@
             <div class="col-md-12">
               <form @submit.prevent="register">
                 <div class="form-group">
-                  <label for>First name:</label>
+                  <label for>Forename:</label>
                   <input
                     type="text"
                     required
                     class="form-control"
                     placeholder="eg William"
-                    v-model="model.first_name"
+                    v-model="model.forename"
                   >
                 </div>
 
@@ -159,7 +159,7 @@ export default {
     data() {
         return {
             model: {
-                first_name: '',
+                forename: '',
                 surname: '',
                 email: '',
                 password: '',
@@ -182,7 +182,7 @@ export default {
             const formData = new FormData()
             let valid = this.validate()
             if (valid) {
-                formData.append('first_name', this.model.first_name)
+                formData.append('forename', this.model.forename)
                 formData.append('surname', this.model.surname)
                 formData.append('email', this.model.email)
                 formData.append('password', this.model.password)
@@ -214,17 +214,13 @@ export default {
             formData.append('password', this.model.password)
 
             this.loading = 'Signing in'
-            // Post to server
+
             axios.post('http://localhost:3128/login', formData).then(res => {
-                // Post a status message
-                console.log(res)
                 this.loading = ''
                 if (res.data.status == true) {
-                    // store the data in localStorage
                     localStorage.setItem('token', res.data.token)
                     localStorage.setItem('user', JSON.stringify(res.data.user))
 
-                    // now send the user to the next route
                     this.$router.push({
                         name: 'Dashboard',
                     })

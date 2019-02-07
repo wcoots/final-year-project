@@ -5,17 +5,21 @@
       <p style="font-size:12px;cursor:pointer" v-on:click="closeNav">
         <em>Close Nav</em>
       </p>
-      <h3>{{ first_name }}</h3>
+      <h3>{{ forename }}</h3>
       <p class="clickable" v-on:click="setActive('goToPage1')">Page 1</p>
       <p class="clickable" v-on:click="setActive('goToPage2')">Page 2</p>
+      <p style="font-size:12px;cursor:pointer" v-on:click="logOut">
+        <em>Log out</em>
+      </p>
     </div>
   </div>
 </template>
 
 <script>
+import axios from 'axios'
 export default {
     name: 'SideNav',
-    props: ['first_name'],
+    props: ['forename'],
     data() {
         return {
             active: 'create',
@@ -31,6 +35,17 @@ export default {
         },
         closeNav() {
             document.getElementById('leftsidenav').style.width = '0%'
+        },
+        logOut() {
+            const formData = new FormData()
+            axios.post('http://localhost:3128/logout', formData).then(res => {
+                localStorage.setItem('token', JSON.stringify(null))
+                localStorage.setItem('user', JSON.stringify(null))
+
+                this.$router.push({
+                    name: 'SignUp',
+                })
+            })
         },
     },
 }
