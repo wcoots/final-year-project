@@ -40,8 +40,15 @@
               <form @submit.prevent="login">
                 <div class="form-group">
                   <label for>Email:</label>
-                  <input
+                  <!-- <input
                     type="email"
+                    required
+                    class="form-control"
+                    placeholder="eg bob@example.co.uk"
+                    v-model="model.email"
+                  >-->
+                  <input
+                    type="text"
                     required
                     class="form-control"
                     placeholder="eg bob@example.co.uk"
