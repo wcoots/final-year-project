@@ -55,10 +55,15 @@ app.post('/register', multipartMiddleware, async (req, res) => {
 
         const prev_id = await db.qry('SELECT MAX(user_id) AS value FROM users')
 
-        await db.qry(
-            'INSERT INTO users(user_id,forename,surname,email,password) VALUES(?, ?, ?, ?, ?)',
-            [prev_id[0].value + 1, req.body.forename, req.body.surname, req.body.email, hash]
-        )
+        await db.qry('INSERT INTO users SET ?', [
+            {
+                user_id: prev_id[0].value + 1,
+                forename: req.body.forename,
+                surname: req.body.surname,
+                email: req.body.email,
+                password: hash
+            }
+        ])
 
         const user = await db.qry('SELECT user_id,forename,surname,email FROM users WHERE user_id = ?', [
             prev_id[0].value + 1,
@@ -89,6 +94,7 @@ app.post('/login', multipartMiddleware, async (req, res) => {
             })
         }
         const user = users[0]
+        
         const authenticated = await bcrypt.compareSync(req.body.password, user.password)
         delete user.password
 
@@ -119,6 +125,128 @@ app.post('/logout', multipartMiddleware, async (req, res) => {
         return res.json({
             status: false,
         })
+    } catch (error) {
+        throw error
+    }
+})
+
+app.post('/changeEmail', multipartMiddleware, async (req, res) => {
+    try {
+        const users = await db.qry('SELECT * FROM users WHERE email = ?', [req.body.email])
+        if (!users.length) {
+            return res.json({
+                status: false,
+                message: 'Something went wrong',
+            })
+        }
+        const user = users[0]
+
+        if (req.body.new_email === user.email) {
+            return res.json({
+                status: false,
+                message: 'This is already your email address',
+            })
+        }
+
+        const authenticated = await bcrypt.compareSync(req.body.current_password, user.password)
+        delete user.password
+
+        if (authenticated) {
+            await db.qry('UPDATE users SET email = ? WHERE user_id = ?', [
+                req.body.new_email,
+                user.user_id
+            ])
+
+            user.email = req.body.new_email
+
+            const payload = { user }
+            const token = jwt.sign(payload, app.get('appSecret'), {
+                expiresIn: '24h',
+            })
+
+            return res.json({
+                status: true,
+                user,
+                token,
+            })
+
+        } else {
+            return res.json({
+                status: false,
+                message: 'Wrong password',
+            })
+        }
+    } catch (error) {
+        throw error
+    }
+})
+
+app.post('/changePassword', multipartMiddleware, async (req, res) => {
+    try {
+        const users = await db.qry('SELECT * FROM users WHERE email = ?', [req.body.email])
+        if (!users.length) {
+            return res.json({
+                status: false,
+                message: 'Something went wrong',
+            })
+        }
+        const user = users[0]
+
+        const authenticated = await bcrypt.compareSync(req.body.current_password, user.password)
+        delete user.password
+
+        if (authenticated) {
+
+            const hash = await bcrypt.hash(req.body.new_password, saltRounds)
+
+            await db.qry('UPDATE users SET password = ? WHERE user_id = ?', [
+                hash,
+                user.user_id
+            ])
+
+            return res.json({
+                status: true,
+            })
+
+        } else {
+            return res.json({
+                status: false,
+                message: 'Wrong password',
+            })
+        }
+    } catch (error) {
+        throw error
+    }
+})
+
+app.post('/deleteAccount', multipartMiddleware, async (req, res) => {
+    try {
+        const users = await db.qry('SELECT * FROM users WHERE email = ?', [req.body.email])
+        if (!users.length) {
+            return res.json({
+                status: false,
+                message: 'Wrong email or password',
+            })
+        }
+        const user = users[0]
+        const authenticated = await bcrypt.compareSync(req.body.password, user.password)
+        delete user.password
+
+        if (authenticated) {
+
+            await db.qry('DELETE FROM users WHERE user_id = ?', [
+                user.user_id
+            ])
+
+            return res.json({
+                status: true,
+            })
+        } else {
+            return res.json({
+                status: false,
+                message: 'Wrong email or password',
+            })
+        }
     } catch (error) {
         throw error
     }

@@ -107,10 +107,20 @@
                   >
                 </div>
 
-                <div class="form-group">
+                <!-- <div class="form-group">
                   <label for>Email:</label>
                   <input
                     type="email"
+                    required
+                    class="form-control"
+                    placeholder="eg bob@example.co.uk"
+                    v-model="model.email"
+                  >
+                </div>-->
+                <div class="form-group">
+                  <label for>Email:</label>
+                  <input
+                    type="text"
                     required
                     class="form-control"
                     placeholder="eg bob@example.co.uk"
@@ -194,12 +204,13 @@ export default {
                 formData.append('email', this.model.email)
                 formData.append('password', this.model.password)
 
+                this.status = ''
                 this.loading = 'Registering you, please wait'
                 // Post to server
                 axios.post('http://localhost:3128/register', formData).then(res => {
                     // Post a status message
                     this.loading = ''
-                    if (res.data.status == true) {
+                    if (res.data.status === true) {
                         // store the data in localStorage
                         localStorage.setItem('token', res.data.token)
                         localStorage.setItem('user', JSON.stringify(res.data.user))
@@ -220,11 +231,12 @@ export default {
             formData.append('email', this.model.email)
             formData.append('password', this.model.password)
 
+            this.status = ''
             this.loading = 'Signing in'
 
             axios.post('http://localhost:3128/login', formData).then(res => {
                 this.loading = ''
-                if (res.data.status == true) {
+                if (res.data.status === true) {
                     localStorage.setItem('token', res.data.token)
                     localStorage.setItem('user', JSON.stringify(res.data.user))
 

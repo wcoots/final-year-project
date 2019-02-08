@@ -14,13 +14,11 @@ function qry(input_query, input_vars = null) {
     return new Promise(async (resolve, reject) => {
         await pool.getConnection(async (error, connection) => {
             if (error) {
-                console.log('OH NO 1')
                 reject(error)
             }
             await connection.query(input_query, input_vars, (error, results, fields) => {
                 connection.release()
                 if (error) {
-                    console.log('OH NO 2')
                     reject(error)
                 }
                 resolve(results)
