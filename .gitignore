@@ -61,4 +61,4 @@ typings/
 .next
 
 test.js
-.vscode
+/.vscode

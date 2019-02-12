@@ -129,14 +129,26 @@
                 </div>
 
                 <div class="form-group">
-                  <label for>Password:</label>
-                  <input
-                    type="password"
-                    required
-                    class="form-control"
-                    placeholder="Enter Password"
-                    v-model="model.password"
-                  >
+                  <label for>Password Test:</label>
+                  <div>
+                    <input
+                      type="password"
+                      v-model="password"
+                      required
+                      class="form-control"
+                      placeholder="Enter Password"
+                    >
+                    <password
+                      v-model="password"
+                      :strength-meter-only="true"
+                      :toggle="true"
+                      @score="showScore"
+                      @feedback="showFeedback"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <p style="color:red;">{{ password_warning }}</p>
                 </div>
 
                 <div class="form-group">
@@ -167,11 +179,13 @@
 <script>
 import Header from './Header'
 import axios from 'axios'
+import Password from 'vue-password-strength-meter'
 
 export default {
     name: 'SignUp',
     components: {
         Header,
+        Password,
     },
     data() {
         return {
@@ -184,25 +198,44 @@ export default {
             },
             loading: '',
             status: '',
+            password: null,
+            password_warning: '',
+            password_score: 0,
         }
     },
     methods: {
+        showFeedback({ suggestions, warning }) {
+            this.password_warning = warning
+        },
+        showScore(score) {
+            this.password_score = score
+        },
         validate() {
-            // checks all the form params are set and the passwords match
-            if (this.model.password != this.model.c_password) {
+            if (this.password !== this.model.c_password) {
                 return false
             }
-
+            return true
+        },
+        strongEnough() {
+            if (this.password_score < 3) {
+                return false
+            }
             return true
         },
         register() {
             const formData = new FormData()
             let valid = this.validate()
-            if (valid) {
+            let strong = this.strongEnough()
+            if (!valid) {
+                alert('Passwords do not match')
+            } else if (!strong) {
+                alert('Password not strong enough')
+            }
+            if (valid && strong) {
                 formData.append('forename', this.model.forename)
                 formData.append('surname', this.model.surname)
                 formData.append('email', this.model.email)
-                formData.append('password', this.model.password)
+                formData.append('password', this.password)
 
                 this.status = ''
                 this.loading = 'Registering you, please wait'
@@ -222,8 +255,6 @@ export default {
                         this.status = res.data.message
                     }
                 })
-            } else {
-                alert('Passwords do not match')
             }
         },
         login() {

@@ -29,7 +29,7 @@
               <div class="form-group">
                 <label for>Password:</label>
                 <input
-                  type="text"
+                  type="password"
                   required
                   class="form-control"
                   placeholder="Enter Password"
