@@ -1,7 +1,7 @@
 {
     "name": "frontend",
     "version": "1.0.0",
-    "description": "Front end for invoicing application",
+    "description": "Front end for project",
     "author": " ",
     "private": true,
     "scripts": {

@@ -2,6 +2,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 
 const db = require('./db')
+const mail = require('./mail')
 
 const multipart = require('connect-multiparty')
 
@@ -18,7 +19,7 @@ app.use(cors())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
-app.set('appSecret', 'secretforinvoicingapp')
+app.set('appSecret', 'secretforproject')
 
 // Multiparty Middleware
 const multipartMiddleware = multipart()
@@ -44,41 +45,47 @@ app.post('/register', multipartMiddleware, async (req, res) => {
         const previous = await db.qry('SELECT COUNT(*) AS count FROM users WHERE email = ?', [
             req.body.email,
         ])
-        if (previous[0].count) {
-            return res.json({
-                status: false,
-                message: 'Please try again',
-            })
-        }
-
-        const hash = await bcrypt.hash(req.body.password, saltRounds)
 
         const prev_id = await db.qry('SELECT MAX(user_id) AS value FROM users')
 
-        await db.qry('INSERT INTO users SET ?', [
-            {
-                user_id: prev_id[0].value + 1,
-                forename: req.body.forename,
-                surname: req.body.surname,
-                email: req.body.email,
-                password: hash
-            }
-        ])
-
-        const user = await db.qry('SELECT user_id,forename,surname,email FROM users WHERE user_id = ?', [
-            prev_id[0].value + 1,
-        ])
-        const payload = {
-            user,
+        if (!previous[0].count) {
+            const hash = await bcrypt.hash(req.body.password, saltRounds)
+            await db.qry('INSERT INTO users SET ?', [
+                {
+                    user_id: prev_id[0].value + 1,
+                    forename: req.body.forename,
+                    surname: req.body.surname,
+                    email: req.body.email,
+                    password: hash,
+                    verified: 0
+                }
+            ])
+            await mail.newMail({
+                address: req.body.email,
+                subject: 'Verify account',
+                html: `
+                    <p>Click here to verify account</p>
+                `
+            })
+        } else {
+            await mail.newMail({
+                address: req.body.email,
+                subject: 'Uh oh',
+                html: `
+                    <p>Someone tried to make a new account with your email</p>
+                `
+            })
         }
-        const token = jwt.sign(payload, app.get('appSecret'), {
-            expiresIn: '24h',
-        })
+
+        console.log('okay1')
+
         return res.json({
             status: true,
-            user,
-            token,
+            user: {
+                email: req.body.new_email
+            },
         })
+
     } catch (error) {
         throw error
     }
@@ -97,8 +104,9 @@ app.post('/login', multipartMiddleware, async (req, res) => {
         
         const authenticated = await bcrypt.compareSync(req.body.password, user.password)
         delete user.password
+        const verified = user.verified
 
-        if (authenticated) {
+        if (authenticated && verified) {
             const payload = { user }
             const token = jwt.sign(payload, app.get('appSecret'), {
                 expiresIn: '24h',
@@ -150,8 +158,9 @@ app.post('/changeEmail', multipartMiddleware, async (req, res) => {
 
         const authenticated = await bcrypt.compareSync(req.body.current_password, user.password)
         delete user.password
+        const verified = user.verified
 
-        if (authenticated) {
+        if (authenticated && verified) {
             await db.qry('UPDATE users SET email = ? WHERE user_id = ?', [
                 req.body.new_email,
                 user.user_id
@@ -194,8 +203,9 @@ app.post('/changePassword', multipartMiddleware, async (req, res) => {
 
         const authenticated = await bcrypt.compareSync(req.body.current_password, user.password)
         delete user.password
+        const verified = user.verified
 
-        if (authenticated) {
+        if (authenticated && verified) {
 
             const hash = await bcrypt.hash(req.body.new_password, saltRounds)
 
@@ -231,8 +241,9 @@ app.post('/deleteAccount', multipartMiddleware, async (req, res) => {
         const user = users[0]
         const authenticated = await bcrypt.compareSync(req.body.password, user.password)
         delete user.password
+        const verified = user.verified
 
-        if (authenticated) {
+        if (authenticated && verified) {
 
             await db.qry('DELETE FROM users WHERE user_id = ?', [
                 user.user_id
@@ -276,7 +287,7 @@ app.use((req, res, next) => {
 })
 
 app.get('/', (req, res) => {
-    res.send('<h1>Welcome to Invoicing App</h1>')
+    res.send('<h1>Welcome to my project</h1>')
 })
 
 app.listen(PORT, () => {

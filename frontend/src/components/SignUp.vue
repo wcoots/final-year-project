@@ -40,18 +40,11 @@
               <form @submit.prevent="login">
                 <div class="form-group">
                   <label for>Email:</label>
-                  <!-- <input
+                  <input
                     type="email"
                     required
                     class="form-control"
-                    placeholder="eg bob@example.co.uk"
-                    v-model="model.email"
-                  >-->
-                  <input
-                    type="text"
-                    required
-                    class="form-control"
-                    placeholder="eg bob@example.co.uk"
+                    placeholder="e.g. bob@example.co.uk"
                     v-model="model.email"
                   >
                 </div>
@@ -68,7 +61,7 @@
                 </div>
 
                 <div class="form-group">
-                  <button class="btn btn-success btn-light btn-large">Login</button>
+                  <button class="btn btn-primary" :disabled="isDisabled">Login</button>
                   {{ loading }}
                   {{ status }}
                 </div>
@@ -76,6 +69,7 @@
             </div>
           </div>
         </div>
+
         <div
           class="tab-pane fade"
           id="pills-register"
@@ -91,7 +85,7 @@
                     type="text"
                     required
                     class="form-control"
-                    placeholder="eg William"
+                    placeholder="e.g. William"
                     v-model="model.forename"
                   >
                 </div>
@@ -102,29 +96,19 @@
                     type="text"
                     required
                     class="form-control"
-                    placeholder="eg Cooter"
+                    placeholder="e.g. Cooter"
                     v-model="model.surname"
                   >
                 </div>
 
-                <!-- <div class="form-group">
+                <div class="form-group">
                   <label for>Email:</label>
                   <input
                     type="email"
                     required
                     class="form-control"
-                    placeholder="eg bob@example.co.uk"
-                    v-model="model.email"
-                  >
-                </div>-->
-                <div class="form-group">
-                  <label for>Email:</label>
-                  <input
-                    type="text"
-                    required
-                    class="form-control"
-                    placeholder="eg bob@example.co.uk"
-                    v-model="model.email"
+                    placeholder="e.g. bob@example.co.uk"
+                    v-model="model.new_email"
                   >
                 </div>
 
@@ -133,21 +117,19 @@
                   <div>
                     <input
                       type="password"
-                      v-model="password"
+                      v-model="model.new_password"
                       required
                       class="form-control"
                       placeholder="Enter Password"
                     >
                     <password
-                      v-model="password"
+                      v-model="model.new_password"
                       :strength-meter-only="true"
                       :toggle="true"
                       @score="showScore"
                       @feedback="showFeedback"
                     />
                   </div>
-                </div>
-                <div>
                   <p style="color:red;">{{ password_warning }}</p>
                 </div>
 
@@ -163,7 +145,7 @@
                 </div>
 
                 <div class="form-group">
-                  <button class="btn btn-primary">Register</button>
+                  <button class="btn btn-primary" :disabled="isDisabled">Register</button>
                   {{ loading }}
                   {{ status }}
                 </div>
@@ -194,24 +176,30 @@ export default {
                 surname: '',
                 email: '',
                 password: '',
+                new_email: '',
+                new_password: null,
                 c_password: '',
             },
             loading: '',
             status: '',
-            password: null,
             password_warning: '',
             password_score: 0,
         }
     },
+    computed: {
+        isDisabled() {
+            return !!this.loading.length
+        },
+    },
     methods: {
-        showFeedback({ suggestions, warning }) {
+        showFeedback({ warning }) {
             this.password_warning = warning
         },
         showScore(score) {
             this.password_score = score
         },
         validate() {
-            if (this.password !== this.model.c_password) {
+            if (this.model.new_password !== this.model.c_password) {
                 return false
             }
             return true
@@ -234,23 +222,18 @@ export default {
             if (valid && strong) {
                 formData.append('forename', this.model.forename)
                 formData.append('surname', this.model.surname)
-                formData.append('email', this.model.email)
-                formData.append('password', this.password)
+                formData.append('email', this.model.new_email)
+                formData.append('password', this.model.new_password)
 
                 this.status = ''
                 this.loading = 'Registering you, please wait'
-                // Post to server
+
                 axios.post('http://localhost:3128/register', formData).then(res => {
-                    // Post a status message
                     this.loading = ''
                     if (res.data.status === true) {
-                        // store the data in localStorage
-                        localStorage.setItem('token', res.data.token)
-                        localStorage.setItem('user', JSON.stringify(res.data.user))
-                        // now send the user to the next route
-                        this.$router.push({
-                            name: 'Dashboard',
-                        })
+                        localStorage.setItem('user', res.data.user)
+                        console.log(localStorage.getItem('user'))
+                        this.$router.push({ name: 'Registered' })
                     } else {
                         this.status = res.data.message
                     }
@@ -270,10 +253,7 @@ export default {
                 if (res.data.status === true) {
                     localStorage.setItem('token', res.data.token)
                     localStorage.setItem('user', JSON.stringify(res.data.user))
-
-                    this.$router.push({
-                        name: 'Dashboard',
-                    })
+                    this.$router.push({ name: 'Dashboard' })
                 } else {
                     this.status = res.data.message
                 }

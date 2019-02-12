@@ -17,28 +17,18 @@
                   v-model="model.email_current_password"
                 >
               </div>
-              <!-- <div class="form-group">
+              <div class="form-group">
                 <label for>New email address:</label>
                 <input
                   type="email"
                   required
                   class="form-control"
-                  placeholder="eg bob@example.co.uk"
+                  placeholder="e.g. bob@example.co.uk"
                   v-model="model.email"
-                >
-              </div>-->
-              <div class="form-group">
-                <label for>New email address:</label>
-                <input
-                  type="text"
-                  required
-                  class="form-control"
-                  placeholder="eg bob@example.co.uk"
-                  v-model="model.new_email"
                 >
               </div>
               <div class="form-group">
-                <button class="btn btn-success btn-light btn-large">Save</button>
+                <button class="btn btn-success btn-light btn-large" :disabled="isEmailDisabled">Save</button>
                 {{ email_loading }}
                 {{ email_status }}
               </div>
@@ -77,7 +67,10 @@
                 >
               </div>
               <div class="form-group">
-                <button class="btn btn-success btn-light btn-large">Save</button>
+                <button
+                  class="btn btn-success btn-light btn-large"
+                  :disabled="isPasswordDisabled"
+                >Save</button>
                 {{ password_loading }}
                 {{ password_status }}
               </div>
@@ -115,6 +108,14 @@ export default {
             password_loading: '',
             password_status: '',
         }
+    },
+    computed: {
+        isEmailDisabled() {
+            return !!this.email_loading.length
+        },
+        isPasswordDisabled() {
+            return !!this.password_loading.length
+        },
     },
     methods: {
         setActive(option) {

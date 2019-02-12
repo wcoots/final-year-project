@@ -9,23 +9,13 @@
               <div class="form-group">
                 <label for>Email:</label>
                 <input
-                  type="text"
-                  required
-                  class="form-control"
-                  placeholder="eg bob@example.co.uk"
-                  v-model="model.email"
-                >
-              </div>
-              <!-- <div class="form-group">
-                <label for>Email:</label>
-                <input
                   type="email"
                   required
                   class="form-control"
-                  placeholder="eg bob@example.co.uk"
+                  placeholder="e.g. bob@example.co.uk"
                   v-model="model.email"
                 >
-              </div>-->
+              </div>
               <div class="form-group">
                 <label for>Password:</label>
                 <input
@@ -40,6 +30,7 @@
                 <button
                   class="btn btn-success btn-danger btn-large"
                   v-on:click="deleteAccount()"
+                  :disabled="isDisabled"
                 >Delete Account</button>
                 {{ loading }}
                 {{ status }}
@@ -67,6 +58,11 @@ export default {
             loading: '',
             status: '',
         }
+    },
+    computed: {
+        isDisabled() {
+            return !!this.loading.length
+        },
     },
     methods: {
         deleteAccount() {
