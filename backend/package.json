@@ -7,8 +7,8 @@
     "author": "",
     "license": "GNU",
     "scripts": {
-        "server": "node --inspect -r dotenv/config server.js",
-        "test": "node --inspect -r dotenv/config test.js"
+        "server": "node --inspect -r dotenv/config ./src/server.js",
+        "test": "node --inspect -r dotenv/config ./src/test.js"
     },
     "dependencies": {
         "bcrpyt": "^2.0.0",
@@ -23,6 +23,7 @@
         "jsonwebtoken": "^8.2.1",
         "mysql": "^2.16.0",
         "nodemailer": "^4.7.0",
+        "nodemailer-express-handlebars": "^3.0.0",
         "nodemailer-smtp-transport": "^2.7.4",
         "nodemon": "^1.17.3",
         "path": "^0.12.7",

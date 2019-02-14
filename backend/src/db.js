@@ -1,4 +1,4 @@
-const { DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE } = require('./config')
+const { DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE } = require('./../config')
 const mysql = require('mysql')
 const pool = mysql.createPool({
     connectionLimit: 10,

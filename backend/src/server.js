@@ -42,48 +42,39 @@ app.post('/register', multipartMiddleware, async (req, res) => {
             })
         }
 
-        const previous = await db.qry('SELECT COUNT(*) AS count FROM users WHERE email = ?', [
+        const email_in_use = await db.qry('SELECT * FROM users WHERE email = ?', [
             req.body.email,
         ])
 
         const prev_id = await db.qry('SELECT MAX(user_id) AS value FROM users')
 
-        if (!previous[0].count) {
+        if (!email_in_use.length) {
             const hash = await bcrypt.hash(req.body.password, saltRounds)
-            await db.qry('INSERT INTO users SET ?', [
-                {
-                    user_id: prev_id[0].value + 1,
-                    forename: req.body.forename,
-                    surname: req.body.surname,
-                    email: req.body.email,
-                    password: hash,
-                    verified: 0
-                }
-            ])
-            await mail.newMail({
-                address: req.body.email,
-                subject: 'Verify account',
-                html: `
-                    <p>Click here to verify account</p>
-                `
-            })
+
+            const user = {
+                user_id: prev_id[0].value + 1,
+                forename: req.body.forename,
+                surname: req.body.surname,
+                email: req.body.email,
+                password: hash,
+                verified: 0
+            }
+
+            await db.qry('INSERT INTO users SET ?', [user])
+            delete user.password
+
+            await mail.newRegisterEmailConfirmation(user)
+
         } else {
-            await mail.newMail({
-                address: req.body.email,
-                subject: 'Uh oh',
-                html: `
-                    <p>Someone tried to make a new account with your email</p>
-                `
-            })
+            await mail.newRegisterEmailWarning(email_in_use[0])
         }
 
-        console.log('okay1')
+        const users = await db.qry('SELECT * FROM users WHERE email = ?', [req.body.email])
+        const user = users[0]
 
         return res.json({
             status: true,
-            user: {
-                email: req.body.new_email
-            },
+            user,
         })
 
     } catch (error) {
@@ -128,26 +119,27 @@ app.post('/login', multipartMiddleware, async (req, res) => {
     }
 })
 
-app.post('/logout', multipartMiddleware, async (req, res) => {
-    try {
-        return res.json({
-            status: false,
-        })
-    } catch (error) {
-        throw error
-    }
-})
-
 app.post('/changeEmail', multipartMiddleware, async (req, res) => {
     try {
-        const users = await db.qry('SELECT * FROM users WHERE email = ?', [req.body.email])
-        if (!users.length) {
+        const usersA = await db.qry('SELECT * FROM users WHERE email = ?', [req.body.email])
+
+        if (!usersA.length) {
             return res.json({
                 status: false,
                 message: 'Something went wrong',
             })
         }
-        const user = users[0]
+        const user = usersA[0]
+
+        const authenticated = await bcrypt.compareSync(req.body.password, user.password)
+        delete user.password
+
+        if (!authenticated) {
+            return res.json({
+                status: false,
+                message: 'Wrong password',
+            })
+        }
 
         if (req.body.new_email === user.email) {
             return res.json({
@@ -156,35 +148,28 @@ app.post('/changeEmail', multipartMiddleware, async (req, res) => {
             })
         }
 
-        const authenticated = await bcrypt.compareSync(req.body.current_password, user.password)
-        delete user.password
-        const verified = user.verified
-
-        if (authenticated && verified) {
-            await db.qry('UPDATE users SET email = ? WHERE user_id = ?', [
+        const usersB = await db.qry('SELECT * FROM users WHERE email = ?', [req.body.new_email])
+        if (usersB.length) {
+            await mail.newChangeEmailWarning(usersB[0])
+        } else {
+            await mail.newChangeEmailConfirmation(user)
+            await db.qry('UPDATE users SET requested_email = ? WHERE user_id = ?', [
                 req.body.new_email,
                 user.user_id
             ])
-
-            user.email = req.body.new_email
-
-            const payload = { user }
-            const token = jwt.sign(payload, app.get('appSecret'), {
-                expiresIn: '24h',
-            })
-
-            return res.json({
-                status: true,
-                user,
-                token,
-            })
-
-        } else {
-            return res.json({
-                status: false,
-                message: 'Wrong password',
-            })
         }
+
+        // TODO: UPDATE EMAIL ADDRESS => MOVE TO EMAIL CHANGE CONFIRMATION PAGE
+
+        // await db.qry('UPDATE users SET email = ? WHERE user_id = ?', [
+        //     req.body.new_email,
+        //     user.user_id
+        // ])
+
+        return res.json({
+            status: true,
+        })
+
     } catch (error) {
         throw error
     }

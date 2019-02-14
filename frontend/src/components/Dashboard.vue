@@ -41,15 +41,9 @@ export default {
     },
     created() {
         if (localStorage.getItem('token') === 'null') {
-            const formData = new FormData()
-            axios.post('http://localhost:3128/logout', formData).then(res => {
-                localStorage.setItem('token', JSON.stringify(null))
-                localStorage.setItem('user', JSON.stringify(null))
-
-                this.$router.push({
-                    name: 'SignUp',
-                })
-            })
+            localStorage.setItem('token', JSON.stringify(null))
+            localStorage.setItem('user', JSON.stringify(null))
+            this.$router.push({ name: 'SignUp' })
         }
     },
     mounted() {

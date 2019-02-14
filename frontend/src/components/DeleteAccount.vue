@@ -67,6 +67,8 @@ export default {
     methods: {
         deleteAccount() {
             if (this.model.email !== JSON.parse(localStorage.getItem('user')).email) {
+                this.model.email = ''
+                this.model.password = ''
                 this.status = 'Wrong email or password'
             } else {
                 const formData = new FormData()
@@ -78,6 +80,7 @@ export default {
 
                 axios.post('http://localhost:3128/deleteAccount', formData).then(res => {
                     this.loading = ''
+
                     if (res.data.status === true) {
                         localStorage.setItem('token', null)
                         localStorage.setItem('user', null)
@@ -86,6 +89,8 @@ export default {
                             name: 'SignUp',
                         })
                     } else {
+                        this.model.email = ''
+                        this.model.password = ''
                         this.status = res.data.message
                     }
                 })

@@ -139,8 +139,8 @@
                     type="password"
                     required
                     class="form-control"
-                    placeholder="Confirm Passowrd"
-                    v-model="model.c_password"
+                    placeholder="Confirm Password"
+                    v-model="model.confirm_password"
                   >
                 </div>
 
@@ -172,18 +172,24 @@ export default {
     data() {
         return {
             model: {
-                forename: '',
-                surname: '',
                 email: '',
                 password: '',
+
+                forename: '',
+                surname: '',
                 new_email: '',
                 new_password: null,
-                c_password: '',
+                confirm_password: '',
             },
             loading: '',
             status: '',
             password_warning: '',
             password_score: 0,
+        }
+    },
+    created() {
+        if (localStorage.getItem('token') !== 'null') {
+            this.$router.push({ name: 'Dashboard' })
         }
     },
     computed: {
@@ -199,7 +205,7 @@ export default {
             this.password_score = score
         },
         validate() {
-            if (this.model.new_password !== this.model.c_password) {
+            if (this.model.new_password !== this.model.confirm_password) {
                 return false
             }
             return true
@@ -231,10 +237,11 @@ export default {
                 axios.post('http://localhost:3128/register', formData).then(res => {
                     this.loading = ''
                     if (res.data.status === true) {
-                        localStorage.setItem('user', res.data.user)
-                        console.log(localStorage.getItem('user'))
+                        localStorage.setItem('user', JSON.stringify(res.data.user))
                         this.$router.push({ name: 'Registered' })
                     } else {
+                        this.model.new_password = null
+                        this.model.confirm_password = ''
                         this.status = res.data.message
                     }
                 })
@@ -255,6 +262,7 @@ export default {
                     localStorage.setItem('user', JSON.stringify(res.data.user))
                     this.$router.push({ name: 'Dashboard' })
                 } else {
+                    this.model.password = ''
                     this.status = res.data.message
                 }
             })

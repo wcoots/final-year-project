@@ -1,6 +1,16 @@
 <template>
   <div>
-    <p>Hello</p>
+    <Header v-bind:user="user"/>
+    <br>
+    <br>
+    <br>
+    <p>
+      An email has been sent to
+      <b>{{user.email}}</b>
+    </p>
+    <p>Please click the link in the email to activate your account</p>
+    <br>
+    <button class="btn btn-primary" v-on:click="redirect">Back to login</button>
   </div>
 </template>
 
@@ -15,13 +25,24 @@ export default {
     },
     data() {
         return {
-            user: this.$route.params.user ? this.$route.params.user : null,
+            user: this.$route.params.user ? this.$route.params.user : { email: null },
         }
     },
     created() {
-        console.log(localStorage.getItem('user.email'))
-        console.log(user)
+        if (localStorage.getItem('user') === 'null') {
+            localStorage.setItem('token', JSON.stringify(null))
+            localStorage.setItem('user', JSON.stringify(null))
+            this.$router.push({ name: 'SignUp' })
+        } else {
+            this.user = JSON.parse(localStorage.getItem('user'))
+        }
     },
-    mounted() {},
+    methods: {
+        redirect() {
+            localStorage.setItem('token', JSON.stringify(null))
+            localStorage.setItem('user', JSON.stringify(null))
+            this.$router.push({ name: 'SignUp' })
+        },
+    },
 }
 </script>

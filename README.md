@@ -1,6 +1,7 @@
 ## Start Backend
 
 ```bash
+cd backend
 npm run server
 ```
 

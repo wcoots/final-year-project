@@ -24,7 +24,7 @@
                   required
                   class="form-control"
                   placeholder="e.g. bob@example.co.uk"
-                  v-model="model.email"
+                  v-model="model.new_email"
                 >
               </div>
               <div class="form-group">
@@ -132,7 +132,7 @@ export default {
             const formData = new FormData()
             formData.append('email', JSON.parse(localStorage.getItem('user')).email)
             formData.append('new_email', this.model.new_email)
-            formData.append('current_password', this.model.email_current_password)
+            formData.append('password', this.model.email_current_password)
 
             this.email_status = ''
             this.email_loading = 'Changing email'
@@ -140,10 +140,11 @@ export default {
             axios.post('http://localhost:3128/changeEmail', formData).then(res => {
                 this.email_loading = ''
                 if (res.data.status === true) {
-                    localStorage.setItem('user', JSON.stringify(res.data.user))
-                    localStorage.setItem('token', res.data.token)
-                    this.email_status = 'Email changed successfully'
+                    this.email_status = `Confirmation email sent to ${this.model.new_email}`
+                    this.model.new_email = ''
+                    this.model.email_current_password = ''
                 } else {
+                    this.model.email_current_password = ''
                     this.email_status = res.data.message
                 }
             })
@@ -162,6 +163,9 @@ export default {
 
                 axios.post('http://localhost:3128/changePassword', formData).then(res => {
                     this.password_loading = ''
+                    this.model.current_password = ''
+                    this.model.new_password = ''
+                    this.model.c_new_password = ''
                     if (res.data.status === true) {
                         this.password_status = 'Password changed successfully'
                     } else {
