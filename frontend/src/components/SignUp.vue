@@ -61,7 +61,7 @@
                 </div>
 
                 <div class="form-group">
-                  <button class="btn btn-primary" :disabled="isDisabled">Login</button>
+                  <button class="btn btn-primary" :disabled="isLoginDisabled">Login</button>
                   {{ loading }}
                   {{ status }}
                 </div>
@@ -113,7 +113,7 @@
                 </div>
 
                 <div class="form-group">
-                  <label for>Password Test:</label>
+                  <label for>Password:</label>
                   <div>
                     <input
                       type="password"
@@ -144,8 +144,23 @@
                   >
                 </div>
 
+                <div>
+                  <input
+                    type="checkbox"
+                    id="checkbox"
+                    v-model="terms_agreed"
+                    value=true
+                    unchecked-value=false
+                  >
+                  <label id="c" for>By checking this box you declare that you agree to the
+                    <div id="d" style="color:#426cb9" class="clickable" v-on:click="redirect()">terms and conditions</div>
+                  </label>
+                </div>
+                <br>
+                
+
                 <div class="form-group">
-                  <button class="btn btn-primary" :disabled="isDisabled">Register</button>
+                  <button class="btn btn-primary" :disabled="isRegisterDisabled">Register</button>
                   {{ loading }}
                   {{ status }}
                 </div>
@@ -185,6 +200,7 @@ export default {
             status: '',
             password_warning: '',
             password_score: 0,
+            terms_agreed: false,
         }
     },
     created() {
@@ -193,8 +209,11 @@ export default {
         }
     },
     computed: {
-        isDisabled() {
-            return !!this.loading.length
+        isLoginDisabled() {
+            return !!this.loading.length || !this.model.email.length || !this.model.password.length
+        },
+        isRegisterDisabled() {
+            return !!this.loading.length || !this.terms_agreed || !this.model.forename.length || !this.model.surname.length || !this.model.new_email.length || !this.model.new_password.length || !this.model.confirm_password.length
         },
     },
     methods: {
@@ -267,11 +286,15 @@ export default {
                 }
             })
         },
+        redirect() {
+            // localStorage.setItem('token', '')
+            // localStorage.setItem('user', '')
+            this.$router.push({ name: 'TermsAndConditions' })
+        },
     },
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 h1,
 h2 {
@@ -287,5 +310,9 @@ li {
 }
 a {
     color: #426cb9;
+}
+#c, #d
+{
+    display:inline;
 }
 </style>

@@ -48,13 +48,23 @@
               </div>
               <div class="form-group">
                 <label for>New password:</label>
-                <input
-                  type="password"
-                  required
-                  class="form-control"
-                  placeholder="Enter Password"
-                  v-model="model.new_password"
-                >
+                <div>
+                  <input
+                    type="password"
+                    v-model="model.new_password"
+                    required
+                    class="form-control"
+                    placeholder="Enter Password"
+                  >
+                  <password
+                    v-model="model.new_password"
+                    :strength-meter-only="true"
+                    :toggle="true"
+                    @score="showScore"
+                    @feedback="showFeedback"
+                  />
+                </div>
+                <p style="color:red;">{{ password_warning }}</p>
               </div>
               <div class="form-group">
                 <label for>Confirm password:</label>
@@ -91,9 +101,13 @@
 
 <script>
 import axios from 'axios'
+import Password from 'vue-password-strength-meter'
+
 export default {
     name: 'AccountSettings',
-    components: {},
+    components: {
+        Password,
+    },
     data() {
         return {
             model: {
@@ -107,6 +121,8 @@ export default {
             email_status: '',
             password_loading: '',
             password_status: '',
+            password_warning: '',
+            password_score: 0,
         }
     },
     computed: {
@@ -126,6 +142,18 @@ export default {
                 return false
             }
 
+            return true
+        },
+        showFeedback({ warning }) {
+            this.password_warning = warning
+        },
+        showScore(score) {
+            this.password_score = score
+        },
+        strongEnough() {
+            if (this.password_score < 3) {
+                return false
+            }
             return true
         },
         onSubmitNewEmail() {
@@ -152,7 +180,13 @@ export default {
         onSubmitNewPassword() {
             const formData = new FormData()
             let valid = this.validate()
-            if (valid) {
+            let strong = this.strongEnough()
+            if (!valid) {
+                alert('Passwords do not match')
+            } else if (!strong) {
+                alert('Password not strong enough')
+            }
+            if (valid && strong) {
                 formData.append('email', JSON.parse(localStorage.getItem('user')).email)
                 formData.append('current_password', this.model.current_password)
                 formData.append('new_password', this.model.new_password)
@@ -172,8 +206,6 @@ export default {
                         this.password_status = res.data.message
                     }
                 })
-            } else {
-                alert('Passwords do not match')
             }
         },
     },
