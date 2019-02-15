@@ -1,19 +1,20 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Forget Password Email</title>
-    </head>
+<template id="register-email-confirmation">
+    <html>
+        <head>
+            <title>Forget Password Email</title>
+        </head>
 
-    <body>
-        <div>
-            <h3>Hi ${user.forename},</h3>
-            <p>
-                Welcome to your new account! Kindly use this <a href="{{ url }}">link</a> to verify
-                your email address.
-            </p>
-            <br />
-            <p>Thanks,</p>
-            <p>William Cooter</p>
-        </div>
-    </body>
-</html>
+        <body>
+            <div>
+                <h3>Hi ${user.forename},</h3>
+                <p>
+                    Welcome to your new account! Kindly use this <a href="{{ url }}">link</a> to verify
+                    your email address.
+                </p>
+                <br/>
+                <p>Thanks,</p>
+                <p>William Cooter</p>
+            </div>
+        </body>
+    </html>
+</template>

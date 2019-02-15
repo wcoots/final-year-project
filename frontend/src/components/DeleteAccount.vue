@@ -61,7 +61,7 @@ export default {
     },
     computed: {
         isDisabled() {
-            return !!this.loading.length
+            return !!this.loading.length || !this.model.email.length || !this.model.password.length
         },
     },
     methods: {

@@ -127,10 +127,19 @@ export default {
     },
     computed: {
         isEmailDisabled() {
-            return !!this.email_loading.length
+            return (
+                !!this.email_loading.length ||
+                !this.model.new_email.length ||
+                !this.model.email_current_password.length
+            )
         },
         isPasswordDisabled() {
-            return !!this.password_loading.length
+            return (
+                !!this.password_loading.length ||
+                !this.model.current_password.length ||
+                !this.model.new_password.length ||
+                !this.model.c_new_password.length
+            )
         },
     },
     methods: {
