@@ -4,6 +4,7 @@ import SignUp from '@/components/SignUp'
 import Dashboard from '@/components/Dashboard'
 import Registered from '@/components/Registered'
 import TermsAndConditions from '@/components/TermsAndConditions'
+import ForgottenPassword from '@/components/ForgottenPassword'
 
 Vue.use(Router)
 
@@ -29,6 +30,11 @@ export default new Router({
             path: '/termsandconditions',
             name: 'TermsAndConditions',
             component: TermsAndConditions,
+        },
+        {
+            path: '/forgottenpassword',
+            name: 'ForgottenPassword',
+            component: ForgottenPassword,
         },
     ],
 })

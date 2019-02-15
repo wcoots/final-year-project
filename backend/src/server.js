@@ -8,6 +8,7 @@ const multipart = require('connect-multiparty')
 
 const cors = require('cors')
 const jwt = require('jsonwebtoken')
+const moment = require('moment')
 
 const bcrypt = require('bcrypt')
 const saltRounds = 10
@@ -57,7 +58,9 @@ app.post('/register', multipartMiddleware, async (req, res) => {
                 surname: req.body.surname,
                 email: req.body.email,
                 password: hash,
-                verified: 0
+                account_creation_date: moment().format('YYYY-MM-DD HH:mm:ss'),
+                last_login_date: moment().format('YYYY-MM-DD HH:mm:ss'),
+                verified: 0,
             }
 
             await db.qry('INSERT INTO users SET ?', [user])
@@ -98,6 +101,12 @@ app.post('/login', multipartMiddleware, async (req, res) => {
         const verified = user.verified
 
         if (authenticated && verified) {
+
+            await db.qry('UPDATE users SET last_login_date = ? WHERE user_id = ?', [
+                moment().format('YYYY-MM-DD HH:mm:ss'),
+                user.user_id,
+            ])
+
             const payload = { user }
             const token = jwt.sign(payload, app.get('appSecret'), {
                 expiresIn: '24h',
@@ -112,6 +121,46 @@ app.post('/login', multipartMiddleware, async (req, res) => {
             return res.json({
                 status: false,
                 message: 'Wrong email or password',
+            })
+        }
+    } catch (error) {
+        throw error
+    }
+})
+
+app.post('/forgottenPassword', multipartMiddleware, async (req, res) => {
+    try {
+        const users = await db.qry('SELECT * FROM users WHERE email = ?', [req.body.email])
+        if (!users.length) {
+            return res.json({
+                status: false,
+            })
+        }
+        const user = users[0]
+        delete user.password
+        const verified = user.verified
+
+        if (verified) {
+            const prev_id = await db.qry('SELECT MAX(id) AS value FROM password_reset_requests')
+
+            const request = {
+                id: prev_id[0].value + 1,
+                user_id: user.user_id,
+                request_date: moment().format('YYYY-MM-DD HH:mm:ss'),
+            }
+
+            await db.qry('UPDATE password_reset_requests SET valid = 0 WHERE user_id = ?', [
+                user.user_id
+            ])
+
+            await db.qry('INSERT INTO password_reset_requests SET ?', [request])
+
+            return res.json({
+                status: true,
+            })
+        } else {
+            return res.json({
+                status: false,
             })
         }
     } catch (error) {

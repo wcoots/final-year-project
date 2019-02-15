@@ -60,6 +60,12 @@
                   >
                 </div>
 
+                <p
+                  class="clickable"
+                  style="color:#426cb9"
+                  v-on:click="redirect('ForgottenPassword')"
+                >Forgotten password</p>
+
                 <div class="form-group">
                   <button class="btn btn-primary" :disabled="isLoginDisabled">Login</button>
                   {{ loading }}
@@ -149,15 +155,19 @@
                     type="checkbox"
                     id="checkbox"
                     v-model="terms_agreed"
-                    value=true
-                    unchecked-value=false
+                    value="true"
+                    unchecked-value="false"
                   >
                   <label id="c" for>By checking this box you declare that you agree to the
-                    <div id="d" style="color:#426cb9" class="clickable" v-on:click="redirect()">terms and conditions</div>
+                    <div
+                      id="d"
+                      style="color:#426cb9"
+                      class="clickable"
+                      v-on:click="redirect('TermsAndConditions')"
+                    >terms and conditions</div>
                   </label>
                 </div>
                 <br>
-                
 
                 <div class="form-group">
                   <button class="btn btn-primary" :disabled="isRegisterDisabled">Register</button>
@@ -213,7 +223,15 @@ export default {
             return !!this.loading.length || !this.model.email.length || !this.model.password.length
         },
         isRegisterDisabled() {
-            return !!this.loading.length || !this.terms_agreed || !this.model.forename.length || !this.model.surname.length || !this.model.new_email.length || !this.model.new_password.length || !this.model.confirm_password.length
+            return (
+                !!this.loading.length ||
+                !this.terms_agreed ||
+                !this.model.forename.length ||
+                !this.model.surname.length ||
+                !this.model.new_email.length ||
+                !this.model.new_password.length ||
+                !this.model.confirm_password.length
+            )
         },
     },
     methods: {
@@ -286,10 +304,10 @@ export default {
                 }
             })
         },
-        redirect() {
+        redirect(location) {
             // localStorage.setItem('token', '')
             // localStorage.setItem('user', '')
-            this.$router.push({ name: 'TermsAndConditions' })
+            this.$router.push({ name: location })
         },
     },
 }
@@ -311,8 +329,8 @@ li {
 a {
     color: #426cb9;
 }
-#c, #d
-{
-    display:inline;
+#c,
+#d {
+    display: inline;
 }
 </style>
