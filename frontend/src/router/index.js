@@ -6,6 +6,8 @@ import Registered from '@/components/Registered'
 import TermsAndConditions from '@/components/TermsAndConditions'
 import ForgottenPassword from '@/components/ForgottenPassword'
 import ResetPassword from '@/components/ResetPassword'
+import ValidateNewAccount from '@/components/ValidateNewAccount'
+import ValidateNewEmail from '@/components/ValidateNewEmail'
 
 Vue.use(Router)
 
@@ -41,6 +43,16 @@ export default new Router({
             path: '/resetpassword',
             name: 'ResetPassword',
             component: ResetPassword,
+        },
+        {
+            path: '/validatenewaccount',
+            name: 'ValidateNewAccount',
+            component: ValidateNewAccount,
+        },
+        {
+            path: '/validatenewemail',
+            name: 'ValidateNewEmail',
+            component: ValidateNewEmail,
         },
     ],
 })

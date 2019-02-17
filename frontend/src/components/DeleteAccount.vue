@@ -5,6 +5,11 @@
         <div class="row">
           <div class="col-md-12">
             <h3>Delete Account</h3>
+
+            <br>
+            <hr>
+            <br>
+
             <form @submit.prevent="deleteAccount">
               <div class="form-group">
                 <label for>Email:</label>
@@ -35,6 +40,10 @@
                 {{ loading }}
                 {{ status }}
               </div>
+
+              <br>
+              <br>
+              <hr>
             </form>
           </div>
         </div>

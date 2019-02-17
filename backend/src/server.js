@@ -48,13 +48,13 @@ app.post('/register', multipartMiddleware, async (req, res) => {
             req.body.email,
         ])
 
-        const prev_id = await db.qry('SELECT MAX(user_id) AS value FROM users')
+        const prev_user_id = await db.qry('SELECT MAX(user_id) AS value FROM users')
 
         if (!email_in_use.length) {
             const hash = await bcrypt.hash(req.body.password, saltRounds)
 
             const user = {
-                user_id: prev_id[0].value + 1,
+                user_id: prev_user_id[0].value + 1,
                 forename: req.body.forename,
                 surname: req.body.surname,
                 email: req.body.email,
@@ -67,7 +67,25 @@ app.post('/register', multipartMiddleware, async (req, res) => {
             await db.qry('INSERT INTO users SET ?', [user])
             delete user.password
 
-            await mail.newRegisterEmailConfirmation(user)
+            const prev_request_id = await db.qry('SELECT MAX(id) AS value FROM sign_up_requests')
+            const token_val = await crypto.randomBytes(20)
+            const token = token_val.toString('hex')
+
+            const request = {
+                id: prev_request_id[0].value + 1,
+                user_id: prev_user_id[0].value + 1,
+                token,
+                request_date: moment().format('YYYY-MM-DD HH:mm:ss'),
+                token_expiration: moment().add(1, 'day').format('YYYY-MM-DD HH:mm:ss'),
+            }
+
+            await db.qry('UPDATE sign_up_requests SET valid = 0 WHERE user_id = ?', [
+                user.user_id
+            ])
+
+            await db.qry('INSERT INTO sign_up_requests SET ?', [request])
+
+            await mail.newRegisterEmailConfirmation(user, token)
 
         } else {
             await mail.newRegisterEmailWarning(email_in_use[0])
@@ -79,6 +97,36 @@ app.post('/register', multipartMiddleware, async (req, res) => {
         return res.json({
             status: true,
             user,
+        })
+
+    } catch (error) {
+        throw error
+    }
+})
+
+app.post('/verifyNewAccount', multipartMiddleware, async (req, res) => {
+    try {
+        const requests = await db.qry('SELECT * FROM sign_up_requests WHERE token = ? AND token_expiration > DATE(NOW()) AND valid = 1 AND completed = 0', [req.body.new_account_token])
+        if (!requests.length) {
+            return res.json({
+                status: false,
+                message: 'Something went wrong',
+            })
+        }
+
+        const request = requests[0]
+
+        await db.qry('UPDATE users SET verified = 1 WHERE user_id = ?', [
+            request.user_id
+        ])
+
+        await db.qry('UPDATE sign_up_requests SET valid = 0, completed = 1, completed_date = ? WHERE token = ?', [
+            moment().format('YYYY-MM-DD HH:mm:ss'),
+            req.body.new_account_token
+        ])
+
+        return res.json({
+            status: true,
         })
 
     } catch (error) {
@@ -177,7 +225,7 @@ app.post('/forgottenPassword', multipartMiddleware, async (req, res) => {
 
 app.post('/verifyPasswordResetToken', multipartMiddleware, async (req, res) => {
     try {
-        const requests = await db.qry('SELECT * FROM password_reset_requests WHERE token = ? AND token_expiration > DATE(NOW()) AND valid = 1', [req.body.reset_token])
+        const requests = await db.qry('SELECT * FROM password_reset_requests WHERE token = ? AND token_expiration > DATE(NOW()) AND valid = 1 AND completed = 0', [req.body.reset_token])
         if (requests.length) {
             return res.json({
                 status: true,
@@ -195,7 +243,7 @@ app.post('/verifyPasswordResetToken', multipartMiddleware, async (req, res) => {
 
 app.post('/resetPassword', multipartMiddleware, async (req, res) => {
     try {
-        const requests = await db.qry('SELECT * FROM password_reset_requests WHERE token = ? AND token_expiration > DATE(NOW()) AND valid = 1', [req.body.reset_token])
+        const requests = await db.qry('SELECT * FROM password_reset_requests WHERE token = ? AND token_expiration > DATE(NOW()) AND valid = 1 AND completed = 0', [req.body.reset_token])
         if (!requests.length) {
             return res.json({
                 status: false,
@@ -255,6 +303,7 @@ app.post('/changeEmail', multipartMiddleware, async (req, res) => {
             })
         }
 
+        // this is done after password check to maintain security
         if (req.body.new_email === user.email) {
             return res.json({
                 status: false,
@@ -266,21 +315,68 @@ app.post('/changeEmail', multipartMiddleware, async (req, res) => {
         if (usersB.length) {
             await mail.newChangeEmailWarning(usersB[0])
         } else {
-            await mail.newChangeEmailConfirmation(user)
-            await db.qry('UPDATE users SET requested_email = ? WHERE user_id = ?', [
-                req.body.new_email,
+            const prev_request_id = await db.qry('SELECT MAX(id) AS value FROM email_change_requests')
+            const token_val = await crypto.randomBytes(20)
+            const token = token_val.toString('hex')
+
+            const request = {
+                id: prev_request_id[0].value + 1,
+                user_id: user.user_id,
+                requested_email: req.body.new_email,
+                token,
+                request_date: moment().format('YYYY-MM-DD HH:mm:ss'),
+                token_expiration: moment().add(1, 'day').format('YYYY-MM-DD HH:mm:ss'),
+            }
+
+            await db.qry('UPDATE email_change_requests SET valid = 0 WHERE user_id = ?', [
                 user.user_id
             ])
+
+            await db.qry('INSERT INTO email_change_requests SET ?', [request])
+
+            user.email = req.body.new_email
+
+            await mail.newChangeEmailConfirmation(user, token)
         }
 
-        // TODO: UPDATE EMAIL ADDRESS => MOVE TO EMAIL CHANGE CONFIRMATION PAGE
+        return res.json({
+            status: true,
+            message: `A confirmation email has been sent to ${req.body.new_email}`
+        })
 
-        // await db.qry('UPDATE users SET email = ? WHERE user_id = ?', [
-        //     req.body.new_email,
-        //     user.user_id
-        // ])
+    } catch (error) {
+        throw error
+    }
+})
+
+app.post('/verifyNewEmail', multipartMiddleware, async (req, res) => {
+    try {
+        const requests = await db.qry('SELECT * FROM email_change_requests WHERE token = ? AND token_expiration > DATE(NOW()) AND valid = 1 AND completed = 0', [req.body.new_email_token])
+        if (!requests.length) {
+            return res.json({
+                status: false,
+                message: 'Something went wrong',
+            })
+        }
+
+        const request = requests[0]
+
+        await db.qry('UPDATE users SET email = ? WHERE user_id = ?', [
+            request.requested_email,
+            request.user_id
+        ])
+
+        await db.qry('UPDATE email_change_requests SET valid = 0, completed = 1, completed_date = ? WHERE token = ?', [
+            moment().format('YYYY-MM-DD HH:mm:ss'),
+            req.body.new_email_token,
+        ])
+
+        await db.qry('UPDATE email_change_requests SET valid = 0 WHERE requested_email = ?', [
+            request.requested_email,
+        ])
 
         return res.json({
+            email: request.requested_email,
             status: true,
         })
 

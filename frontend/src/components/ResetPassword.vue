@@ -5,8 +5,12 @@
       <div class="tab-pane fade show active">
         <div class="row">
           <div class="col-md-12">
-            <h3>Account Settings</h3>
-            <h4>Change your password:</h4>
+            <h3>Reset Password</h3>
+
+            <br>
+            <hr>
+            <br>
+
             <form @submit.prevent="onSubmitNewPassword">
               <div class="form-group">
                 <label for>New password:</label>
@@ -76,6 +80,8 @@ export default {
         }
     },
     created() {
+        localStorage.setItem('token', JSON.stringify(null))
+        localStorage.setItem('user', JSON.stringify(null))
         if (this.reset_token === null) {
             this.$router.push({ name: 'SignUp' })
         }

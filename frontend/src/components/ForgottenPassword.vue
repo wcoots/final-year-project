@@ -5,8 +5,12 @@
       <div class="tab-pane fade show active">
         <div class="row">
           <div class="col-md-12">
-            <h3>Account Settings</h3>
-            <h4>Update your email address:</h4>
+            <h3>Forgotten Password</h3>
+
+            <br>
+            <hr>
+            <br>
+
             <form @submit.prevent="onSubmitEmail">
               <div class="form-group">
                 <label for>Email address:</label>

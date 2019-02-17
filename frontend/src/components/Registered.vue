@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Header v-bind:user="user"/>
+    <Header/>
     <br>
     <br>
     <br>
@@ -25,13 +25,11 @@ export default {
     },
     data() {
         return {
-            user: this.$route.params.user ? this.$route.params.user : { email: null },
+            user: '',
         }
     },
     created() {
         if (localStorage.getItem('user') === 'null') {
-            localStorage.setItem('token', JSON.stringify(null))
-            localStorage.setItem('user', JSON.stringify(null))
             this.$router.push({ name: 'SignUp' })
         } else {
             this.user = JSON.parse(localStorage.getItem('user'))
@@ -39,7 +37,6 @@ export default {
     },
     methods: {
         redirect() {
-            localStorage.setItem('token', JSON.stringify(null))
             localStorage.setItem('user', JSON.stringify(null))
             this.$router.push({ name: 'SignUp' })
         },

@@ -5,7 +5,13 @@
         <div class="row">
           <div class="col-md-12">
             <h3>Account Settings</h3>
+
+            <br>
+            <hr>
+            <br>
+
             <h4>Update your email address:</h4>
+            <br>
             <form @submit.prevent="onSubmitNewEmail">
               <div class="form-group">
                 <label for>Current password:</label>
@@ -34,7 +40,12 @@
               </div>
             </form>
 
+            <br>
+            <hr>
+            <br>
+
             <h4>Change your password:</h4>
+            <br>
             <form @submit.prevent="onSubmitNewPassword">
               <div class="form-group">
                 <label for>Current password:</label>
@@ -86,12 +97,20 @@
               </div>
             </form>
 
-            <h4>Delete Account:</h4>
+            <br>
+            <br>
+            <hr>
+            <br>
+
             <button
               type="button"
               class="btn btn-danger"
               v-on:click="setActive('goToDeleteAccount')"
             >Delete Account</button>
+
+            <br>
+            <br>
+            <hr>
           </div>
         </div>
       </div>
@@ -177,7 +196,7 @@ export default {
             axios.post('http://localhost:3128/changeEmail', formData).then(res => {
                 this.email_loading = ''
                 if (res.data.status === true) {
-                    this.email_status = `Confirmation email sent to ${this.model.new_email}`
+                    this.email_status = res.data.message
                     this.model.new_email = ''
                     this.model.email_current_password = ''
                 } else {
@@ -199,7 +218,6 @@ export default {
                 formData.append('email', JSON.parse(localStorage.getItem('user')).email)
                 formData.append('current_password', this.model.current_password)
                 formData.append('new_password', this.model.new_password)
-                formData.append('c_new_password', this.model.c_new_password)
 
                 this.password_status = ''
                 this.password_loading = 'Changing password'
