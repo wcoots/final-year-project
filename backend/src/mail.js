@@ -32,7 +32,7 @@ function newMail(req) {
     })
 }
 
-function newChangeEmailConfirmation(user) {
+function newChangeEmailConfirmation(user, token) {
     return new Promise(async (resolve, reject) => {
         await fs.readFile(__dirname + '/api/templates/change-email-confirmation.html', 'utf8', async (err, data) => {
             if (err) {
@@ -66,7 +66,7 @@ function newChangeEmailWarning(user) {
     })
 }
 
-function newRegisterEmailConfirmation(user) {
+function newRegisterEmailConfirmation(user, token) {
     return new Promise(async (resolve, reject) => {
         await fs.readFile(__dirname + '/api/templates/register-email-confirmation.html', 'utf8', async (err, data) => {
             if (err) {
@@ -100,7 +100,7 @@ function newRegisterEmailWarning(user) {
     })
 }
 
-function newPasswordResetRequest(user) {
+function newPasswordResetRequest(user, token) {
     return new Promise(async (resolve, reject) => {
         await fs.readFile(__dirname + '/api/templates/password-reset-request.html', 'utf8', async (err, data) => {
             if (err) {

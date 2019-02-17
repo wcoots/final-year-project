@@ -5,6 +5,7 @@ import Dashboard from '@/components/Dashboard'
 import Registered from '@/components/Registered'
 import TermsAndConditions from '@/components/TermsAndConditions'
 import ForgottenPassword from '@/components/ForgottenPassword'
+import ResetPassword from '@/components/ResetPassword'
 
 Vue.use(Router)
 
@@ -35,6 +36,11 @@ export default new Router({
             path: '/forgottenpassword',
             name: 'ForgottenPassword',
             component: ForgottenPassword,
+        },
+        {
+            path: '/resetpassword',
+            name: 'ResetPassword',
+            component: ResetPassword,
         },
     ],
 })

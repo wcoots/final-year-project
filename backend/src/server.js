@@ -9,6 +9,7 @@ const multipart = require('connect-multiparty')
 const cors = require('cors')
 const jwt = require('jsonwebtoken')
 const moment = require('moment')
+const crypto = require('crypto')
 
 const bcrypt = require('bcrypt')
 const saltRounds = 10
@@ -142,11 +143,15 @@ app.post('/forgottenPassword', multipartMiddleware, async (req, res) => {
 
         if (verified) {
             const prev_id = await db.qry('SELECT MAX(id) AS value FROM password_reset_requests')
+            const token_val = await crypto.randomBytes(20)
+            const token = token_val.toString('hex')
 
             const request = {
                 id: prev_id[0].value + 1,
                 user_id: user.user_id,
+                token,
                 request_date: moment().format('YYYY-MM-DD HH:mm:ss'),
+                token_expiration: moment().add(1, 'hour').format('YYYY-MM-DD HH:mm:ss'),
             }
 
             await db.qry('UPDATE password_reset_requests SET valid = 0 WHERE user_id = ?', [
@@ -154,6 +159,8 @@ app.post('/forgottenPassword', multipartMiddleware, async (req, res) => {
             ])
 
             await db.qry('INSERT INTO password_reset_requests SET ?', [request])
+
+            await mail.newPasswordResetRequest(user, token)
 
             return res.json({
                 status: true,
@@ -163,6 +170,64 @@ app.post('/forgottenPassword', multipartMiddleware, async (req, res) => {
                 status: false,
             })
         }
+    } catch (error) {
+        throw error
+    }
+})
+
+app.post('/verifyPasswordResetToken', multipartMiddleware, async (req, res) => {
+    try {
+        const requests = await db.qry('SELECT * FROM password_reset_requests WHERE token = ? AND token_expiration > DATE(NOW()) AND valid = 1', [req.body.reset_token])
+        if (requests.length) {
+            return res.json({
+                status: true,
+            })
+        } else {
+            return res.json({
+                status: false,
+            })
+        }
+
+    } catch (error) {
+        throw error
+    }
+})
+
+app.post('/resetPassword', multipartMiddleware, async (req, res) => {
+    try {
+        const requests = await db.qry('SELECT * FROM password_reset_requests WHERE token = ? AND token_expiration > DATE(NOW()) AND valid = 1', [req.body.reset_token])
+        if (!requests.length) {
+            return res.json({
+                status: false,
+                message: 'Something went wrong',
+            })
+        }
+
+        const request = requests[0]
+
+        const users = await db.qry('SELECT * FROM users WHERE user_id = ?', [request.user_id])
+        if (!users.length) {
+            return res.json({
+                status: false,
+                message: 'Something went wrong',
+            })
+        }
+        const hash = await bcrypt.hash(req.body.new_password, saltRounds)
+
+        await db.qry('UPDATE users SET password = ? WHERE user_id = ?', [
+            hash,
+            users[0].user_id
+        ])
+
+        await db.qry('UPDATE password_reset_requests SET valid = 0, completed = 1, completed_date = ? WHERE token = ?', [
+            moment().format('YYYY-MM-DD HH:mm:ss'),
+            req.body.reset_token
+        ])
+
+        return res.json({
+            status: true,
+        })
+
     } catch (error) {
         throw error
     }
