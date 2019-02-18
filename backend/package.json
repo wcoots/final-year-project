@@ -1,10 +1,10 @@
 {
-    "name": "src",
+    "name": "backend",
     "version": "1.0.0",
     "description": "backend of final year project",
     "main": "index.js",
     "repository": "https://github.com/WillCooter/final-year-project",
-    "author": "",
+    "author": "William Cooter",
     "license": "GNU",
     "scripts": {
         "server": "node --inspect -r dotenv/config ./src/server.js",
