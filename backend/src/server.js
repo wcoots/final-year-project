@@ -14,7 +14,8 @@ const crypto = require('crypto')
 const bcrypt = require('bcrypt')
 const saltRounds = 10
 
-const PORT = process.env.PORT || 3128
+// const PORT = process.env.PORT || 3128
+const PORT = 3000
 
 const app = express()
 app.use(cors())
@@ -486,5 +487,5 @@ app.get('/', (req, res) => {
 })
 
 app.listen(PORT, () => {
-    console.log(`App running on localhost:${PORT}`)
+    console.log(`App running on port ${PORT}`)
 })
