@@ -1,7 +1,11 @@
 [build]
   base = "frontend/"
 
+# [[redirects]]
+#   from = "/dashboard"
+#   to = "/"
+#   force = true
+
 [[redirects]]
-  from = "/dashboard"
-  to = "/"
-  force = true
+  from = "/*"
+  to = "/termsandconditions"
