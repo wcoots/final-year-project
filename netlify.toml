@@ -1,2 +1,7 @@
 [build]
   base = "frontend/"
+
+[[redirects]]
+  from = "/dashboard"
+  to = "/"
+  force = true
