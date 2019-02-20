@@ -35,7 +35,7 @@ export default {
         const formData = new FormData()
         formData.append('new_account_token', this.new_account_token)
 
-        axios.post('http://localhost:3128/verifyNewAccount', formData).then(res => {
+        axios.post('http://localhost:3000/verifyNewAccount', formData).then(res => {
             if (res.data.status === false) {
                 this.$router.push({ name: 'SignUp' })
             }

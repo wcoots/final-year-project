@@ -65,7 +65,7 @@ export default {
             this.status = ''
             this.loading = 'Sending recovery email'
 
-            axios.post('http://localhost:3128/forgottenPassword', formData).then(res => {
+            axios.post('http://localhost:3000/forgottenPassword', formData).then(res => {
                 this.loading = ''
                 alert(`Password recovery email sent to ${this.model.email}`)
                 this.model.email = ''

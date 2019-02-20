@@ -271,7 +271,7 @@ export default {
                 this.status = ''
                 this.loading = 'Registering you, please wait'
 
-                axios.post('http://localhost:3128/register', formData).then(res => {
+                axios.post('http://localhost:3000/register', formData).then(res => {
                     this.loading = ''
                     if (res.data.status === true) {
                         localStorage.setItem('user', JSON.stringify(res.data.user))
@@ -292,7 +292,7 @@ export default {
             this.status = ''
             this.loading = 'Signing in'
 
-            axios.post('http://localhost:3128/login', formData).then(res => {
+            axios.post('http://localhost:3000/login', formData).then(res => {
                 this.loading = ''
                 if (res.data.status === true) {
                     localStorage.setItem('token', res.data.token)

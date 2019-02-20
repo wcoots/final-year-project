@@ -193,7 +193,7 @@ export default {
             this.email_status = ''
             this.email_loading = 'Changing email'
 
-            axios.post('http://localhost:3128/changeEmail', formData).then(res => {
+            axios.post('http://localhost:3000/changeEmail', formData).then(res => {
                 this.email_loading = ''
                 if (res.data.status === true) {
                     this.email_status = res.data.message
@@ -222,7 +222,7 @@ export default {
                 this.password_status = ''
                 this.password_loading = 'Changing password'
 
-                axios.post('http://localhost:3128/changePassword', formData).then(res => {
+                axios.post('http://localhost:3000/changePassword', formData).then(res => {
                     this.password_loading = ''
                     this.model.current_password = ''
                     this.model.new_password = ''
