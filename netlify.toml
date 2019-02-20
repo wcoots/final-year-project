@@ -1,14 +1,14 @@
 [build]
   base = "frontend/"
 
-[[redirects]]
-  from = "/dashboard"
-  to = "/"
-  force = true
-  status = 302
+# [[redirects]]
+#   from = "/dashboard"
+#   to = "/"
+#   force = true
+#   status = 302
 
-[[redirects]]
-  from = "/home"
-  to = "/"
-  force = true
-  status = 301
+# [[redirects]]
+#   from = "/home"
+#   to = "/"
+#   force = true
+#   status = 301
