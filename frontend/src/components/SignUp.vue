@@ -214,9 +214,10 @@ export default {
         }
     },
     created() {
-        // if (localStorage.getItem('token') !== 'null') {
-        //     this.$router.push({ name: 'Dashboard' })
-        // }
+        console.log(localStorage.getItem('token'))
+        if (localStorage.getItem('token') !== 'null') {
+            this.$router.push({ name: 'Dashboard' })
+        }
     },
     computed: {
         isLoginDisabled() {
