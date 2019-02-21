@@ -247,7 +247,7 @@ export default {
             try {
                 await axios
                     .post(
-                        'https://ec2-35-178-20-32.eu-west-2.compute.amazonaws.com/forgottenPassword',
+                        'https://ec2-3-8-4-172.eu-west-2.compute.amazonaws.com/forgottenPassword',
                         formData
                     )
                     .then(res => {
