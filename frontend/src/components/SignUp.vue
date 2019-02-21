@@ -72,6 +72,8 @@
                   {{ status }}
                 </div>
               </form>
+
+              <button class="btn btn-primary" v-on:click="test">test</button>
             </div>
           </div>
         </div>
@@ -235,6 +237,27 @@ export default {
         },
     },
     methods: {
+        async test() {
+            const formData = new FormData()
+            formData.append('email', 'will@cooters.co.uk')
+
+            this.status = ''
+            this.loading = 'Testing'
+
+            try {
+                await axios
+                    .post(
+                        'http://ec2-35-178-20-32.eu-west-2.compute.amazonaws.com/forgottenPassword',
+                        formData
+                    )
+                    .then(res => {
+                        this.loading = ''
+                        console.log('success')
+                    })
+            } catch (err) {
+                console.log(err)
+            }
+        },
         showFeedback({ warning }) {
             this.password_warning = warning
         },
