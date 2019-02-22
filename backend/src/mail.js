@@ -37,10 +37,8 @@ function newChangeEmailConfirmation(user, token) {
         let url = ''
         if (NODE_ENV === 'development') {
             url = 'http://localhost:8080'
-            console.log('localhost')
         } else if (NODE_ENV === 'production') {
-            url = 'https://api.werdz.fun'
-            console.log('werdz')
+            url = 'https://werdz.fun'
         }
         await fs.readFile(__dirname + '/api/templates/change-email-confirmation.html', 'utf8', async (err, data) => {
             if (err) {
@@ -76,6 +74,12 @@ function newChangeEmailWarning(user) {
 
 function newRegisterEmailConfirmation(user, token) {
     return new Promise(async (resolve, reject) => {
+        let url = ''
+        if (NODE_ENV === 'development') {
+            url = 'http://localhost:8080'
+        } else if (NODE_ENV === 'production') {
+            url = 'https://werdz.fun'
+        }
         await fs.readFile(__dirname + '/api/templates/register-email-confirmation.html', 'utf8', async (err, data) => {
             if (err) {
                 throw err
@@ -110,6 +114,12 @@ function newRegisterEmailWarning(user) {
 
 function newPasswordResetRequest(user, token) {
     return new Promise(async (resolve, reject) => {
+        let url = ''
+        if (NODE_ENV === 'development') {
+            url = 'http://localhost:8080'
+        } else if (NODE_ENV === 'production') {
+            url = 'https://werdz.fun'
+        }
         await fs.readFile(__dirname + '/api/templates/password-reset-request.html', 'utf8', async (err, data) => {
             if (err) {
                 throw err
