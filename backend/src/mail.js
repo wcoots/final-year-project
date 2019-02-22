@@ -1,4 +1,4 @@
-const { EMAIL_SERVICE, EMAIL_USER, EMAIL_PASS } = require('./../config')
+const { EMAIL_SERVICE, EMAIL_USER, EMAIL_PASS, NODE_ENV } = require('./../config')
 const nodemailer = require('nodemailer')
 const smtpTransport = require('nodemailer-smtp-transport')
 const fs = require('fs')
@@ -34,6 +34,14 @@ function newMail(req) {
 
 function newChangeEmailConfirmation(user, token) {
     return new Promise(async (resolve, reject) => {
+        let url = ''
+        if (NODE_ENV === 'development') {
+            url = 'http://localhost:8080'
+            console.log('localhost')
+        } else if (NODE_ENV === 'production') {
+            url = 'https://api.werdz.fun'
+            console.log('werdz')
+        }
         await fs.readFile(__dirname + '/api/templates/change-email-confirmation.html', 'utf8', async (err, data) => {
             if (err) {
                 throw err
