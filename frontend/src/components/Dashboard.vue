@@ -40,7 +40,7 @@ export default {
         }
     },
     created() {
-        if (localStorage.getItem('token') === 'null') {
+        if (localStorage.getItem('token') === 'null' || localStorage.getItem('token') === null) {
             localStorage.setItem('token', JSON.stringify(null))
             localStorage.setItem('user', JSON.stringify(null))
             this.$router.push({ name: 'SignUp' })
