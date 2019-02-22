@@ -15,7 +15,7 @@ const bcrypt = require('bcrypt')
 const saltRounds = 10
 
 // const PORT = process.env.PORT || 3128
-const PORT = 3000
+const PORT = 8080
 
 const app = express()
 app.use(cors())

@@ -87,7 +87,7 @@ export default {
                 this.status = ''
                 this.loading = 'Deleting account'
 
-                axios.post('http://localhost:3000/deleteAccount', formData).then(res => {
+                axios.post('http://localhost:8080/deleteAccount', formData).then(res => {
                     this.loading = ''
 
                     if (res.data.status === true) {

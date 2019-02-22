@@ -88,7 +88,7 @@ export default {
         const formData = new FormData()
         formData.append('reset_token', this.reset_token)
 
-        axios.post('http://localhost:3000/verifyPasswordResetToken', formData).then(res => {
+        axios.post('http://localhost:8080/verifyPasswordResetToken', formData).then(res => {
             if (res.data.status === false) {
                 this.$router.push({ name: 'SignUp' })
             }
@@ -139,7 +139,7 @@ export default {
                 this.status = ''
                 this.loading = 'Changing password'
 
-                axios.post('http://localhost:3000/resetPassword', formData).then(res => {
+                axios.post('http://localhost:8080/resetPassword', formData).then(res => {
                     this.loading = ''
                     this.model.new_password = ''
                     this.model.c_new_password = ''

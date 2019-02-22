@@ -245,15 +245,10 @@ export default {
             this.loading = 'Testing'
 
             try {
-                await axios
-                    .post(
-                        'https://ec2-3-8-4-172.eu-west-2.compute.amazonaws.com/forgottenPassword',
-                        formData
-                    )
-                    .then(res => {
-                        this.loading = ''
-                        console.log('success')
-                    })
+                await axios.post('https://werdz.fun/forgottenPassword', formData).then(res => {
+                    this.loading = ''
+                    console.log('success')
+                })
             } catch (err) {
                 console.log(err)
             }
@@ -294,7 +289,7 @@ export default {
                 this.status = ''
                 this.loading = 'Registering you, please wait'
 
-                axios.post('http://localhost:3000/register', formData).then(res => {
+                axios.post('http://localhost:8080/register', formData).then(res => {
                     this.loading = ''
                     if (res.data.status === true) {
                         localStorage.setItem('user', JSON.stringify(res.data.user))
@@ -315,7 +310,7 @@ export default {
             this.status = ''
             this.loading = 'Signing in'
 
-            axios.post('http://localhost:3000/login', formData).then(res => {
+            axios.post('http://localhost:8080/login', formData).then(res => {
                 this.loading = ''
                 if (res.data.status === true) {
                     localStorage.setItem('token', res.data.token)
