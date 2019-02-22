@@ -14,8 +14,8 @@
 </template>
 
 <script>
-import axios from 'axios'
 import Header from './Header'
+import { apiRequest } from '../api/auth'
 
 export default {
     name: 'ResetPassword',
@@ -30,22 +30,25 @@ export default {
             email: '',
         }
     },
-    created() {
+    async created() {
         localStorage.setItem('token', JSON.stringify(null))
         localStorage.setItem('user', JSON.stringify(null))
-        if (this.new_email_token === null) {
+
+        if (!this.new_email_token) {
             this.$router.push({ name: 'SignUp' })
         }
-        const formData = new FormData()
-        formData.append('new_email_token', this.new_email_token)
 
-        axios.post('http://localhost:8080/verifyNewEmail', formData).then(res => {
-            if (res.data.status === false) {
-                this.$router.push({ name: 'SignUp' })
-            } else {
-                this.email = res.data.email
-            }
-        })
+        const data = {
+            new_email_token: this.new_email_token,
+        }
+
+        const res = await apiRequest('post', 'verifyNewEmail', data)
+
+        if (res.data.status) {
+            this.email = res.data.email
+        } else {
+            this.$router.push({ name: 'SignUp' })
+        }
     },
     methods: {
         redirect() {

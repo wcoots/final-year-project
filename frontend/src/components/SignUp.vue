@@ -72,8 +72,6 @@
                   {{ status }}
                 </div>
               </form>
-
-              <button class="btn btn-primary" v-on:click="test">test</button>
             </div>
           </div>
         </div>
@@ -187,8 +185,8 @@
 
 <script>
 import Header from './Header'
-import axios from 'axios'
 import Password from 'vue-password-strength-meter'
+import { apiRequest } from '../api/auth'
 
 export default {
     name: 'SignUp',
@@ -237,22 +235,6 @@ export default {
         },
     },
     methods: {
-        async test() {
-            const formData = new FormData()
-            formData.append('email', 'will@cooters.co.uk')
-
-            this.status = ''
-            this.loading = 'Testing'
-
-            try {
-                await axios.post('https://werdz.fun/forgottenPassword', formData).then(res => {
-                    this.loading = ''
-                    console.log('success')
-                })
-            } catch (err) {
-                console.log(err)
-            }
-        },
         showFeedback({ warning }) {
             this.password_warning = warning
         },
@@ -271,8 +253,7 @@ export default {
             }
             return true
         },
-        register() {
-            const formData = new FormData()
+        async register() {
             let valid = this.validate()
             let strong = this.strongEnough()
             if (!valid) {
@@ -281,46 +262,50 @@ export default {
                 alert('Password not strong enough')
             }
             if (valid && strong) {
-                formData.append('forename', this.model.forename)
-                formData.append('surname', this.model.surname)
-                formData.append('email', this.model.new_email)
-                formData.append('password', this.model.new_password)
+                const data = {
+                    forename: this.model.forename,
+                    surname: this.model.surname,
+                    email: this.model.new_email,
+                    password: this.model.new_password,
+                }
 
                 this.status = ''
                 this.loading = 'Registering you, please wait'
 
-                axios.post('http://localhost:8080/register', formData).then(res => {
-                    this.loading = ''
-                    if (res.data.status === true) {
-                        localStorage.setItem('user', JSON.stringify(res.data.user))
-                        this.$router.push({ name: 'Registered' })
-                    } else {
-                        this.model.new_password = null
-                        this.model.confirm_password = ''
-                        this.status = res.data.message
-                    }
-                })
+                const res = await apiRequest('post', 'register', data)
+
+                this.loading = ''
+
+                if (res.data.status) {
+                    localStorage.setItem('user', JSON.stringify(res.data.user))
+                    this.$router.push({ name: 'Registered' })
+                } else {
+                    this.model.new_password = null
+                    this.model.confirm_password = ''
+                    this.status = res.data.message
+                }
             }
         },
-        login() {
-            const formData = new FormData()
-            formData.append('email', this.model.email)
-            formData.append('password', this.model.password)
+        async login() {
+            const data = {
+                email: this.model.email,
+                password: this.model.password,
+            }
 
             this.status = ''
             this.loading = 'Signing in'
 
-            axios.post('http://localhost:8080/login', formData).then(res => {
-                this.loading = ''
-                if (res.data.status === true) {
-                    localStorage.setItem('token', res.data.token)
-                    localStorage.setItem('user', JSON.stringify(res.data.user))
-                    this.$router.push({ name: 'Dashboard' })
-                } else {
-                    this.model.password = ''
-                    this.status = res.data.message
-                }
-            })
+            const res = await apiRequest('post', 'login', data)
+
+            this.loading = ''
+            if (res.data.status) {
+                localStorage.setItem('token', res.data.token)
+                localStorage.setItem('user', JSON.stringify(res.data.user))
+                this.$router.push({ name: 'Dashboard' })
+            } else {
+                this.model.password = ''
+                this.status = res.data.message
+            }
         },
         redirect(location) {
             // localStorage.setItem('token', '')

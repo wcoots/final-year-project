@@ -35,8 +35,8 @@
 </template>
 
 <script>
-import axios from 'axios'
 import Header from './Header'
+import { apiRequest } from '../api/auth'
 
 export default {
     name: 'ForgottenPassword',
@@ -58,19 +58,20 @@ export default {
         },
     },
     methods: {
-        onSubmitEmail() {
-            const formData = new FormData()
-            formData.append('email', this.model.email)
+        async onSubmitEmail() {
+            const data = {
+                email: this.model.email,
+            }
 
             this.status = ''
             this.loading = 'Sending recovery email'
 
-            axios.post('http://localhost:8080/forgottenPassword', formData).then(res => {
-                this.loading = ''
-                alert(`Password recovery email sent to ${this.model.email}`)
-                this.model.email = ''
-                this.$router.push({ name: 'SignUp' })
-            })
+            const res = await apiRequest('post', 'forgottenPassword', data)
+
+            this.loading = ''
+            alert(`Password recovery email sent to ${this.model.email}`)
+            this.model.email = ''
+            this.$router.push({ name: 'SignUp' })
         },
     },
 }

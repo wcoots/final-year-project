@@ -119,8 +119,8 @@
 </template>
 
 <script>
-import axios from 'axios'
 import Password from 'vue-password-strength-meter'
+import { apiRequest } from '../api/auth'
 
 export default {
     name: 'AccountSettings',
@@ -184,29 +184,29 @@ export default {
             }
             return true
         },
-        onSubmitNewEmail() {
-            const formData = new FormData()
-            formData.append('email', JSON.parse(localStorage.getItem('user')).email)
-            formData.append('new_email', this.model.new_email)
-            formData.append('password', this.model.email_current_password)
+        async onSubmitNewEmail() {
+            const data = {
+                email: JSON.parse(localStorage.getItem('user')).email,
+                new_email: this.model.new_email,
+                password: this.model.email_current_password,
+            }
 
             this.email_status = ''
             this.email_loading = 'Changing email'
 
-            axios.post('http://localhost:8080/changeEmail', formData).then(res => {
-                this.email_loading = ''
-                if (res.data.status === true) {
-                    this.email_status = res.data.message
-                    this.model.new_email = ''
-                    this.model.email_current_password = ''
-                } else {
-                    this.model.email_current_password = ''
-                    this.email_status = res.data.message
-                }
-            })
+            const res = await apiRequest('post', 'changeEmail', data)
+
+            this.email_loading = ''
+            if (res.data.status) {
+                this.email_status = res.data.message
+                this.model.new_email = ''
+                this.model.email_current_password = ''
+            } else {
+                this.model.email_current_password = ''
+                this.email_status = res.data.message
+            }
         },
-        onSubmitNewPassword() {
-            const formData = new FormData()
+        async onSubmitNewPassword() {
             let valid = this.validate()
             let strong = this.strongEnough()
             if (!valid) {
@@ -215,24 +215,27 @@ export default {
                 alert('Password not strong enough')
             }
             if (valid && strong) {
-                formData.append('email', JSON.parse(localStorage.getItem('user')).email)
-                formData.append('current_password', this.model.current_password)
-                formData.append('new_password', this.model.new_password)
+                const data = {
+                    email: JSON.parse(localStorage.getItem('user')).email,
+                    current_password: this.model.current_password,
+                    new_password: this.model.new_password,
+                }
 
                 this.password_status = ''
                 this.password_loading = 'Changing password'
 
-                axios.post('http://localhost:8080/changePassword', formData).then(res => {
-                    this.password_loading = ''
-                    this.model.current_password = ''
-                    this.model.new_password = ''
-                    this.model.c_new_password = ''
-                    if (res.data.status === true) {
-                        this.password_status = 'Password changed successfully'
-                    } else {
-                        this.password_status = res.data.message
-                    }
-                })
+                const res = await apiRequest('post', 'changePassword', data)
+
+                this.password_loading = ''
+                this.model.current_password = ''
+                this.model.new_password = ''
+                this.model.c_new_password = ''
+
+                if (res.data.status) {
+                    this.password_status = 'Password changed successfully'
+                } else {
+                    this.password_status = res.data.message
+                }
             }
         },
     },

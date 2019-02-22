@@ -16,7 +16,6 @@
 
 <script>
 import Header from './Header'
-import axios from 'axios'
 
 export default {
     name: 'Registered',

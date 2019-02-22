@@ -53,7 +53,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import { apiRequest } from '../api/auth'
 
 export default {
     name: 'DeleteAccount',
@@ -74,35 +74,36 @@ export default {
         },
     },
     methods: {
-        deleteAccount() {
+        async deleteAccount() {
             if (this.model.email !== JSON.parse(localStorage.getItem('user')).email) {
                 this.model.email = ''
                 this.model.password = ''
                 this.status = 'Wrong email or password'
             } else {
-                const formData = new FormData()
-                formData.append('email', this.model.email)
-                formData.append('password', this.model.password)
+                const data = {
+                    email: this.model.email,
+                    password: this.model.password,
+                }
 
                 this.status = ''
                 this.loading = 'Deleting account'
 
-                axios.post('http://localhost:8080/deleteAccount', formData).then(res => {
-                    this.loading = ''
+                const res = await apiRequest('post', 'deleteAccount', data)
 
-                    if (res.data.status === true) {
-                        localStorage.setItem('token', null)
-                        localStorage.setItem('user', null)
+                this.loading = ''
 
-                        this.$router.push({
-                            name: 'SignUp',
-                        })
-                    } else {
-                        this.model.email = ''
-                        this.model.password = ''
-                        this.status = res.data.message
-                    }
-                })
+                if (res.data.status) {
+                    localStorage.setItem('token', null)
+                    localStorage.setItem('user', null)
+
+                    this.$router.push({
+                        name: 'SignUp',
+                    })
+                } else {
+                    this.model.email = ''
+                    this.model.password = ''
+                    this.status = res.data.message
+                }
             }
         },
     },

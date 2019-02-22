@@ -56,9 +56,9 @@
 </template>
 
 <script>
-import axios from 'axios'
 import Header from './Header'
 import Password from 'vue-password-strength-meter'
+import { apiRequest } from '../api/auth'
 
 export default {
     name: 'ResetPassword',
@@ -79,20 +79,23 @@ export default {
             reset_token: this.$route.query.reset_token ? this.$route.query.reset_token : null,
         }
     },
-    created() {
+    async created() {
         localStorage.setItem('token', JSON.stringify(null))
         localStorage.setItem('user', JSON.stringify(null))
+
         if (this.reset_token === null) {
             this.$router.push({ name: 'SignUp' })
         }
-        const formData = new FormData()
-        formData.append('reset_token', this.reset_token)
 
-        axios.post('http://localhost:8080/verifyPasswordResetToken', formData).then(res => {
-            if (res.data.status === false) {
-                this.$router.push({ name: 'SignUp' })
-            }
-        })
+        const data = {
+            reset_token: this.reset_token,
+        }
+
+        const res = await apiRequest('post', 'verifyPasswordResetToken', data)
+
+        if (res.data.status === false) {
+            this.$router.push({ name: 'SignUp' })
+        }
     },
     computed: {
         isDisabled() {
@@ -123,8 +126,7 @@ export default {
             }
             return true
         },
-        onSubmitNewPassword() {
-            const formData = new FormData()
+        async onSubmitNewPassword() {
             let valid = this.validate()
             let strong = this.strongEnough()
             if (!valid) {
@@ -133,23 +135,26 @@ export default {
                 alert('Password not strong enough')
             }
             if (valid && strong) {
-                formData.append('new_password', this.model.new_password)
-                formData.append('reset_token', this.reset_token)
+                const data = {
+                    new_password: this.model.new_password,
+                    reset_token: this.reset_token,
+                }
 
                 this.status = ''
                 this.loading = 'Changing password'
 
-                axios.post('http://localhost:8080/resetPassword', formData).then(res => {
-                    this.loading = ''
-                    this.model.new_password = ''
-                    this.model.c_new_password = ''
-                    if (res.data.status === true) {
-                        alert('Your password has been changed.')
-                        this.$router.push({ name: 'SignUp' })
-                    } else {
-                        this.status = res.data.message
-                    }
-                })
+                const res = await apiRequest('post', 'resetPassword', data)
+
+                this.loading = ''
+                this.model.new_password = ''
+                this.model.c_new_password = ''
+
+                if (res.data.status) {
+                    alert('Your password has been changed.')
+                    this.$router.push({ name: 'SignUp' })
+                } else {
+                    this.status = res.data.message
+                }
             }
         },
     },
