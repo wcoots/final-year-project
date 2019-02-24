@@ -441,7 +441,11 @@ app.post('/deleteAccount', multipartMiddleware, async (req, res) => {
 
         if (authenticated && verified) {
 
-            await db.qry('DELETE FROM users WHERE user_id = ?', [
+            // await db.qry('DELETE FROM users WHERE user_id = ?', [
+            //     user.user_id
+            // ])
+
+            await db.qry('UPDATE users SET verified = 0 WHERE user_id = ?', [
                 user.user_id
             ])
 
