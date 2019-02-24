@@ -1,28 +1,28 @@
 <template>
-    <div class="container-fluid" style="padding: 0px;">
-        <Header v-bind:user="user" />
-        <template v-if="this.isactive === 'goToPage1'">
-            <Page1 />
-        </template>
-        <template v-if="this.isactive === 'goToPage2'">
-            <Page2 />
-        </template>
-        <template v-if="this.isactive === 'goToAccountSettings'">
-            <AccountSettings />
-        </template>
-        <template v-if="this.isactive === 'goToDeleteAccount'">
-            <DeleteAccount />
-        </template>
-    </div>
+  <div class="container-fluid" style="padding: 0px;">
+    <Header v-bind:user="user"/>
+    <template v-if="this.isactive === 'goToPage1'">
+      <Page1/>
+    </template>
+    <template v-if="this.isactive === 'goToPage2'">
+      <Page2/>
+    </template>
+    <template v-if="this.isactive === 'goToAccountSettings'">
+      <AccountSettings/>
+    </template>
+    <template v-if="this.isactive === 'goToDeleteAccount'">
+      <DeleteAccount/>
+    </template>
+  </div>
 </template>
 
 <script>
-import axios from 'axios'
 import Header from './Header'
 import Page1 from './Page1'
 import Page2 from './Page2'
 import AccountSettings from './AccountSettings'
 import DeleteAccount from './DeleteAccount'
+
 export default {
     name: 'Dashboard',
     components: {

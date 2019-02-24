@@ -1,15 +1,15 @@
 <template>
-    <div>
-        <div class="container">
-            <div class="tab-pane fade show active">
-                <div class="row">
-                    <div class="col-md-12">
-                        <h3>Page 2</h3>
-                    </div>
-                </div>
-            </div>
+  <div>
+    <div class="container">
+      <div class="tab-pane fade show active">
+        <div class="row">
+          <div class="col-md-12">
+            <h3>Page 2</h3>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 </template>
 
 <script>
