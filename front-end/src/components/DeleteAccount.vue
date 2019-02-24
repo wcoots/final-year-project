@@ -1,55 +1,57 @@
 <template>
-  <div>
-    <div class="container">
-      <div class="tab-pane fade show active">
-        <div class="row">
-          <div class="col-md-12">
-            <h3>Delete Account</h3>
+    <div>
+        <div class="container">
+            <div class="tab-pane fade show active">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h3>Delete Account</h3>
 
-            <br>
-            <hr>
-            <br>
+                        <br />
+                        <hr />
+                        <br />
 
-            <form @submit.prevent="deleteAccount">
-              <div class="form-group">
-                <label for>Email:</label>
-                <input
-                  type="email"
-                  required
-                  class="form-control"
-                  placeholder="e.g. bob@example.co.uk"
-                  v-model="model.email"
-                >
-              </div>
-              <div class="form-group">
-                <label for>Password:</label>
-                <input
-                  type="password"
-                  required
-                  class="form-control"
-                  placeholder="Enter Password"
-                  v-model="model.password"
-                >
-              </div>
-              <div class="form-group">
-                <button
-                  class="btn btn-success btn-danger btn-large"
-                  v-on:click="deleteAccount()"
-                  :disabled="isDisabled"
-                >Delete Account</button>
-                {{ loading }}
-                {{ status }}
-              </div>
+                        <form @submit.prevent="deleteAccount">
+                            <div class="form-group">
+                                <label for>Email:</label>
+                                <input
+                                    v-model="model.email"
+                                    type="email"
+                                    required
+                                    class="form-control"
+                                    placeholder="e.g. bob@example.co.uk"
+                                />
+                            </div>
+                            <div class="form-group">
+                                <label for>Password:</label>
+                                <input
+                                    v-model="model.password"
+                                    type="password"
+                                    required
+                                    class="form-control"
+                                    placeholder="Enter Password"
+                                />
+                            </div>
+                            <div class="form-group">
+                                <button
+                                    class="btn btn-success btn-danger btn-large"
+                                    :disabled="isDisabled"
+                                    v-on:click="deleteAccount()"
+                                >
+                                    Delete Account
+                                </button>
+                                {{ loading }}
+                                {{ status }}
+                            </div>
 
-              <br>
-              <br>
-              <hr>
-            </form>
-          </div>
+                            <br />
+                            <br />
+                            <hr />
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </template>
 
 <script>

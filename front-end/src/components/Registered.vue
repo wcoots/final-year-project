@@ -1,17 +1,17 @@
 <template>
-  <div>
-    <Header/>
-    <br>
-    <br>
-    <br>
-    <p>
-      An email has been sent to
-      <b>{{user.email}}</b>
-    </p>
-    <p>Please click the link in the email to activate your account</p>
-    <br>
-    <button class="btn btn-primary" v-on:click="redirect">Back to login</button>
-  </div>
+    <div>
+        <Header />
+        <br />
+        <br />
+        <br />
+        <p>
+            An email has been sent to
+            <b>{{ user.email }}</b>
+        </p>
+        <p>Please click the link in the email to activate your account</p>
+        <br />
+        <button class="btn btn-primary" v-on:click="redirect">Back to login</button>
+    </div>
 </template>
 
 <script>

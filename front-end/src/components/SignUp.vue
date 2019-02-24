@@ -1,186 +1,197 @@
 <template>
-  <div>
-    <Header/>
+    <div>
+        <Header />
 
-    <div class="container">
-      <ul class="nav nav-pills nav-fill mb-3" id="pills-tab" role="tablist">
-        <li class="nav-item">
-          <a
-            class="nav-link active"
-            id="pills-login-tab"
-            data-toggle="pill"
-            href="#pills-login"
-            role="tab"
-            aria-controls="pills-upload"
-            aria-selected="true"
-          >Log in</a>
-        </li>
-        <li class="nav-item">
-          <a
-            class="nav-link"
-            id="pills-register-tab"
-            data-toggle="pill"
-            href="#pills-register"
-            role="tab"
-            aria-controls="pills-verify"
-            aria-selected="false"
-          >Register</a>
-        </li>
-      </ul>
-
-      <div class="tab-content" id="pills-tabContent">
-        <div
-          class="tab-pane fade show active"
-          id="pills-login"
-          role="tabpanel"
-          aria-labelledby="pills-login-tab"
-        >
-          <div class="row">
-            <div class="col-md-12">
-              <form @submit.prevent="login">
-                <div class="form-group">
-                  <label for>Email:</label>
-                  <input
-                    type="email"
-                    required
-                    class="form-control"
-                    placeholder="e.g. bob@example.co.uk"
-                    v-model="model.email"
-                  >
-                </div>
-
-                <div class="form-group">
-                  <label for>Password:</label>
-                  <input
-                    type="password"
-                    required
-                    class="form-control"
-                    placeholder="Enter Password"
-                    v-model="model.password"
-                  >
-                </div>
-
-                <p
-                  class="clickable"
-                  style="color:#426cb9"
-                  v-on:click="redirect('ForgottenPassword')"
-                >Forgotten password</p>
-
-                <div class="form-group">
-                  <button class="btn btn-primary" :disabled="isLoginDisabled">Login</button>
-                  {{ loading }}
-                  {{ status }}
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-
-        <div
-          class="tab-pane fade"
-          id="pills-register"
-          role="tabpanel"
-          aria-labelledby="pills-register-tab"
-        >
-          <div class="row">
-            <div class="col-md-12">
-              <form @submit.prevent="register">
-                <div class="form-group">
-                  <label for>Forename:</label>
-                  <input
-                    type="text"
-                    required
-                    class="form-control"
-                    placeholder="e.g. William"
-                    v-model="model.forename"
-                  >
-                </div>
-
-                <div class="form-group">
-                  <label for>Surname:</label>
-                  <input
-                    type="text"
-                    required
-                    class="form-control"
-                    placeholder="e.g. Cooter"
-                    v-model="model.surname"
-                  >
-                </div>
-
-                <div class="form-group">
-                  <label for>Email:</label>
-                  <input
-                    type="email"
-                    required
-                    class="form-control"
-                    placeholder="e.g. bob@example.co.uk"
-                    v-model="model.new_email"
-                  >
-                </div>
-
-                <div class="form-group">
-                  <label for>Password:</label>
-                  <div>
-                    <input
-                      type="password"
-                      v-model="model.new_password"
-                      required
-                      class="form-control"
-                      placeholder="Enter Password"
+        <div class="container">
+            <ul id="pills-tab" class="nav nav-pills nav-fill mb-3" role="tablist">
+                <li class="nav-item">
+                    <a
+                        id="pills-login-tab"
+                        class="nav-link active"
+                        data-toggle="pill"
+                        href="#pills-login"
+                        role="tab"
+                        aria-controls="pills-upload"
+                        aria-selected="true"
+                        >Log in</a
                     >
-                    <password
-                      v-model="model.new_password"
-                      :strength-meter-only="true"
-                      :toggle="true"
-                      @score="showScore"
-                      @feedback="showFeedback"
-                    />
-                  </div>
-                  <p style="color:red;">{{ password_warning }}</p>
+                </li>
+                <li class="nav-item">
+                    <a
+                        id="pills-register-tab"
+                        class="nav-link"
+                        data-toggle="pill"
+                        href="#pills-register"
+                        role="tab"
+                        aria-controls="pills-verify"
+                        aria-selected="false"
+                        >Register</a
+                    >
+                </li>
+            </ul>
+
+            <div id="pills-tabContent" class="tab-content">
+                <div
+                    id="pills-login"
+                    class="tab-pane fade show active"
+                    role="tabpanel"
+                    aria-labelledby="pills-login-tab"
+                >
+                    <div class="row">
+                        <div class="col-md-12">
+                            <form @submit.prevent="login">
+                                <div class="form-group">
+                                    <label for>Email:</label>
+                                    <input
+                                        v-model="model.email"
+                                        type="email"
+                                        required
+                                        class="form-control"
+                                        placeholder="e.g. bob@example.co.uk"
+                                    />
+                                </div>
+
+                                <div class="form-group">
+                                    <label for>Password:</label>
+                                    <input
+                                        v-model="model.password"
+                                        type="password"
+                                        required
+                                        class="form-control"
+                                        placeholder="Enter Password"
+                                    />
+                                </div>
+
+                                <p
+                                    class="clickable"
+                                    style="color:#426cb9"
+                                    v-on:click="redirect('ForgottenPassword')"
+                                >
+                                    Forgotten password
+                                </p>
+
+                                <div class="form-group">
+                                    <button class="btn btn-primary" :disabled="isLoginDisabled">
+                                        Login
+                                    </button>
+                                    {{ loading }}
+                                    {{ status }}
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                  <label for>Confirm Password:</label>
-                  <input
-                    type="password"
-                    required
-                    class="form-control"
-                    placeholder="Confirm Password"
-                    v-model="model.confirm_password"
-                  >
-                </div>
+                <div
+                    id="pills-register"
+                    class="tab-pane fade"
+                    role="tabpanel"
+                    aria-labelledby="pills-register-tab"
+                >
+                    <div class="row">
+                        <div class="col-md-12">
+                            <form @submit.prevent="register">
+                                <div class="form-group">
+                                    <label for>Forename:</label>
+                                    <input
+                                        v-model="model.forename"
+                                        type="text"
+                                        required
+                                        class="form-control"
+                                        placeholder="e.g. William"
+                                    />
+                                </div>
 
-                <div>
-                  <input
-                    type="checkbox"
-                    id="checkbox"
-                    v-model="terms_agreed"
-                    value="true"
-                    unchecked-value="false"
-                  >
-                  <label id="c" for>By checking this box you declare that you agree to the
-                    <div
-                      id="d"
-                      style="color:#426cb9"
-                      class="clickable"
-                      v-on:click="redirect('TermsAndConditions')"
-                    >terms and conditions</div>
-                  </label>
-                </div>
-                <br>
+                                <div class="form-group">
+                                    <label for>Surname:</label>
+                                    <input
+                                        v-model="model.surname"
+                                        type="text"
+                                        required
+                                        class="form-control"
+                                        placeholder="e.g. Cooter"
+                                    />
+                                </div>
 
-                <div class="form-group">
-                  <button class="btn btn-primary" :disabled="isRegisterDisabled">Register</button>
-                  {{ loading }}
-                  {{ status }}
+                                <div class="form-group">
+                                    <label for>Email:</label>
+                                    <input
+                                        v-model="model.new_email"
+                                        type="email"
+                                        required
+                                        class="form-control"
+                                        placeholder="e.g. bob@example.co.uk"
+                                    />
+                                </div>
+
+                                <div class="form-group">
+                                    <label for>Password:</label>
+                                    <div>
+                                        <input
+                                            v-model="model.new_password"
+                                            type="password"
+                                            required
+                                            class="form-control"
+                                            placeholder="Enter Password"
+                                        />
+                                        <password
+                                            v-model="model.new_password"
+                                            :strength-meter-only="true"
+                                            :toggle="true"
+                                            @score="showScore"
+                                            @feedback="showFeedback"
+                                        />
+                                    </div>
+                                    <p style="color:red;">{{ password_warning }}</p>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for>Confirm Password:</label>
+                                    <input
+                                        v-model="model.confirm_password"
+                                        type="password"
+                                        required
+                                        class="form-control"
+                                        placeholder="Confirm Password"
+                                    />
+                                </div>
+
+                                <div>
+                                    <input
+                                        id="checkbox"
+                                        v-model="terms_agreed"
+                                        type="checkbox"
+                                        value="true"
+                                        unchecked-value="false"
+                                    />
+                                    <label id="c" for
+                                        >By checking this box you declare that you agree to the
+                                        <div
+                                            id="d"
+                                            style="color:#426cb9"
+                                            class="clickable"
+                                            v-on:click="redirect('TermsAndConditions')"
+                                        >
+                                            terms and conditions
+                                        </div>
+                                    </label>
+                                </div>
+                                <br />
+
+                                <div class="form-group">
+                                    <button class="btn btn-primary" :disabled="isRegisterDisabled">
+                                        Register
+                                    </button>
+                                    {{ loading }}
+                                    {{ status }}
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
-              </form>
             </div>
-          </div>
         </div>
-      </div>
     </div>
-  </div>
 </template>
 
 <script>
@@ -254,8 +265,8 @@ export default {
             return true
         },
         async register() {
-            let valid = this.validate()
-            let strong = this.strongEnough()
+            const valid = this.validate()
+            const strong = this.strongEnough()
             if (!valid) {
                 alert('Passwords do not match')
             } else if (!strong) {

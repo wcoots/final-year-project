@@ -1,58 +1,63 @@
 <template>
-  <div>
-    <Header/>
-    <div class="container">
-      <div class="tab-pane fade show active">
-        <div class="row">
-          <div class="col-md-12">
-            <h3>Reset Password</h3>
+    <div>
+        <Header />
+        <div class="container">
+            <div class="tab-pane fade show active">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h3>Reset Password</h3>
 
-            <br>
-            <hr>
-            <br>
+                        <br />
+                        <hr />
+                        <br />
 
-            <form @submit.prevent="onSubmitNewPassword">
-              <div class="form-group">
-                <label for>New password:</label>
-                <div>
-                  <input
-                    type="password"
-                    v-model="model.new_password"
-                    required
-                    class="form-control"
-                    placeholder="Enter Password"
-                  >
-                  <password
-                    v-model="model.new_password"
-                    :strength-meter-only="true"
-                    :toggle="true"
-                    @score="showScore"
-                    @feedback="showFeedback"
-                  />
+                        <form @submit.prevent="onSubmitNewPassword">
+                            <div class="form-group">
+                                <label for>New password:</label>
+                                <div>
+                                    <input
+                                        v-model="model.new_password"
+                                        type="password"
+                                        required
+                                        class="form-control"
+                                        placeholder="Enter Password"
+                                    />
+                                    <password
+                                        v-model="model.new_password"
+                                        :strength-meter-only="true"
+                                        :toggle="true"
+                                        @score="showScore"
+                                        @feedback="showFeedback"
+                                    />
+                                </div>
+                                <p style="color:red;">{{ password_warning }}</p>
+                            </div>
+                            <div class="form-group">
+                                <label for>Confirm password:</label>
+                                <input
+                                    v-model="model.c_new_password"
+                                    type="password"
+                                    required
+                                    class="form-control"
+                                    placeholder="Enter Password"
+                                />
+                            </div>
+                            <div class="form-group">
+                                <button
+                                    class="btn btn-success btn-light btn-large"
+                                    :disabled="isDisabled"
+                                >
+                                    Save
+                                </button>
+                                {{ loading }}
+                                {{ status }}
+                            </div>
+                        </form>
+                    </div>
                 </div>
-                <p style="color:red;">{{ password_warning }}</p>
-              </div>
-              <div class="form-group">
-                <label for>Confirm password:</label>
-                <input
-                  type="password"
-                  required
-                  class="form-control"
-                  placeholder="Enter Password"
-                  v-model="model.c_new_password"
-                >
-              </div>
-              <div class="form-group">
-                <button class="btn btn-success btn-light btn-large" :disabled="isDisabled">Save</button>
-                {{ loading }}
-                {{ status }}
-              </div>
-            </form>
-          </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </template>
 
 <script>
@@ -127,8 +132,8 @@ export default {
             return true
         },
         async onSubmitNewPassword() {
-            let valid = this.validate()
-            let strong = this.strongEnough()
+            const valid = this.validate()
+            const strong = this.strongEnough()
             if (!valid) {
                 alert('Passwords do not match')
             } else if (!strong) {

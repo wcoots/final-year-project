@@ -1,19 +1,21 @@
 <template>
-  <div>
-    <span style="font-size:30px;cursor:pointer" v-on:click="openNav">&#9776;</span>
-    <div id="leftsidenav" class="sidenav">
-      <p style="font-size:12px;cursor:pointer" v-on:click="closeNav">
-        <em>Close Nav</em>
-      </p>
-      <h3>{{ forename }}</h3>
-      <p class="clickable" v-on:click="setActive('goToPage1')">Page 1</p>
-      <p class="clickable" v-on:click="setActive('goToPage2')">Page 2</p>
-      <p class="clickable" v-on:click="setActive('goToAccountSettings')">Account Settings</p>
-      <p style="font-size:12px;cursor:pointer" v-on:click="logOut">
-        <em>Log out</em>
-      </p>
+    <div>
+        <span style="font-size:30px;cursor:pointer" v-on:click="openNav">&#9776;</span>
+        <div id="leftsidenav" class="sidenav">
+            <p style="font-size:12px;cursor:pointer" v-on:click="closeNav">
+                <em>Close Nav</em>
+            </p>
+            <h3>{{ forename }}</h3>
+            <p class="clickable" v-on:click="setActive('goToPage1')">Page 1</p>
+            <p class="clickable" v-on:click="setActive('goToPage2')">Page 2</p>
+            <p class="clickable" v-on:click="setActive('goToAccountSettings')">
+                Account Settings
+            </p>
+            <p style="font-size:12px;cursor:pointer" v-on:click="logOut">
+                <em>Log out</em>
+            </p>
+        </div>
     </div>
-  </div>
 </template>
 
 <script>
@@ -96,4 +98,3 @@ export default {
     cursor: pointer;
 }
 </style>
-

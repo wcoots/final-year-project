@@ -1,121 +1,130 @@
 <template>
-  <div>
-    <div class="container">
-      <div class="tab-pane fade show active">
-        <div class="row">
-          <div class="col-md-12">
-            <h3>Account Settings</h3>
+    <div>
+        <div class="container">
+            <div class="tab-pane fade show active">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h3>Account Settings</h3>
 
-            <br>
-            <hr>
-            <br>
+                        <br />
+                        <hr />
+                        <br />
 
-            <h4>Update your email address:</h4>
-            <br>
-            <form @submit.prevent="onSubmitNewEmail">
-              <div class="form-group">
-                <label for>Current password:</label>
-                <input
-                  type="password"
-                  required
-                  class="form-control"
-                  placeholder="Enter Password"
-                  v-model="model.email_current_password"
-                >
-              </div>
-              <div class="form-group">
-                <label for>New email address:</label>
-                <input
-                  type="email"
-                  required
-                  class="form-control"
-                  placeholder="e.g. bob@example.co.uk"
-                  v-model="model.new_email"
-                >
-              </div>
-              <div class="form-group">
-                <button class="btn btn-success btn-light btn-large" :disabled="isEmailDisabled">Save</button>
-                {{ email_loading }}
-                {{ email_status }}
-              </div>
-            </form>
+                        <h4>Update your email address:</h4>
+                        <br />
+                        <form @submit.prevent="onSubmitNewEmail">
+                            <div class="form-group">
+                                <label for>Current password:</label>
+                                <input
+                                    v-model="model.email_current_password"
+                                    type="password"
+                                    required
+                                    class="form-control"
+                                    placeholder="Enter Password"
+                                />
+                            </div>
+                            <div class="form-group">
+                                <label for>New email address:</label>
+                                <input
+                                    v-model="model.new_email"
+                                    type="email"
+                                    required
+                                    class="form-control"
+                                    placeholder="e.g. bob@example.co.uk"
+                                />
+                            </div>
+                            <div class="form-group">
+                                <button
+                                    class="btn btn-success btn-light btn-large"
+                                    :disabled="isEmailDisabled"
+                                >
+                                    Save
+                                </button>
+                                {{ email_loading }}
+                                {{ email_status }}
+                            </div>
+                        </form>
 
-            <br>
-            <hr>
-            <br>
+                        <br />
+                        <hr />
+                        <br />
 
-            <h4>Change your password:</h4>
-            <br>
-            <form @submit.prevent="onSubmitNewPassword">
-              <div class="form-group">
-                <label for>Current password:</label>
-                <input
-                  type="password"
-                  required
-                  class="form-control"
-                  placeholder="Enter Password"
-                  v-model="model.current_password"
-                >
-              </div>
-              <div class="form-group">
-                <label for>New password:</label>
-                <div>
-                  <input
-                    type="password"
-                    v-model="model.new_password"
-                    required
-                    class="form-control"
-                    placeholder="Enter Password"
-                  >
-                  <password
-                    v-model="model.new_password"
-                    :strength-meter-only="true"
-                    :toggle="true"
-                    @score="showScore"
-                    @feedback="showFeedback"
-                  />
+                        <h4>Change your password:</h4>
+                        <br />
+                        <form @submit.prevent="onSubmitNewPassword">
+                            <div class="form-group">
+                                <label for>Current password:</label>
+                                <input
+                                    v-model="model.current_password"
+                                    type="password"
+                                    required
+                                    class="form-control"
+                                    placeholder="Enter Password"
+                                />
+                            </div>
+                            <div class="form-group">
+                                <label for>New password:</label>
+                                <div>
+                                    <input
+                                        v-model="model.new_password"
+                                        type="password"
+                                        required
+                                        class="form-control"
+                                        placeholder="Enter Password"
+                                    />
+                                    <password
+                                        v-model="model.new_password"
+                                        :strength-meter-only="true"
+                                        :toggle="true"
+                                        @score="showScore"
+                                        @feedback="showFeedback"
+                                    />
+                                </div>
+                                <p style="color:red;">{{ password_warning }}</p>
+                            </div>
+                            <div class="form-group">
+                                <label for>Confirm password:</label>
+                                <input
+                                    v-model="model.c_new_password"
+                                    type="password"
+                                    required
+                                    class="form-control"
+                                    placeholder="Enter Password"
+                                />
+                            </div>
+                            <div class="form-group">
+                                <button
+                                    class="btn btn-success btn-light btn-large"
+                                    :disabled="isPasswordDisabled"
+                                >
+                                    Save
+                                </button>
+                                {{ password_loading }}
+                                {{ password_status }}
+                            </div>
+                        </form>
+
+                        <br />
+                        <br />
+                        <hr />
+                        <br />
+
+                        <button
+                            type="button"
+                            class="btn btn-danger"
+                            v-on:click="setActive('goToDeleteAccount')"
+                        >
+                            Delete Account
+                        </button>
+
+                        <br />
+                        <br />
+                        <hr />
+                    </div>
                 </div>
-                <p style="color:red;">{{ password_warning }}</p>
-              </div>
-              <div class="form-group">
-                <label for>Confirm password:</label>
-                <input
-                  type="password"
-                  required
-                  class="form-control"
-                  placeholder="Enter Password"
-                  v-model="model.c_new_password"
-                >
-              </div>
-              <div class="form-group">
-                <button
-                  class="btn btn-success btn-light btn-large"
-                  :disabled="isPasswordDisabled"
-                >Save</button>
-                {{ password_loading }}
-                {{ password_status }}
-              </div>
-            </form>
-
-            <br>
-            <br>
-            <hr>
-            <br>
-
-            <button
-              type="button"
-              class="btn btn-danger"
-              v-on:click="setActive('goToDeleteAccount')"
-            >Delete Account</button>
-
-            <br>
-            <br>
-            <hr>
-          </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </template>
 
 <script>
@@ -207,8 +216,8 @@ export default {
             }
         },
         async onSubmitNewPassword() {
-            let valid = this.validate()
-            let strong = this.strongEnough()
+            const valid = this.validate()
+            const strong = this.strongEnough()
             if (!valid) {
                 alert('Passwords do not match')
             } else if (!strong) {

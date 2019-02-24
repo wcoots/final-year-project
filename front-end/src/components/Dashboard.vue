@@ -1,19 +1,19 @@
 <template>
-  <div class="container-fluid" style="padding: 0px;">
-    <Header v-bind:user="user"/>
-    <template v-if="this.isactive === 'goToPage1'">
-      <Page1/>
-    </template>
-    <template v-if="this.isactive === 'goToPage2'">
-      <Page2/>
-    </template>
-    <template v-if="this.isactive === 'goToAccountSettings'">
-      <AccountSettings/>
-    </template>
-    <template v-if="this.isactive === 'goToDeleteAccount'">
-      <DeleteAccount/>
-    </template>
-  </div>
+    <div class="container-fluid" style="padding: 0px;">
+        <Header v-bind:user="user" />
+        <template v-if="this.isactive === 'goToPage1'">
+            <Page1 />
+        </template>
+        <template v-if="this.isactive === 'goToPage2'">
+            <Page2 />
+        </template>
+        <template v-if="this.isactive === 'goToAccountSettings'">
+            <AccountSettings />
+        </template>
+        <template v-if="this.isactive === 'goToDeleteAccount'">
+            <DeleteAccount />
+        </template>
+    </div>
 </template>
 
 <script>

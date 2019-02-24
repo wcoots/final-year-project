@@ -1,13 +1,13 @@
 <template>
-  <div>
-    <Header/>
-    <br>
-    <br>
-    <br>
-    <p>Your account has now been set up.</p>
-    <br>
-    <button class="btn btn-primary" v-on:click="redirect">Back to login</button>
-  </div>
+    <div>
+        <Header />
+        <br />
+        <br />
+        <br />
+        <p>Your account has now been set up.</p>
+        <br />
+        <button class="btn btn-primary" v-on:click="redirect">Back to login</button>
+    </div>
 </template>
 
 <script>
