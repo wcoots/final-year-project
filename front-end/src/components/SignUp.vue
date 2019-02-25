@@ -189,14 +189,6 @@
     </div>
   </div>
 </template>
-      </div>
-    </div>
-  </div>
-</template>
-      </div>
-    </div>
-  </div>
-</template>
 
 <script>
 import Header from './Header'
