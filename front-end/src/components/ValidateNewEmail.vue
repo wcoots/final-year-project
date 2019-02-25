@@ -1,17 +1,16 @@
 <template>
-    <div>
-        <Header />
-        <br />
-        <br />
-        <br />
-        <p>
-            Your email address has now been changed to
-            <b>{{ email }}</b
-            >.
-        </p>
-        <br />
-        <button class="btn btn-primary" v-on:click="redirect">Back to login</button>
-    </div>
+  <div>
+    <Header/>
+    <br>
+    <br>
+    <br>
+    <p>
+      Your email address has now been changed to
+      <b>{{ email }}</b>.
+    </p>
+    <br>
+    <button class="btn btn-primary" v-on:click="redirect">Back to login</button>
+  </div>
 </template>
 
 <script>

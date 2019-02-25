@@ -9,5 +9,5 @@ npm run server
 
 ```bash
 cd frontend
-npm run dev
+yarn serve
 ```

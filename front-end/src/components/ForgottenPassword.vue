@@ -1,42 +1,41 @@
 <template>
-    <div>
-        <Header />
-        <div class="container">
-            <div class="tab-pane fade show active">
-                <div class="row">
-                    <div class="col-md-12">
-                        <h3>Forgotten Password</h3>
+  <div>
+    <Header/>
+    <div class="container">
+      <div class="tab-pane fade show active">
+        <div class="row">
+          <div class="col-md-12">
+            <h3>Forgotten Password</h3>
 
-                        <br />
-                        <hr />
-                        <br />
+            <br>
+            <hr>
+            <br>
 
-                        <form @submit.prevent="onSubmitEmail">
-                            <div class="form-group">
-                                <label for>Email address:</label>
-                                <input
-                                    v-model="model.email"
-                                    type="email"
-                                    required
-                                    class="form-control"
-                                    placeholder="e.g. bob@example.co.uk"
-                                />
-                            </div>
-                            <div class="form-group">
-                                <button
-                                    class="btn btn-success btn-light btn-large"
-                                    :disabled="isDisabled"
-                                >
-                                    Save
-                                </button>
-                                {{ loading }}
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
+            <form @submit.prevent="onSubmitEmail">
+              <div class="form-group">
+                <label for>Email address:</label>
+                <input
+                  v-model="model.email"
+                  type="email"
+                  required
+                  class="form-control"
+                  placeholder="e.g. bob@example.co.uk"
+                  :disabled="isInputDisabled"
+                >
+              </div>
+              <div class="form-group">
+                <button
+                  class="btn btn-success btn-light btn-large"
+                  :disabled="isSubmitDisabled"
+                >Save</button>
+                {{ loading }}
+              </div>
+            </form>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 </template>
 
 <script>
@@ -58,8 +57,11 @@ export default {
         }
     },
     computed: {
-        isDisabled() {
+        isSubmitDisabled() {
             return !!this.loading.length || !this.model.email.length
+        },
+        isInputDisabled() {
+            return !!this.loading.length
         },
     },
     methods: {
@@ -71,7 +73,7 @@ export default {
             this.status = ''
             this.loading = 'Sending recovery email'
 
-            const res = await apiRequest('post', 'forgottenPassword', data)
+            await apiRequest('post', 'forgottenPassword', data)
 
             this.loading = ''
             alert(`Password recovery email sent to ${this.model.email}`)
