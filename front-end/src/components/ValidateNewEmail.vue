@@ -18,7 +18,7 @@ import Header from './Header'
 import { apiRequest } from '../api/auth'
 
 export default {
-    name: 'ResetPassword',
+    name: 'ValidateNewEmail',
     components: {
         Header,
     },

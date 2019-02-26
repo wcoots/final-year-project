@@ -1,67 +1,72 @@
 <template>
   <div>
-    <div class="container">
-      <div class="tab-pane fade show active">
-        <div class="row">
-          <div class="col-md-12">
-            <h3>Delete Account</h3>
-
-            <br>
-            <hr>
-            <br>
-
-            <form @submit.prevent="deleteAccount">
-              <div class="form-group">
-                <label for>Email:</label>
-                <input
-                  v-model="model.email"
-                  type="email"
-                  required
-                  class="form-control"
-                  placeholder="e.g. bob@example.co.uk"
-                  :disabled="isInputDisabled"
-                >
-              </div>
-              <div class="form-group">
-                <label for>Password:</label>
-                <input
-                  v-model="model.password"
-                  type="password"
-                  required
-                  class="form-control"
-                  placeholder="Enter Password"
-                  :disabled="isInputDisabled"
-                >
-              </div>
-              <div class="form-group">
-                <button
-                  class="btn btn-success btn-danger btn-large"
-                  :disabled="isSubmitDisabled"
-                  v-on:click="deleteAccount()"
-                >Delete Account</button>
-                {{ loading }}
-                {{ status }}
-              </div>
-
-              <br>
-              <br>
-              <hr>
-            </form>
-          </div>
-        </div>
+    <Header v-bind:user="user"/>
+    <div>
+      <div class="container">
+        <br>
+        <br>
+        <h2>Delete Account</h2>
+        <br>
+        <hr>
+        <br>
+        <!-- EMAIL -->
+        <el-form ref="form" :model="model" label-width="100px">
+          <el-form-item label="Email:">
+            <el-input
+              v-model="model.email"
+              type="email"
+              required
+              placeholder="e.g. bob@example.co.uk"
+              :disabled="isInputDisabled"
+            ></el-input>
+          </el-form-item>
+          <!-- PASSWORD -->
+          <el-form-item label="Password:">
+            <el-input
+              v-model="model.password"
+              type="password"
+              required
+              placeholder="Enter Password"
+              :disabled="isInputDisabled"
+            ></el-input>
+          </el-form-item>
+          <!-- SUBMIT -->
+          <el-form-item>
+            <el-row>
+              <el-col :span="12">
+                <el-form-item>
+                  <el-button
+                    type="danger"
+                    @click="deleteAccount"
+                    :disabled="isSubmitDisabled"
+                  >Delete Account</el-button>
+                  <el-button @click="redirect('AccountSettings')">Cancel</el-button>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <p class="status">{{ loading }}</p>
+              </el-col>
+            </el-row>
+          </el-form-item>
+        </el-form>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import Header from './Header'
+
 import { apiRequest } from '../api/auth'
 
 export default {
     name: 'DeleteAccount',
-    components: {},
+    components: {
+        Header,
+    },
     data() {
         return {
+            user: null,
             model: {
                 email: '',
                 password: '',
@@ -69,6 +74,16 @@ export default {
             loading: '',
             status: '',
         }
+    },
+    created() {
+        if (localStorage.getItem('token') === 'null' || localStorage.getItem('token') === null) {
+            localStorage.setItem('token', JSON.stringify(null))
+            localStorage.setItem('user', JSON.stringify(null))
+            this.$router.push({ name: 'SignUp' })
+        }
+    },
+    mounted() {
+        this.user = JSON.parse(localStorage.getItem('user'))
     },
     computed: {
         isSubmitDisabled() {
@@ -79,11 +94,19 @@ export default {
         },
     },
     methods: {
+        redirect(action) {
+            this.$router.push({ name: action })
+        },
         async deleteAccount() {
             if (this.model.email !== JSON.parse(localStorage.getItem('user')).email) {
                 this.model.email = ''
                 this.model.password = ''
                 this.status = 'Wrong email or password'
+                this.$message({
+                    message: this.status,
+                    type: 'warning',
+                    showClose: true,
+                })
             } else {
                 const data = {
                     email: this.model.email,
@@ -100,7 +123,9 @@ export default {
                 if (res.data.status) {
                     localStorage.setItem('token', null)
                     localStorage.setItem('user', null)
-
+                    this.$alert('Your account has been deleted. Goodbye!', 'Werdz', {
+                        confirmButtonText: 'OK',
+                    })
                     this.$router.push({
                         name: 'SignUp',
                     })
@@ -108,6 +133,11 @@ export default {
                     this.model.email = ''
                     this.model.password = ''
                     this.status = res.data.message
+                    this.$message({
+                        message: this.status,
+                        type: 'warning',
+                        showClose: true,
+                    })
                 }
             }
         },
@@ -115,24 +145,9 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h1,
-h2 {
-    font-weight: normal;
-}
-ul {
-    list-style-type: none;
-    padding: 0;
-}
-li {
-    display: inline-block;
-    margin: 0 10px;
-}
-a {
-    color: #426cb9;
-}
-.tab-pane {
-    margin-top: 20px;
+<style>
+p.status {
+    text-align: left;
+    font-family: 'Helvetica Neue';
 }
 </style>

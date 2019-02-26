@@ -2,38 +2,30 @@
   <div>
     <Header/>
     <div class="container">
-      <div class="tab-pane fade show active">
-        <div class="row">
-          <div class="col-md-12">
-            <h3>Forgotten Password</h3>
+      <br>
+      <br>
+      <h2>Forgotten Password</h2>
+      <br>
+      <hr>
+      <br>
 
-            <br>
-            <hr>
-            <br>
-
-            <form @submit.prevent="onSubmitEmail">
-              <div class="form-group">
-                <label for>Email address:</label>
-                <input
-                  v-model="model.email"
-                  type="email"
-                  required
-                  class="form-control"
-                  placeholder="e.g. bob@example.co.uk"
-                  :disabled="isInputDisabled"
-                >
-              </div>
-              <div class="form-group">
-                <button
-                  class="btn btn-success btn-light btn-large"
-                  :disabled="isSubmitDisabled"
-                >Save</button>
-                {{ loading }}
-              </div>
-            </form>
-          </div>
+      <form @submit.prevent="onSubmitEmail">
+        <div class="form-group">
+          <label for>Email address:</label>
+          <input
+            v-model="model.email"
+            type="email"
+            required
+            class="form-control"
+            placeholder="e.g. bob@example.co.uk"
+            :disabled="isInputDisabled"
+          >
         </div>
-      </div>
+        <div class="form-group">
+          <button class="btn btn-success btn-light btn-large" :disabled="isSubmitDisabled">Save</button>
+          {{ loading }}
+        </div>
+      </form>
     </div>
   </div>
 </template>

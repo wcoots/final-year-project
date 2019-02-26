@@ -15,7 +15,7 @@ import Header from './Header'
 import { apiRequest } from '../api/auth'
 
 export default {
-    name: 'ResetPassword',
+    name: 'ValidateNewAccount',
     components: {
         Header,
     },
@@ -29,7 +29,8 @@ export default {
     async created() {
         localStorage.setItem('token', JSON.stringify(null))
         localStorage.setItem('user', JSON.stringify(null))
-        if (this.new_account_token === null) {
+
+        if (!this.new_account_token) {
             this.$router.push({ name: 'SignUp' })
         }
 

@@ -93,6 +93,7 @@ app.post('/register', multipartMiddleware, async (req, res) => {
         return res.json({
             status: true,
             user,
+            message: `A confirmation email has been sent to ${req.body.email}`,
         })
     } catch (error) {
         throw error

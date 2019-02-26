@@ -1,143 +1,144 @@
 <template>
   <div>
-    <div class="container">
-      <div class="tab-pane fade show active">
-        <div class="row">
-          <div class="col-md-12">
-            <h3>Account Settings</h3>
+    <Header v-bind:user="user"/>
+    <div>
+      <div class="container">
+        <br>
+        <br>
+        <h2>Account Settings</h2>
+        <br>
+        <hr>
+        <br>
 
-            <br>
-            <hr>
-            <br>
+        <!-- UPDATE EMAIL ADDRESS -->
+        <h4>Update your email address</h4>
+        <br>
+        <el-form ref="form" :model="model" label-width="200px">
+          <!-- CURRENT PASSWORD -->
+          <el-form-item label="Current password:">
+            <el-input
+              v-model="model.email_current_password"
+              type="password"
+              required
+              placeholder="Enter Password"
+              :disabled="isEmailInputDisabled"
+            ></el-input>
+          </el-form-item>
+          <!-- NEW EMAIL -->
+          <el-form-item label="New email address:">
+            <el-input
+              v-model="model.new_email"
+              type="email"
+              required
+              placeholder="e.g. bob@example.co.uk"
+              :disabled="isEmailInputDisabled"
+            ></el-input>
+          </el-form-item>
+          <!-- SUBMIT -->
+          <el-row>
+            <el-col :span="8">
+              <el-form-item>
+                <el-button @click="onSubmitNewEmail" :disabled="isEmailSubmitDisabled">Save</el-button>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <p class="status">{{ email_loading }}</p>
+            </el-col>
+            <el-col :span="8"></el-col>
+          </el-row>
+        </el-form>
+        <br>
+        <hr>
+        <br>
 
-            <h4>Update your email address:</h4>
-            <br>
-            <form @submit.prevent="onSubmitNewEmail">
-              <div class="form-group">
-                <label for>Current password:</label>
-                <input
-                  v-model="model.email_current_password"
-                  type="password"
-                  required
-                  class="form-control"
-                  placeholder="Enter Password"
-                  :disabled="isEmailInputDisabled"
-                >
-              </div>
-              <div class="form-group">
-                <label for>New email address:</label>
-                <input
-                  v-model="model.new_email"
-                  type="email"
-                  required
-                  class="form-control"
-                  placeholder="e.g. bob@example.co.uk"
-                  :disabled="isEmailInputDisabled"
-                >
-              </div>
-              <div class="form-group">
-                <button
-                  class="btn btn-success btn-light btn-large"
-                  :disabled="isEmailSubmitDisabled"
-                >Save</button>
-                {{ email_loading }}
-                {{ email_status }}
-              </div>
-            </form>
+        <!-- CHANGE PASSWORD -->
+        <h4>Change your password</h4>
+        <br>
+        <el-form ref="form" :model="model" label-width="200px">
+          <!-- CURRENT PASSWORD -->
+          <el-form-item label="Current password:">
+            <el-input
+              v-model="model.current_password"
+              type="password"
+              required
+              placeholder="Enter Current Password"
+              :disabled="isPasswordInputDisabled"
+            ></el-input>
+          </el-form-item>
+          <!-- NEW PASSWORD -->
+          <el-form-item label="New password:">
+            <el-input
+              v-model="model.new_password"
+              type="password"
+              required
+              placeholder="Enter New Password"
+              :disabled="isPasswordInputDisabled"
+            ></el-input>
+          </el-form-item>
+          <!-- CONFRIM NEW PASSWORD -->
+          <el-form-item label="Confirm password:">
+            <el-input
+              v-model="model.c_new_password"
+              type="password"
+              required
+              placeholder="Confirm New Password"
+              :disabled="isPasswordInputDisabled"
+            ></el-input>
+          </el-form-item>
+          <password
+            v-model="model.new_password"
+            :strength-meter-only="true"
+            :toggle="true"
+            @score="showScore"
+          />
+          <!-- SUBMIT -->
+          <el-row>
+            <el-col :span="8">
+              <el-form-item>
+                <el-button @click="onSubmitNewPassword" :disabled="isPasswordSubmitDisabled">Save</el-button>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <p class="status">{{ password_loading }}</p>
+            </el-col>
+            <el-col :span="8"></el-col>
+          </el-row>
+        </el-form>
+        <br>
+        <br>
+        <hr>
+        <br>
 
-            <br>
-            <hr>
-            <br>
-
-            <h4>Change your password:</h4>
-            <br>
-            <form @submit.prevent="onSubmitNewPassword">
-              <div class="form-group">
-                <label for>Current password:</label>
-                <input
-                  v-model="model.current_password"
-                  type="password"
-                  required
-                  class="form-control"
-                  placeholder="Enter Current Password"
-                  :disabled="isPasswordInputDisabled"
-                >
-              </div>
-              <br>
-              <div class="form-group">
-                <label for>New password:</label>
-                <div>
-                  <input
-                    v-model="model.new_password"
-                    type="password"
-                    required
-                    class="form-control"
-                    placeholder="Enter New Password"
-                    :disabled="isPasswordInputDisabled"
-                  >
-                  <password
-                    v-model="model.new_password"
-                    :strength-meter-only="true"
-                    :toggle="true"
-                    @score="showScore"
-                    @feedback="showFeedback"
-                  />
-                </div>
-                <p style="color:red;">{{ password_warning }}</p>
-              </div>
-              <div class="form-group">
-                <label for>Confirm password:</label>
-                <input
-                  v-model="model.c_new_password"
-                  type="password"
-                  required
-                  class="form-control"
-                  placeholder="Confirm New Password"
-                  :disabled="isPasswordInputDisabled"
-                >
-              </div>
-              <div class="form-group">
-                <button
-                  class="btn btn-success btn-light btn-large"
-                  :disabled="isPasswordSubmitDisabled"
-                >Save</button>
-                {{ password_loading }}
-                {{ password_status }}
-              </div>
-            </form>
-
-            <br>
-            <br>
-            <hr>
-            <br>
-
-            <button
-              type="button"
-              class="btn btn-danger"
-              v-on:click="setActive('goToDeleteAccount')"
-            >Delete Account</button>
-
-            <br>
-            <br>
-            <hr>
-          </div>
-        </div>
+        <!-- DELETE ACCOUNT -->
+        <el-button
+          type="danger"
+          plain
+          v-on:click="redirect('DeleteAccount')"
+          style="float:right;"
+        >Delete Account</el-button>
+        <br>
+        <br>
+        <br>
       </div>
     </div>
   </div>
 </template>
 
+
 <script>
+import Header from './Header'
 import Password from 'vue-password-strength-meter'
 import { apiRequest } from '../api/auth'
 
 export default {
     name: 'AccountSettings',
     components: {
+        Header,
         Password,
     },
     data() {
         return {
+            user: null,
             model: {
                 new_email: '',
                 email_current_password: '',
@@ -149,9 +150,18 @@ export default {
             email_status: '',
             password_loading: '',
             password_status: '',
-            password_warning: '',
             password_score: 0,
         }
+    },
+    created() {
+        if (localStorage.getItem('token') === 'null' || localStorage.getItem('token') === null) {
+            localStorage.setItem('token', JSON.stringify(null))
+            localStorage.setItem('user', JSON.stringify(null))
+            this.$router.push({ name: 'SignUp' })
+        }
+    },
+    mounted() {
+        this.user = JSON.parse(localStorage.getItem('user'))
     },
     computed: {
         isEmailSubmitDisabled() {
@@ -177,8 +187,8 @@ export default {
         },
     },
     methods: {
-        setActive(option) {
-            this.$parent.isactive = option
+        redirect(page) {
+            this.$router.push({ name: page })
         },
         validate() {
             if (this.model.new_password !== this.model.c_new_password) {
@@ -186,9 +196,6 @@ export default {
             }
 
             return true
-        },
-        showFeedback({ warning }) {
-            this.password_warning = warning
         },
         showScore(score) {
             this.password_score = score
@@ -214,20 +221,37 @@ export default {
             this.email_loading = ''
             if (res.data.status) {
                 this.email_status = res.data.message
+                this.$message({
+                    message: this.email_status,
+                    type: 'success',
+                    showClose: true,
+                })
                 this.model.new_email = ''
                 this.model.email_current_password = ''
             } else {
-                this.model.email_current_password = ''
                 this.email_status = res.data.message
+                this.$message({
+                    message: this.email_status,
+                    type: 'warning',
+                    showClose: true,
+                })
             }
         },
         async onSubmitNewPassword() {
             const valid = this.validate()
             const strong = this.strongEnough()
             if (!valid) {
-                alert('Passwords do not match')
+                this.$message({
+                    message: 'Passwords do not match',
+                    type: 'warning',
+                    showClose: true,
+                })
             } else if (!strong) {
-                alert('Password not strong enough')
+                this.$message({
+                    message: 'Password not strong enough',
+                    type: 'warning',
+                    showClose: true,
+                })
             }
             if (valid && strong) {
                 const data = {
@@ -247,9 +271,20 @@ export default {
                 this.model.c_new_password = ''
 
                 if (res.data.status) {
+                    const h = this.$createElement
                     this.password_status = 'Password changed successfully'
+                    this.$message({
+                        message: this.password_status,
+                        type: 'success',
+                        showClose: true,
+                    })
                 } else {
                     this.password_status = res.data.message
+                    this.$message({
+                        message: this.password_status,
+                        type: 'warning',
+                        showClose: true,
+                    })
                 }
             }
         },
@@ -257,24 +292,9 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h1,
-h2 {
-    font-weight: normal;
-}
-ul {
-    list-style-type: none;
-    padding: 0;
-}
-li {
-    display: inline-block;
-    margin: 0 10px;
-}
-a {
-    color: #426cb9;
-}
-.tab-pane {
-    margin-top: 20px;
+<style>
+p.status {
+    text-align: right;
+    font-family: 'Helvetica Neue';
 }
 </style>

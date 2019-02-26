@@ -1,25 +1,54 @@
 <template>
   <nav class="navbar navbar-light bg-light">
-    <template v-if="user != null">
-      <SideNav v-bind:forename="user.forename"/>
-    </template>
-    <span class="navbar-brand mb-0 h1">{{ title }}</span>
+    <span class="navbar-brand mb-0 h1">
+      <p v-on:click="redirect('Home')">Werdz</p>
+    </span>
+    <div v-if="user != null">
+      <el-dropdown @command="redirect" trigger="click">
+        <el-button type="primary">
+          Menu
+          <i class="el-icon-arrow-down el-icon--right"></i>
+        </el-button>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item index="1" command="Home">
+            <i class="el-icon-star-off"></i>
+            Play
+          </el-dropdown-item>
+          <el-dropdown-item index="1" command="AccountSettings">
+            <i class="el-icon-setting"></i>
+            Account Settings
+          </el-dropdown-item>
+          <el-dropdown-item index="1" command="Logout" style="color:#F4907B;">
+            <i class="el-icon-circle-close-outline" color="red"></i>
+            Logout
+          </el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+    </div>
   </nav>
 </template>
 
 <script>
-import SideNav from './SideNav'
-
 export default {
     name: 'Header',
     props: ['user'],
-    components: {
-        SideNav,
-    },
-    data() {
-        return {
-            title: 'Werdz',
-        }
+    methods: {
+        redirect(action) {
+            if (action === 'Logout') {
+                localStorage.setItem('token', JSON.stringify(null))
+                localStorage.setItem('user', JSON.stringify(null))
+                this.$router.push({ name: 'SignUp' })
+            } else {
+                this.$router.push({ name: action })
+            }
+        },
     },
 }
 </script>
+
+<style>
+.el-menu-vertical-demo:not(.el-menu--collapse) {
+    width: 200px;
+    min-height: 400px;
+}
+</style>
