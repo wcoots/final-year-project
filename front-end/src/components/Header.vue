@@ -1,8 +1,11 @@
 <template>
   <nav class="navbar navbar-light bg-light">
-    <span class="navbar-brand mb-0 h1">
-      <p v-on:click="redirect('Home')">Werdz</p>
-    </span>
+    <el-button
+      class="navbar-brand mb-0 h1"
+      style="font-size: 180%;"
+      type="text"
+      v-on:click="redirect('Home')"
+    >Werdz</el-button>
     <div v-if="user != null">
       <el-dropdown @command="redirect" trigger="click">
         <el-button type="primary">

@@ -32,21 +32,13 @@
           </el-form-item>
           <!-- SUBMIT -->
           <el-form-item>
-            <el-row>
-              <el-col :span="12">
-                <el-form-item>
-                  <el-button
-                    type="danger"
-                    @click="deleteAccount"
-                    :disabled="isSubmitDisabled"
-                  >Delete Account</el-button>
-                  <el-button @click="redirect('AccountSettings')">Cancel</el-button>
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <p class="status">{{ loading }}</p>
-              </el-col>
-            </el-row>
+            <el-button
+              :loading="this.loading"
+              type="danger"
+              @click="deleteAccount"
+              :disabled="isSubmitDisabled"
+            >{{this.submit_button}}</el-button>
+            <el-button @click="redirect('AccountSettings')">Cancel</el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -71,7 +63,8 @@ export default {
                 email: '',
                 password: '',
             },
-            loading: '',
+            loading: false,
+            submit_button: 'Delete Account',
             status: '',
         }
     },
@@ -87,10 +80,10 @@ export default {
     },
     computed: {
         isSubmitDisabled() {
-            return !!this.loading.length || !this.model.email.length || !this.model.password.length
+            return !!this.loading || !this.model.email.length || !this.model.password.length
         },
         isInputDisabled() {
-            return !!this.loading.length
+            return !!this.loading
         },
     },
     methods: {
@@ -114,11 +107,13 @@ export default {
                 }
 
                 this.status = ''
-                this.loading = 'Deleting account'
+                this.loading = true
+                this.submit_button = 'Deleting Account'
 
                 const res = await apiRequest('post', 'deleteAccount', data)
 
-                this.loading = ''
+                this.loading = false
+                this.submit_button = 'Delete Account'
 
                 if (res.data.status) {
                     localStorage.setItem('token', null)

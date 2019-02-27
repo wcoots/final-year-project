@@ -2,60 +2,51 @@
   <div>
     <Header/>
     <div class="container">
-      <div class="tab-pane fade show active">
-        <div class="row">
-          <div class="col-md-12">
-            <h3>Reset Password</h3>
+      <h3>Reset Password</h3>
 
-            <br>
-            <hr>
-            <br>
+      <br>
+      <hr>
+      <br>
 
-            <form @submit.prevent="onSubmitNewPassword">
-              <div class="form-group">
-                <label for>New password:</label>
-                <div>
-                  <input
-                    v-model="model.new_password"
-                    type="password"
-                    required
-                    class="form-control"
-                    placeholder="Enter Password"
-                    :disabled="isInputDisabled"
-                  >
-                  <password
-                    v-model="model.new_password"
-                    :strength-meter-only="true"
-                    :toggle="true"
-                    @score="showScore"
-                    @feedback="showFeedback"
-                  />
-                </div>
-                <p style="color:red;">{{ password_warning }}</p>
-              </div>
-              <div class="form-group">
-                <label for>Confirm password:</label>
-                <input
-                  v-model="model.c_new_password"
-                  type="password"
-                  required
-                  class="form-control"
-                  placeholder="Enter Password"
-                  :disabled="isInputDisabled"
-                >
-              </div>
-              <div class="form-group">
-                <button
-                  class="btn btn-success btn-light btn-large"
-                  :disabled="isSubmitDisabled"
-                >Save</button>
-                {{ loading }}
-                {{ status }}
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
+      <el-form ref="model" :model="model" :rules="rules" label-width="200px">
+        <!-- NEW PASSWORD -->
+        <el-form-item label="New password:" prop="new_password">
+          <el-input
+            v-model="model.new_password"
+            type="password"
+            required
+            placeholder="Enter New Password"
+            :disabled="isInputDisabled"
+          ></el-input>
+        </el-form-item>
+        <!-- CONFRIM NEW PASSWORD -->
+        <el-form-item label="Confirm password:" prop="c_new_password">
+          <el-input
+            v-model="model.c_new_password"
+            type="password"
+            required
+            placeholder="Confirm New Password"
+            :disabled="isInputDisabled"
+          ></el-input>
+        </el-form-item>
+        <!-- PASSWORD STRENGTH METER -->
+        <el-form-item>
+          <password
+            v-model="model.new_password"
+            :strength-meter-only="true"
+            :toggle="true"
+            @score="showScore"
+          />
+        </el-form-item>
+        <!-- SUBMIT -->
+        <el-form-item>
+          <el-button
+            :loading="this.loading"
+            @click="onSubmitNewPassword"
+            :disabled="isSubmitDisabled"
+          >{{this.submit_button}}</el-button>
+        </el-form-item>
+      </el-form>
     </div>
   </div>
 </template>
@@ -72,13 +63,32 @@ export default {
         Password,
     },
     data() {
+        const passwordStrength = (rule, value, callback) => {
+            if (this.password_score < 2) {
+                callback(new Error('Not strong enough'))
+            } else {
+                callback()
+            }
+        }
+        const confirmPassword = (rule, value, callback) => {
+            if (value !== this.model.new_password) {
+                callback(new Error('Passwords must match'))
+            } else {
+                callback()
+            }
+        }
         return {
             model: {
                 new_password: '',
                 c_new_password: '',
             },
-            loading: '',
+            rules: {
+                new_password: { validator: passwordStrength, trigger: ['blur', 'change'] },
+                c_new_password: { validator: confirmPassword, trigger: ['blur', 'change'] },
+            },
+            loading: false,
             status: '',
+            submit_button: 'Save',
             password_warning: '',
             password_score: 0,
             reset_token: this.$route.query.reset_token ? this.$route.query.reset_token : null,
@@ -87,17 +97,13 @@ export default {
     async created() {
         localStorage.setItem('token', JSON.stringify(null))
         localStorage.setItem('user', JSON.stringify(null))
-
         if (this.reset_token === null) {
             this.$router.push({ name: 'SignUp' })
         }
-
         const data = {
             reset_token: this.reset_token,
         }
-
         const res = await apiRequest('post', 'verifyPasswordResetToken', data)
-
         if (res.data.status === false) {
             this.$router.push({ name: 'SignUp' })
         }
@@ -138,9 +144,17 @@ export default {
             const valid = this.validate()
             const strong = this.strongEnough()
             if (!valid) {
-                alert('Passwords do not match')
+                this.$message({
+                    message: 'Passwords do not match',
+                    type: 'warning',
+                    showClose: true,
+                })
             } else if (!strong) {
-                alert('Password not strong enough')
+                this.$message({
+                    message: 'Password not strong enough',
+                    type: 'warning',
+                    showClose: true,
+                })
             }
             if (valid && strong) {
                 const data = {
@@ -149,17 +163,23 @@ export default {
                 }
 
                 this.status = ''
-                this.loading = 'Changing password'
+                this.loading = true
+                this.submit_button = 'Saving'
 
                 const res = await apiRequest('post', 'resetPassword', data)
 
-                this.loading = ''
+                this.loading = false
+                this.submit_button = 'Save'
                 this.model.new_password = ''
                 this.model.c_new_password = ''
 
                 if (res.data.status) {
-                    alert('Your password has been changed.')
-                    this.$router.push({ name: 'SignUp' })
+                    this.$alert('Your password has been changed.', 'Werdz', {
+                        confirmButtonText: 'OK',
+                    })
+                    this.$router.push({
+                        name: 'SignUp',
+                    })
                 } else {
                     this.status = res.data.message
                 }
@@ -168,21 +188,3 @@ export default {
     },
 }
 </script>
-
-<style scoped>
-h1,
-h2 {
-    font-weight: normal;
-}
-ul {
-    list-style-type: none;
-    padding: 0;
-}
-li {
-    display: inline-block;
-    margin: 0 10px;
-}
-a {
-    color: #426cb9;
-}
-</style>
