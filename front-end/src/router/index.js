@@ -1,7 +1,9 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import SignUp from '@/components/SignUp'
-import Dashboard from '@/components/Dashboard'
+import Home from '@/components/Home'
+import AccountSettings from '@/components/AccountSettings'
+import DeleteAccount from '@/components/DeleteAccount'
 import Registered from '@/components/Registered'
 import TermsAndConditions from '@/components/TermsAndConditions'
 import ForgottenPassword from '@/components/ForgottenPassword'
@@ -20,9 +22,19 @@ export default new Router({
             component: SignUp,
         },
         {
-            path: '/dashboard',
-            name: 'Dashboard',
-            component: Dashboard,
+            path: '/home',
+            name: 'Home',
+            component: Home,
+        },
+        {
+            path: '/accountsettings',
+            name: 'AccountSettings',
+            component: AccountSettings,
+        },
+        {
+            path: '/deleteaccount',
+            name: 'DeleteAccount',
+            component: DeleteAccount,
         },
         {
             path: '/registered',

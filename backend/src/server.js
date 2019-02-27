@@ -93,6 +93,7 @@ app.post('/register', multipartMiddleware, async (req, res) => {
         return res.json({
             status: true,
             user,
+            message: `A confirmation email has been sent to ${req.body.email}`,
         })
     } catch (error) {
         throw error
@@ -175,45 +176,38 @@ app.post('/login', multipartMiddleware, async (req, res) => {
 app.post('/forgottenPassword', multipartMiddleware, async (req, res) => {
     try {
         const users = await db.qry('SELECT * FROM users WHERE email = ?', [req.body.email])
-        if (!users.length) {
-            return res.json({
-                status: false,
-            })
-        }
-        const user = users[0]
-        delete user.password
-        const verified = user.verified
-        const deleted = user.deleted
+        if (users.length) {
+            const user = users[0]
+            delete user.password
+            const verified = user.verified
+            const deleted = user.deleted
 
-        if (verified && !deleted) {
-            const token_val = await crypto.randomBytes(20)
-            const token = token_val.toString('hex')
+            if (verified && !deleted) {
+                const token_val = await crypto.randomBytes(20)
+                const token = token_val.toString('hex')
 
-            const request = {
-                user_id: user.user_id,
-                token,
-                request_date: moment().format('YYYY-MM-DD HH:mm:ss'),
-                token_expiration: moment()
-                    .add(1, 'hour')
-                    .format('YYYY-MM-DD HH:mm:ss'),
+                const request = {
+                    user_id: user.user_id,
+                    token,
+                    request_date: moment().format('YYYY-MM-DD HH:mm:ss'),
+                    token_expiration: moment()
+                        .add(1, 'hour')
+                        .format('YYYY-MM-DD HH:mm:ss'),
+                }
+
+                await db.qry('UPDATE password_reset_requests SET valid = 0 WHERE user_id = ?', [
+                    user.user_id,
+                ])
+
+                await db.qry('INSERT INTO password_reset_requests SET ?', [request])
+
+                await mail.newPasswordResetRequest(user, token)
             }
-
-            await db.qry('UPDATE password_reset_requests SET valid = 0 WHERE user_id = ?', [
-                user.user_id,
-            ])
-
-            await db.qry('INSERT INTO password_reset_requests SET ?', [request])
-
-            await mail.newPasswordResetRequest(user, token)
-
-            return res.json({
-                status: true,
-            })
-        } else {
-            return res.json({
-                status: false,
-            })
         }
+        return res.json({
+            status: true,
+            message: `Password recovery email sent to ${req.body.email}`,
+        })
     } catch (error) {
         throw error
     }

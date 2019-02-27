@@ -1,15 +1,17 @@
 <template>
   <div>
     <Header/>
-    <br>
-    <br>
-    <br>
-    <p>
-      Your email address has now been changed to
-      <b>{{ email }}</b>.
-    </p>
-    <br>
-    <button class="btn btn-primary" v-on:click="redirect">Back to login</button>
+    <div class="container">
+      <br>
+      <br>
+      <br>
+      <p>
+        Your email address has now been changed to
+        <b>{{ email }}</b>.
+      </p>
+      <br>
+      <el-button type="primary" plain v-on:click="redirect">Back to login</el-button>
+    </div>
   </div>
 </template>
 
@@ -18,7 +20,7 @@ import Header from './Header'
 import { apiRequest } from '../api/auth'
 
 export default {
-    name: 'ResetPassword',
+    name: 'ValidateNewEmail',
     components: {
         Header,
     },
@@ -33,17 +35,13 @@ export default {
     async created() {
         localStorage.setItem('token', JSON.stringify(null))
         localStorage.setItem('user', JSON.stringify(null))
-
         if (!this.new_email_token) {
             this.$router.push({ name: 'SignUp' })
         }
-
         const data = {
             new_email_token: this.new_email_token,
         }
-
         const res = await apiRequest('post', 'verifyNewEmail', data)
-
         if (res.data.status) {
             this.email = res.data.email
         } else {
@@ -57,21 +55,3 @@ export default {
     },
 }
 </script>
-
-<style scoped>
-h1,
-h2 {
-    font-weight: normal;
-}
-ul {
-    list-style-type: none;
-    padding: 0;
-}
-li {
-    display: inline-block;
-    margin: 0 10px;
-}
-a {
-    color: #426cb9;
-}
-</style>

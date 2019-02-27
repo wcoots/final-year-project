@@ -1,7 +1,6 @@
 <template>
   <div>
     <Header/>
-
     <div class="container">
       <ul id="pills-tab" class="nav nav-pills nav-fill mb-3" role="tablist">
         <li class="nav-item">
@@ -28,6 +27,9 @@
         </li>
       </ul>
 
+      <br>
+
+      <!-- LOGIN -->
       <div id="pills-tabContent" class="tab-content">
         <div
           id="pills-login"
@@ -35,155 +37,130 @@
           role="tabpanel"
           aria-labelledby="pills-login-tab"
         >
-          <div class="row">
-            <div class="col-md-12">
-              <form @submit.prevent="login">
-                <div class="form-group">
-                  <label for>Email:</label>
-                  <input
-                    v-model="model.email"
-                    type="email"
-                    required
-                    class="form-control"
-                    placeholder="e.g. bob@example.co.uk"
-                    :disabled="isInputDisabled"
-                  >
-                </div>
-
-                <div class="form-group">
-                  <label for>Password:</label>
-                  <input
-                    v-model="model.password"
-                    type="password"
-                    required
-                    class="form-control"
-                    placeholder="Enter Password"
-                    :disabled="isInputDisabled"
-                  >
-                </div>
-
-                <p
-                  class="clickable"
-                  style="color:#426cb9"
-                  v-on:click="redirect('ForgottenPassword')"
-                >Forgotten password</p>
-
-                <div class="form-group">
-                  <button class="btn btn-primary" :disabled="isLoginSubmitDisabled">Login</button>
-                  {{ loading }}
-                  {{ status }}
-                </div>
-              </form>
-            </div>
-          </div>
+          <el-form ref="login_model" :model="login_model" label-width="120px">
+            <!-- EMAIL -->
+            <el-form-item label="Email:">
+              <el-input
+                v-model="login_model.email"
+                required
+                placeholder="e.g. bob@example.co.uk"
+                :disabled="isInputDisabled"
+              ></el-input>
+            </el-form-item>
+            <!-- PASSWORD -->
+            <el-form-item label="Password:">
+              <el-input
+                v-model="login_model.password"
+                type="password"
+                required
+                placeholder="Enter Password"
+                :disabled="isInputDisabled"
+              ></el-input>
+            </el-form-item>
+            <!-- SUBMIT -->
+            <el-form-item>
+              <el-button
+                :loading="this.loading"
+                @click="login"
+                type="primary"
+                :disabled="isLoginSubmitDisabled"
+              >{{this.login_button}}</el-button>
+              <!-- PASSWORD RECOVERY LINK -->
+              <el-button
+                type="text"
+                style="color:#426cb9; float:right;"
+                v-on:click="redirect('ForgottenPassword')"
+              >Forgotten password</el-button>
+            </el-form-item>
+          </el-form>
         </div>
 
+        <!-- REGISTER -->
         <div
           id="pills-register"
           class="tab-pane fade"
           role="tabpanel"
           aria-labelledby="pills-register-tab"
         >
-          <div class="row">
-            <div class="col-md-12">
-              <form @submit.prevent="register">
-                <div class="form-group">
-                  <label for>Forename:</label>
-                  <input
-                    v-model="model.forename"
-                    type="text"
-                    required
-                    class="form-control"
-                    placeholder="e.g. Bob"
-                    :disabled="isInputDisabled"
-                  >
-                </div>
-
-                <div class="form-group">
-                  <label for>Surname:</label>
-                  <input
-                    v-model="model.surname"
-                    type="text"
-                    required
-                    class="form-control"
-                    placeholder="e.g. Jones"
-                    :disabled="isInputDisabled"
-                  >
-                </div>
-
-                <div class="form-group">
-                  <label for>Email:</label>
-                  <input
-                    v-model="model.new_email"
-                    type="email"
-                    required
-                    class="form-control"
-                    placeholder="e.g. bob@example.co.uk"
-                    :disabled="isInputDisabled"
-                  >
-                </div>
-
-                <div class="form-group">
-                  <label for>Password:</label>
-                  <div>
-                    <input
-                      v-model="model.new_password"
-                      type="password"
-                      required
-                      class="form-control"
-                      placeholder="Enter Password"
-                      :disabled="isInputDisabled"
-                    >
-                    <password
-                      v-model="model.new_password"
-                      :strength-meter-only="true"
-                      :toggle="true"
-                      @score="showScore"
-                      @feedback="showFeedback"
-                    />
-                  </div>
-                  <p style="color:red;">{{ password_warning }}</p>
-                </div>
-
-                <div class="form-group">
-                  <label for>Confirm Password:</label>
-                  <input
-                    v-model="model.confirm_password"
-                    type="password"
-                    required
-                    class="form-control"
-                    placeholder="Confirm Password"
-                    :disabled="isInputDisabled"
-                  >
-                </div>
-
-                <div>
-                  <input
-                    id="checkbox"
-                    v-model="terms_agreed"
-                    type="checkbox"
-                    value="true"
-                    unchecked-value="false"
-                  >
-                  <label id="c" for>By checking this box you declare that you agree to the
-                    <div
-                      id="d"
-                      style="color:#426cb9"
-                      class="clickable"
-                      v-on:click="redirect('TermsAndConditions')"
-                    >terms and conditions</div>
-                  </label>
-                </div>
-                <br>
-
-                <div class="form-group">
-                  <button class="btn btn-primary" :disabled="isRegisterSubmitDisabled">Register</button>
-                  {{ loading }}
-                  {{ status }}
-                </div>
-              </form>
-            </div>
-          </div>
+          <el-form ref="register_model" :model="register_model" :rules="rules" label-width="200px">
+            <!-- FORENAME -->
+            <el-form-item label="Forename:" prop="forename">
+              <el-input
+                v-model="register_model.forename"
+                required
+                placeholder="e.g. Bob"
+                :disabled="isInputDisabled"
+              ></el-input>
+            </el-form-item>
+            <!-- SURNAME -->
+            <el-form-item label="Surname:" prop="surname">
+              <el-input
+                v-model="register_model.surname"
+                required
+                placeholder="e.g. Bob"
+                :disabled="isInputDisabled"
+              ></el-input>
+            </el-form-item>
+            <!-- EMAIL -->
+            <el-form-item label="Email:" prop="new_email">
+              <el-input
+                v-model="register_model.new_email"
+                required
+                placeholder="e.g. bob@example.co.uk"
+                :disabled="isInputDisabled"
+              ></el-input>
+            </el-form-item>
+            <!-- NEW PASSWORD -->
+            <el-form-item label="New password:" prop="new_password">
+              <el-input
+                v-model="register_model.new_password"
+                type="password"
+                required
+                placeholder="Enter New Password"
+                :disabled="isInputDisabled"
+              ></el-input>
+            </el-form-item>
+            <!-- CONFRIM NEW PASSWORD -->
+            <el-form-item label="Confirm password:" prop="confirm_password">
+              <el-input
+                v-model="register_model.confirm_password"
+                type="password"
+                required
+                placeholder="Confirm New Password"
+                :disabled="isInputDisabled"
+              ></el-input>
+            </el-form-item>
+            <!-- PASSWORD STRENGTH METER -->
+            <el-form-item>
+              <password
+                v-model="register_model.new_password"
+                :strength-meter-only="true"
+                :toggle="true"
+                @score="showScore"
+              />
+            </el-form-item>
+            <!-- TERMS AND CONDITIONS -->
+            <el-form-item>
+              <el-checkbox v-model="register_model.terms_agreed"></el-checkbox>By checking this box you declare that you have read and agree to the
+              <el-button
+                type="text"
+                style="color:#426cb9;"
+                v-on:click="redirectInNewTab('TermsAndConditions')"
+              >terms and conditions</el-button>
+            </el-form-item>
+            <!-- SUBMIT -->
+            <el-form-item>
+              <el-button
+                :loading="this.loading"
+                @click="register"
+                type="primary"
+                :disabled="isRegisterSubmitDisabled"
+              >{{this.register_button}}</el-button>
+              <el-button :disabled="isInputDisabled" @click="resetForm" plain>Reset</el-button>
+            </el-form-item>
+          </el-form>
+          <br>
+          <br>
         </div>
       </div>
     </div>
@@ -202,49 +179,131 @@ export default {
         Password,
     },
     data() {
+        const passwordStrength = (rule, value, callback) => {
+            if (this.password_score < 2) {
+                callback(new Error('Not strong enough'))
+            } else {
+                callback()
+            }
+        }
+        const confirmPassword = (rule, value, callback) => {
+            if (value !== this.register_model.new_password) {
+                callback(new Error('Passwords must match'))
+            } else {
+                callback()
+            }
+        }
+        const isAString = (rule, value, callback) => {
+            const re = /^([a-z]+\s)*[a-z]+$/
+            if (re.test(String(value).toLowerCase())) {
+                callback()
+            } else {
+                callback(new Error('Names can only contain letters and spaces'))
+            }
+        }
         return {
-            model: {
+            login_model: {
                 email: '',
                 password: '',
-
+            },
+            register_model: {
                 forename: '',
                 surname: '',
                 new_email: '',
-                new_password: null,
+                new_password: '',
                 confirm_password: '',
+                terms_agreed: false,
             },
-            loading: '',
+            loading: false,
+            login_button: 'Login',
+            register_button: 'Register',
             status: '',
             password_warning: '',
             password_score: 0,
-            terms_agreed: false,
+            rules: {
+                forename: [
+                    {
+                        required: true,
+                        message: 'Please input your first name',
+                        trigger: 'change',
+                    },
+                    { validator: isAString, trigger: ['blur', 'change'] },
+                ],
+                surname: [
+                    {
+                        required: true,
+                        message: 'Please input your last name',
+                        trigger: 'change',
+                    },
+                    { validator: isAString, trigger: ['blur', 'change'] },
+                ],
+                new_email: [
+                    {
+                        type: 'email',
+                        message: 'Please input a valid email address',
+                        trigger: ['blur', 'change'],
+                    },
+                    {
+                        required: true,
+                        message: 'Please input your email address',
+                        trigger: 'blur',
+                    },
+                ],
+                new_password: [
+                    {
+                        required: true,
+                        message: 'Please input a password',
+                        trigger: 'change',
+                    },
+                    { validator: passwordStrength, trigger: ['blur', 'change'] },
+                ],
+                confirm_password: [
+                    {
+                        required: true,
+                        message: 'Please retype your password',
+                        trigger: 'change',
+                    },
+                    { validator: confirmPassword, trigger: ['blur', 'change'] },
+                ],
+            },
         }
     },
     created() {
         if (localStorage.getItem('token') !== 'null' && localStorage.getItem('token') !== null) {
-            this.$router.push({ name: 'Dashboard' })
+            this.$router.push({ name: 'Home' })
         }
     },
     computed: {
         isLoginSubmitDisabled() {
-            return !!this.loading.length || !this.model.email.length || !this.model.password.length
-        },
-        isRegisterSumbitDisabled() {
             return (
-                !!this.loading.length ||
-                !this.terms_agreed ||
-                !this.model.forename.length ||
-                !this.model.surname.length ||
-                !this.model.new_email.length ||
-                !this.model.new_password.length ||
-                !this.model.confirm_password.length
+                !!this.loading ||
+                !this.login_model.email.length ||
+                !this.login_model.password.length
+            )
+        },
+        isRegisterSubmitDisabled() {
+            return (
+                !!this.loading ||
+                !this.register_model.terms_agreed ||
+                !this.register_model.forename.length ||
+                !this.register_model.surname.length ||
+                !this.register_model.new_email.length ||
+                !this.register_model.new_password.length ||
+                !this.register_model.confirm_password.length
             )
         },
         isInputDisabled() {
-            return !!this.loading.length
+            return !!this.loading
         },
     },
     methods: {
+        redirect(location) {
+            this.$router.push({ name: location })
+        },
+        redirectInNewTab(location) {
+            let routeData = this.$router.resolve({ name: location })
+            window.open(routeData.href, '_blank')
+        },
         showFeedback({ warning }) {
             this.password_warning = warning
         },
@@ -252,7 +311,7 @@ export default {
             this.password_score = score
         },
         validate() {
-            if (this.model.new_password !== this.model.confirm_password) {
+            if (this.register_model.new_password !== this.register_model.confirm_password) {
                 return false
             }
             return true
@@ -263,87 +322,106 @@ export default {
             }
             return true
         },
+        resetForm() {
+            this.$refs['register_model'].resetFields()
+            this.register_model.terms_agreed = false
+        },
         async register() {
-            const valid = this.validate()
-            const strong = this.strongEnough()
-            if (!valid) {
-                alert('Passwords do not match')
-            } else if (!strong) {
-                alert('Password not strong enough')
-            }
-            if (valid && strong) {
-                const data = {
-                    forename: this.model.forename,
-                    surname: this.model.surname,
-                    email: this.model.new_email,
-                    password: this.model.new_password,
-                }
-
-                this.status = ''
-                this.loading = 'Registering you, please wait'
-
-                const res = await apiRequest('post', 'register', data)
-
-                this.loading = ''
-
-                if (res.data.status) {
-                    localStorage.setItem('user', JSON.stringify(res.data.user))
-                    this.$router.push({ name: 'Registered' })
+            this.$refs['register_model'].validate(async valid => {
+                if (!valid) {
+                    this.$message({
+                        message: 'All fields with a (*) must be completed and valid',
+                        type: 'warning',
+                        showClose: true,
+                    })
                 } else {
-                    this.model.new_password = null
-                    this.model.confirm_password = ''
-                    this.status = res.data.message
+                    const valid = this.validate()
+                    const strong = this.strongEnough()
+                    if (!valid) {
+                        this.$message({
+                            message: 'Passwords do not match',
+                            type: 'warning',
+                            showClose: true,
+                        })
+                    } else if (!strong) {
+                        this.$message({
+                            message: 'Password not strong enough',
+                            type: 'warning',
+                            showClose: true,
+                        })
+                    }
+                    if (valid && strong) {
+                        const data = {
+                            forename: this.register_model.forename,
+                            surname: this.register_model.surname,
+                            email: this.register_model.new_email,
+                            password: this.register_model.new_password,
+                        }
+
+                        this.status = ''
+                        this.loading = true
+                        this.register_button = 'Registering'
+
+                        const res = await apiRequest('post', 'register', data)
+
+                        this.loading = false
+                        this.register_button = 'Register'
+
+                        if (res.data.status) {
+                            this.status = res.data.message
+                            this.$alert(res.data.message, 'Werdz', {
+                                confirmButtonText: 'OK',
+                            })
+                                .then(() => {
+                                    this.$router.go(0)
+                                })
+                                .catch(() => {
+                                    this.$router.go(0)
+                                })
+                        } else {
+                            this.register_model.new_password = null
+                            this.register_model.confirm_password = ''
+                            this.status = res.data.message
+                            this.$message({
+                                message: this.status,
+                                type: 'warning',
+                                showClose: true,
+                            })
+                        }
+                    }
                 }
-            }
+            })
         },
         async login() {
             const data = {
-                email: this.model.email,
-                password: this.model.password,
+                email: this.login_model.email,
+                password: this.login_model.password,
             }
 
             this.status = ''
-            this.loading = 'Signing in'
+            this.loading = true
+            this.login_button = 'Logging in'
 
             const res = await apiRequest('post', 'login', data)
 
-            this.loading = ''
+            this.loading = false
+            this.login_button = 'Login'
+
             if (res.data.status) {
                 localStorage.setItem('token', res.data.token)
                 localStorage.setItem('user', JSON.stringify(res.data.user))
-                this.$router.push({ name: 'Dashboard' })
+                this.$router.push({ name: 'Home' })
             } else {
-                this.model.password = ''
+                this.login_model.password = ''
                 this.status = res.data.message
+                this.$message({
+                    message: this.status,
+                    type: 'warning',
+                    showClose: true,
+                })
             }
-        },
-        redirect(location) {
-            // localStorage.setItem('token', '')
-            // localStorage.setItem('user', '')
-            this.$router.push({ name: location })
         },
     },
 }
 </script>
 
-<style scoped>
-h1,
-h2 {
-    font-weight: normal;
-}
-ul {
-    list-style-type: none;
-    padding: 0;
-}
-li {
-    display: inline-block;
-    margin: 0 10px;
-}
-a {
-    color: #426cb9;
-}
-#c,
-#d {
-    display: inline;
-}
-</style>
