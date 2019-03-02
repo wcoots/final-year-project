@@ -16,6 +16,7 @@ const saltRounds = 10
 
 // const PORT = process.env.PORT || 3128
 const PORT = 8080
+let a = 0
 
 const app = express()
 app.use(cors())
@@ -181,11 +182,9 @@ app.post('/forgottenPassword', multipartMiddleware, async (req, res) => {
             delete user.password
             const verified = user.verified
             const deleted = user.deleted
-
             if (verified && !deleted) {
                 const token_val = await crypto.randomBytes(20)
                 const token = token_val.toString('hex')
-
                 const request = {
                     user_id: user.user_id,
                     token,
@@ -194,13 +193,10 @@ app.post('/forgottenPassword', multipartMiddleware, async (req, res) => {
                         .add(1, 'hour')
                         .format('YYYY-MM-DD HH:mm:ss'),
                 }
-
                 await db.qry('UPDATE password_reset_requests SET valid = 0 WHERE user_id = ?', [
                     user.user_id,
                 ])
-
                 await db.qry('INSERT INTO password_reset_requests SET ?', [request])
-
                 await mail.newPasswordResetRequest(user, token)
             }
         }
@@ -428,10 +424,6 @@ app.post('/deleteAccount', multipartMiddleware, async (req, res) => {
         const deleted = user.deleted
 
         if (authenticated && verified && !deleted) {
-            // await db.qry('DELETE FROM users WHERE user_id = ?', [
-            //     user.user_id
-            // ])
-
             await db.qry('UPDATE users SET deleted = 1, deleted_date = ? WHERE user_id = ?', [
                 moment().format('YYYY-MM-DD HH:mm:ss'),
                 user.user_id,
@@ -446,6 +438,41 @@ app.post('/deleteAccount', multipartMiddleware, async (req, res) => {
                 message: 'Wrong email or password',
             })
         }
+    } catch (error) {
+        throw error
+    }
+})
+
+app.post('/initialiseGame', multipartMiddleware, async (req, res) => {
+    try {
+        await db.qry(
+            'UPDATE queued_users SET valid = 0, removed = 1, removed_date = ? WHERE user_id = ?',
+            [moment().format('YYYY-MM-DD HH:mm:ss'), req.body.user_id]
+        )
+
+        if (
+            req.body.game_mode !== 'SYN' &&
+            req.body.game_mode !== 'ANT' &&
+            req.body.game_mode !== 'HYP'
+        ) {
+            return res.json({
+                status: false,
+                message: `${req.body.game_mode} is not a valid game mode`,
+            })
+        }
+
+        const request = {
+            user_id: req.body.user_id,
+            game_mode: req.body.game_mode,
+            initialisation_date: moment().format('YYYY-MM-DD HH:mm:ss'),
+        }
+
+        await db.qry('INSERT INTO queued_users SET ?', [request])
+
+        return res.json({
+            status: true,
+            message: 'success',
+        })
     } catch (error) {
         throw error
     }

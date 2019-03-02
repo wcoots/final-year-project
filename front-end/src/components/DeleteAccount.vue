@@ -48,7 +48,6 @@
 
 <script>
 import Header from './Header'
-
 import { apiRequest } from '../api/auth'
 
 export default {
