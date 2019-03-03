@@ -46,8 +46,6 @@ export default {
             }
 
             const res = await apiRequest('post', 'initialiseGame', data)
-
-            console.log(res.data.message)
         },
     },
 }

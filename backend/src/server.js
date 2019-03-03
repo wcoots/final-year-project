@@ -3,6 +3,7 @@ const bodyParser = require('body-parser')
 
 const db = require('./db')
 const mail = require('./mail')
+const matchmaking = require('./matchmaking')
 
 const multipart = require('connect-multiparty')
 
@@ -446,7 +447,7 @@ app.post('/deleteAccount', multipartMiddleware, async (req, res) => {
 app.post('/initialiseGame', multipartMiddleware, async (req, res) => {
     try {
         await db.qry(
-            'UPDATE queued_users SET valid = 0, removed = 1, removed_date = ? WHERE user_id = ?',
+            'UPDATE queued_users SET valid = 0, removed = 1, removed_date = ? WHERE user_id = ? AND matched = 0',
             [moment().format('YYYY-MM-DD HH:mm:ss'), req.body.user_id]
         )
 
@@ -508,3 +509,7 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
     console.log(`App running on port ${PORT}`)
 })
+
+setInterval(async () => {
+    await matchmaking.search()
+}, 1000)
