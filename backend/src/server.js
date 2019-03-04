@@ -512,4 +512,4 @@ app.listen(PORT, () => {
 
 setInterval(async () => {
     await matchmaking.search()
-}, 1000)
+}, 5000)

@@ -3,7 +3,7 @@ const nodemailer = require('nodemailer')
 const smtpTransport = require('nodemailer-smtp-transport')
 const fs = require('fs')
 
-function determineNodeEnv() {
+const determineNodeEnv = () => {
     if (NODE_ENV === 'development') {
         return 'http://localhost:3000'
     } else if (NODE_ENV === 'production') {
@@ -11,7 +11,7 @@ function determineNodeEnv() {
     }
 }
 
-function newMail(req) {
+const newMail = async req => {
     return new Promise(async (resolve, reject) => {
         const transporter = await nodemailer.createTransport(
             smtpTransport({
@@ -39,7 +39,7 @@ function newMail(req) {
     })
 }
 
-function newChangeEmailConfirmation(user, token) {
+const newChangeEmailConfirmation = async (user, token) => {
     return new Promise(async (resolve, reject) => {
         const url = determineNodeEnv()
         await fs.readFile(
@@ -61,7 +61,7 @@ function newChangeEmailConfirmation(user, token) {
     })
 }
 
-function newChangeEmailWarning(user) {
+const newChangeEmailWarning = async user => {
     return new Promise(async (resolve, reject) => {
         const url = determineNodeEnv()
         await fs.readFile(
@@ -83,7 +83,7 @@ function newChangeEmailWarning(user) {
     })
 }
 
-function newRegisterEmailConfirmation(user, token) {
+const newRegisterEmailConfirmation = async (user, token) => {
     return new Promise(async (resolve, reject) => {
         const url = determineNodeEnv()
         await fs.readFile(
@@ -105,7 +105,7 @@ function newRegisterEmailConfirmation(user, token) {
     })
 }
 
-function newRegisterEmailWarning(user) {
+const newRegisterEmailWarning = async user => {
     return new Promise(async (resolve, reject) => {
         const url = determineNodeEnv()
         await fs.readFile(
@@ -127,7 +127,7 @@ function newRegisterEmailWarning(user) {
     })
 }
 
-function newPasswordResetRequest(user, token) {
+const newPasswordResetRequest = async (user, token) => {
     return new Promise(async (resolve, reject) => {
         const url = determineNodeEnv()
         await fs.readFile(
