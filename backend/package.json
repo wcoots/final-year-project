@@ -8,7 +8,8 @@
     "license": "GNU",
     "scripts": {
         "server": "node --inspect -r dotenv/config ./src/server.js",
-        "test": "node --inspect -r dotenv/config ./src/test.js"
+        "test": "node --inspect -r dotenv/config ./src/test.js",
+        "match": "node --inspect -r dotenv/config ./src/matchmaking.js"
     },
     "dependencies": {
         "bcrpyt": "^2.0.0",
@@ -25,6 +26,7 @@
         "lodash": "^4.17.11",
         "moment": "^2.24.0",
         "mysql": "^2.16.0",
+        "mysql-events": "0.0.11",
         "nodemailer": "^4.7.0",
         "nodemailer-express-handlebars": "^3.0.0",
         "nodemailer-smtp-transport": "^2.7.4",

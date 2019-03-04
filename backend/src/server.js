@@ -3,7 +3,6 @@ const bodyParser = require('body-parser')
 
 const db = require('./db')
 const mail = require('./mail')
-const matchmaking = require('./matchmaking')
 
 const multipart = require('connect-multiparty')
 
@@ -509,7 +508,3 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
     console.log(`App running on port ${PORT}`)
 })
-
-setInterval(async () => {
-    await matchmaking.search()
-}, 5000)

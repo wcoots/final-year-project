@@ -3,11 +3,19 @@
     <Header v-bind:user="user"/>
     <div>
       <div class="container">
-        <h3>Choose game mode</h3>
         <br>
-        <el-button @click="initialise('SYN')">Synonyms</el-button>
-        <el-button @click="initialise('ANT')">Antonyms</el-button>
-        <el-button @click="initialise('HYP')">Hypernyms</el-button>
+        <br>
+        <div v-if="!queued">
+          <h3>Choose game mode</h3>
+          <br>
+          <el-button @click="initialise('SYN')">Synonyms</el-button>
+          <el-button @click="initialise('ANT')">Antonyms</el-button>
+          <el-button @click="initialise('HYP')">Hypernyms</el-button>
+        </div>
+        <div v-else>
+          <h3>Hi</h3>
+          <br>
+        </div>
       </div>
     </div>
   </div>
@@ -26,6 +34,7 @@ export default {
         return {
             title: 'App',
             user: null,
+            queued: false,
         }
     },
     created() {
@@ -40,12 +49,23 @@ export default {
     },
     methods: {
         async initialise(game_mode) {
-            const data = {
-                user_id: JSON.parse(localStorage.getItem('user')).user_id,
-                game_mode,
-            }
+            const loading = this.$loading({
+                lock: true,
+                text: 'Finding another player',
+                spinner: 'el-icon-loading',
+                background: 'rgba(0, 0, 0, 0.8)',
+            })
+            // setTimeout(() => {
+            //     loading.close()
+            // }, 2000)
+            // this.queued = true
 
-            const res = await apiRequest('post', 'initialiseGame', data)
+            // const data = {
+            //     user_id: JSON.parse(localStorage.getItem('user')).user_id,
+            //     game_mode,
+            // }
+
+            // const res = await apiRequest('post', 'initialiseGame', data)
         },
     },
 }
