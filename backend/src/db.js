@@ -8,7 +8,7 @@ const pool = mysql.createPool({
     database: DB_DATABASE,
 })
 
-function qry(input_query, input_vars = null) {
+const qry = async (input_query, input_vars = null) => {
     // db.qry('SELECT * FROM users WHERE last_name = "Cooter"')
     // db.qry('SELECT * FROM users WHERE last_name = ?', ['Cooter'])
     return new Promise(async (resolve, reject) => {
