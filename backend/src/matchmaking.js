@@ -9,7 +9,7 @@ const checkMatches = async () => {
     // GET VALID USERS IN THE QUEUE
     const queued_users = await db.qry(
         `SELECT *
-        FROM queued_users_copy
+        FROM queued_users
         WHERE valid = 1
         AND removed = 0
         AND matched = 0`
@@ -34,7 +34,7 @@ const checkMatches = async () => {
     if (dead_heartbeat_ids.length) {
         dead_heartbeat_ids = `(${dead_heartbeat_ids.slice(0, -1)})` // eg: "(1,2,3,4,5)"
         await db.qry(
-            `UPDATE queued_users_copy
+            `UPDATE queued_users
             SET valid = 0,
             removed = 1
             WHERE id IN ${dead_heartbeat_ids}
@@ -97,16 +97,15 @@ const checkMatches = async () => {
         queued_values = queued_values.slice(0, -2) // eg: "(1,2,3),(4,5,6),(7,8,9)"
         game_values = game_values.slice(0, -2) // eg: "(1,2,3),(4,5,6),(7,8,9)"
 
-        // TODO: change queued_users_copy to queued_users
         // DELETE THESE QUEUED USERS
         await db.qry(
             `DELETE
-            FROM queued_users_copy
+            FROM queued_users
             WHERE id IN ${ids}`
         )
         // REINSERT THESE QUEUED USERS WITH THEIR MATCHES
         await db.qry(
-            `INSERT INTO queued_users_copy
+            `INSERT INTO queued_users
             (id, user_id, game_mode, valid, initialisation_date, matched, matched_date, match_id, match_user_id)
             VALUES ${queued_values}`
         )
