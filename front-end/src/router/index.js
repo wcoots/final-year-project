@@ -10,6 +10,7 @@ import ForgottenPassword from '@/components/ForgottenPassword'
 import ResetPassword from '@/components/ResetPassword'
 import ValidateNewAccount from '@/components/ValidateNewAccount'
 import ValidateNewEmail from '@/components/ValidateNewEmail'
+import Game from '@/components/Game'
 
 Vue.use(Router)
 
@@ -65,6 +66,11 @@ export default new Router({
             path: '/validatenewemail',
             name: 'ValidateNewEmail',
             component: ValidateNewEmail,
+        },
+        {
+            path: '/game',
+            name: 'Game',
+            component: Game,
         },
     ],
 })

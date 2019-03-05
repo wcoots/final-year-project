@@ -2,7 +2,7 @@
   <div>
     <Header v-bind:user="user"/>
     <div>
-      <div class="container">
+      <div class="container" v-loading="loading">
         <br>
         <br>
         <div v-if="!queued">
@@ -32,9 +32,9 @@ export default {
     },
     data() {
         return {
-            title: 'App',
             user: null,
             queued: false,
+            loading: false,
         }
     },
     created() {
@@ -49,23 +49,23 @@ export default {
     },
     methods: {
         async initialise(game_mode) {
-            const loading = this.$loading({
-                lock: true,
-                text: 'Finding another player',
-                spinner: 'el-icon-loading',
-                background: 'rgba(0, 0, 0, 0.8)',
-            })
-            // setTimeout(() => {
-            //     loading.close()
-            // }, 2000)
-            // this.queued = true
+            this.loading = true
+            const data = {
+                user_id: JSON.parse(localStorage.getItem('user')).user_id,
+                game_mode,
+            }
 
-            // const data = {
-            //     user_id: JSON.parse(localStorage.getItem('user')).user_id,
-            //     game_mode,
-            // }
+            const res = await apiRequest('post', 'initialiseGame', data)
 
-            // const res = await apiRequest('post', 'initialiseGame', data)
+            const alive = await setInterval(async () => {
+                const hb_res = await apiRequest('post', 'heartbeat', data)
+                if (hb_res.data.status) {
+                    this.loading = false
+                    clearInterval(alive)
+                }
+            }, 2000)
+
+            this.$router.push({ name: 'Game' })
         },
     },
 }
