@@ -5,12 +5,42 @@
       <div class="container" v-loading="loading">
         <br>
         <br>
-        <h3>Multiplayer</h3>
+        <h3>Single Player</h3>
+        <br>
         <h4>Choose word type</h4>
         <br>
-        <el-button @click="initialise('SYN')">Synonyms</el-button>
-        <el-button @click="initialise('ANT')">Antonyms</el-button>
-        <el-button @click="initialise('HYP')">Hypernyms</el-button>
+        <el-row :gutter="20">
+          <el-col :span="4">
+            <!-- SYNONYMS -->
+            <el-popover placement="bottom-start" title="Synonyms" width="240" trigger="hover">
+              <div>Words with the same meaning
+                <br>eg: fast -> quick
+              </div>
+              <el-button slot="reference" type="warning" round @click="initialise('SYN')">Synonyms</el-button>
+            </el-popover>
+          </el-col>
+          <el-col :span="4">
+            <!-- ANTONYMS -->
+            <el-popover placement="bottom" title="Antonyms" width="255" trigger="hover">
+              <div>Words with the opposite meaning
+                <br>eg: fast -> slow
+              </div>
+              <el-button slot="reference" type="warning" round @click="initialise('ANT')">Antonyms</el-button>
+            </el-popover>
+          </el-col>
+          <el-col :span="4">
+            <!-- HYPERNYMS -->
+            <el-popover placement="bottom-end" title="Hypernyms" width="260" trigger="hover">
+              <div>Words with a more general meaning
+                <br>eg: chair -> furniture
+              </div>
+              <el-button slot="reference" type="warning" round @click="initialise('HYP')">Hypernyms</el-button>
+            </el-popover>
+          </el-col>
+        </el-row>
+
+        <br>
+        <br>
       </div>
     </div>
   </div>
@@ -50,17 +80,19 @@ export default {
             }
 
             const res = await apiRequest('post', 'initialiseGame', data)
+            console.log(res.data)
 
+            let x = 0
             const alive = await setInterval(async () => {
                 const hb_res = await apiRequest('post', 'heartbeat', data)
+                x++
+                console.log(`hb_${x}`)
                 if (hb_res.data.status) {
                     this.loading = false
                     this.$router.push({ name: 'Game' })
                     clearInterval(alive)
                 }
             }, 2000)
-
-            //
         },
     },
 }

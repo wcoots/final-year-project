@@ -7,7 +7,7 @@
         <br>
         <h3>Choose game mode</h3>
         <br>
-        <el-button type="primary" round @click="redirect('SinglePlayer')">Single Player</el-button>
+        <el-button type="primary" round disabled @click="redirect('SinglePlayer')">Single Player</el-button>
         <el-button type="success" round @click="redirect('MultiPlayer')">Multiplayer</el-button>
       </div>
     </div>

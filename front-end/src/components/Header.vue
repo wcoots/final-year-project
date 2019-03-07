@@ -17,7 +17,7 @@
             <i class="el-icon-menu"></i>
             Home
           </el-dropdown-item>
-          <el-dropdown-item index="1" command="SinglePlayer">
+          <el-dropdown-item index="1" command="SinglePlayer" disabled>
             <i class="el-icon-star-off"></i>
             Single player
           </el-dropdown-item>
