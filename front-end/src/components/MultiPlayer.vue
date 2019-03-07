@@ -59,6 +59,7 @@ export default {
         return {
             user: null,
             loading: false,
+            alive: null,
         }
     },
     created() {
@@ -80,20 +81,19 @@ export default {
             }
 
             const res = await apiRequest('post', 'initialiseGame', data)
-            console.log(res.data)
 
-            let x = 0
-            const alive = await setInterval(async () => {
+            this.alive = await setInterval(async () => {
                 const hb_res = await apiRequest('post', 'heartbeat', data)
-                x++
-                console.log(`hb_${x}`)
                 if (hb_res.data.status) {
                     this.loading = false
                     this.$router.push({ name: 'Game' })
-                    clearInterval(alive)
+                    clearInterval(this.alive)
                 }
             }, 2000)
         },
+    },
+    destroyed() {
+        clearInterval(this.alive)
     },
 }
 </script>
