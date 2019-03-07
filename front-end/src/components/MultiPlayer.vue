@@ -5,10 +5,12 @@
       <div class="container" v-loading="loading">
         <br>
         <br>
-        <h3>Choose game mode</h3>
+        <h3>Multiplayer</h3>
+        <h4>Choose word type</h4>
         <br>
-        <el-button type="primary" round @click="redirect('SinglePlayer')">Single Player</el-button>
-        <el-button type="success" round @click="redirect('MultiPlayer')">Multiplayer</el-button>
+        <el-button @click="initialise('SYN')">Synonyms</el-button>
+        <el-button @click="initialise('ANT')">Antonyms</el-button>
+        <el-button @click="initialise('HYP')">Hypernyms</el-button>
       </div>
     </div>
   </div>
@@ -40,9 +42,6 @@ export default {
         this.user = JSON.parse(localStorage.getItem('user'))
     },
     methods: {
-        redirect(location) {
-            this.$router.push({ name: location })
-        },
         async initialise(game_mode) {
             this.loading = true
             const data = {

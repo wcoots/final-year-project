@@ -14,8 +14,16 @@
         </el-button>
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item index="1" command="Home">
+            <i class="el-icon-menu"></i>
+            Home
+          </el-dropdown-item>
+          <el-dropdown-item index="1" command="SinglePlayer">
             <i class="el-icon-star-off"></i>
-            Play
+            Single player
+          </el-dropdown-item>
+          <el-dropdown-item index="1" command="MultiPlayer">
+            <i class="el-icon-star-on"></i>
+            Multiplayer
           </el-dropdown-item>
           <el-dropdown-item index="1" command="AccountSettings">
             <i class="el-icon-setting"></i>
