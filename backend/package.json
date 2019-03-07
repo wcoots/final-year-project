@@ -32,6 +32,7 @@
         "nodemailer-smtp-transport": "^2.7.4",
         "nodemon": "^1.17.3",
         "path": "^0.12.7",
-        "umzug": "^2.1.0"
+        "umzug": "^2.1.0",
+        "wordnet": "^0.1.2"
     }
 }
