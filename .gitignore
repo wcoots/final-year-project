@@ -62,9 +62,3 @@ typings/
 
 test.js
 /.vscode
-
-/backend/.prettierrc.js
-/frontend/.eslintrc.js
-/frontend/.eslintignore
-/frontend/.prettierrc.js
-/frontend/.prettierignore
