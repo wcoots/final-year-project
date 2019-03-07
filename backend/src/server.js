@@ -597,6 +597,7 @@ app.post('/initialiseGame', multipartMiddleware, async (req, res) => {
             user_id: req.body.user_id,
             game_mode: req.body.game_mode,
             initialisation_date: moment().format('YYYY-MM-DD HH:mm:ss'),
+            last_heartbeat: moment().format('YYYY-MM-DD HH:mm:ss'),
         }
 
         await db.qry(

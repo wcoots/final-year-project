@@ -96,7 +96,7 @@ export default {
             this.alive = await setInterval(async () => {
                 const hb_res = await apiRequest('post', 'heartbeat', data)
                 if (hb_res.data.status) {
-                    this.loading = false
+                    this.loading.close()
                     this.$router.push({ name: 'Game' })
                     clearInterval(this.alive)
                 }
