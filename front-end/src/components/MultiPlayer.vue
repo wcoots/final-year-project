@@ -97,7 +97,8 @@ export default {
                 const hb_res = await apiRequest('post', 'heartbeat', data)
                 if (hb_res.data.status) {
                     this.loading.close()
-                    this.$router.push({ name: 'Game' })
+                    console.log(hb_res.data.user)
+                    // this.$router.push({ name: 'Game' })
                     clearInterval(this.alive)
                 }
             }, 2000)

@@ -675,6 +675,7 @@ app.post('/heartbeat', multipartMiddleware, async (req, res) => {
         if (user.matched) {
             return res.json({
                 status: true,
+                user,
             })
         }
 
