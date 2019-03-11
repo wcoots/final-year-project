@@ -53,7 +53,8 @@ const checkMatches = async () => {
         grouped_users[key] = _.sortBy(grouped_users[key], 'initialisation_date')
         // FOR EVERY SECOND USER (USER A)
         for (let i = 0; i < grouped_users[key].length - 1; i += 2) {
-            //
+            const token_val = crypto.randomBytes(20)
+            const token = token_val.toString('hex')
             // (id, user_id, game_mode, valid, initialisation_date, matched, matched_date, match_id, match_user_id)
             // RECORD USER A'S DATA AS A STRING
             const temp1 = `(${grouped_users[key][i].id}, ${grouped_users[key][i].user_id}, '${
@@ -62,7 +63,7 @@ const checkMatches = async () => {
                 'YYYY-MM-DD HH:mm:ss'
             )}', 1, '${moment().format('YYYY-MM-DD HH:mm:ss')}', ${grouped_users[key][i + 1].id}, ${
                 grouped_users[key][i + 1].user_id
-            }),\n`
+            }, '${token}'),\n`
             //
             // (id, user_id, game_mode, valid, initialisation_date, matched, matched_date, match_id, match_user_id)
             // RECORD USER B'S DATA AS A STRING
@@ -72,12 +73,11 @@ const checkMatches = async () => {
                 grouped_users[key][i + 1].initialisation_date
             ).format('YYYY-MM-DD HH:mm:ss')}', 1, '${moment().format('YYYY-MM-DD HH:mm:ss')}', ${
                 grouped_users[key][i].id
-            }, ${grouped_users[key][i].user_id}),\n`
+            }, ${grouped_users[key][i].user_id}, '${token}'),\n`
             //
             // (p1_user_id, p2_user_id, game_mode, token)
             // RECORD THE GAME'S DATA AS A STRING
-            const token_val = crypto.randomBytes(20)
-            const token = token_val.toString('hex')
+
             const temp3 = `(${grouped_users[key][i].user_id}, ${
                 grouped_users[key][i + 1].user_id
             }, '${grouped_users[key][i].game_mode}', '${token}'),\n`
@@ -106,7 +106,7 @@ const checkMatches = async () => {
         // REINSERT THESE QUEUED USERS WITH THEIR MATCHES
         await db.qry(
             `INSERT INTO queued_users
-            (id, user_id, game_mode, valid, initialisation_date, matched, matched_date, match_id, match_user_id)
+            (id, user_id, game_mode, valid, initialisation_date, matched, matched_date, match_id, match_user_id, game_token)
             VALUES ${queued_values}`
         )
         // INSERT THE GAME DETAILS
