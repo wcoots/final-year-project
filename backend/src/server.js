@@ -10,6 +10,7 @@ const cors = require('cors')
 const jwt = require('jsonwebtoken')
 const moment = require('moment')
 const crypto = require('crypto')
+const _ = require('lodash')
 
 const bcrypt = require('bcrypt')
 const saltRounds = 10
@@ -43,6 +44,26 @@ app.post('/register', multipartMiddleware, async (req, res) => {
             return res.json({
                 status: false,
                 message: 'All fields are required',
+            })
+        }
+
+        const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        if (!re.test(String(req.body.email).toLowerCase())) {
+            return res.json({
+                status: false,
+                message: 'Invalid email address',
+            })
+        }
+
+        req.body.email = req.body.email.toLowerCase()
+
+        req.body.forename = _.startCase(_.toLower(req.body.forename.replace(/[^A-Za-z ]+/g, '')))
+        req.body.surname = _.startCase(_.toLower(req.body.surname.replace(/[^A-Za-z ]+/g, '')))
+
+        if (!req.body.forename.length || !req.body.surname.length) {
+            return res.json({
+                status: false,
+                message: 'Invalid name',
             })
         }
 
@@ -169,6 +190,7 @@ app.post('/verifyNewAccount', multipartMiddleware, async (req, res) => {
 
 app.post('/login', multipartMiddleware, async (req, res) => {
     try {
+        req.body.email = req.body.email.toLowerCase()
         const users = await db.qry(
             `SELECT *
             FROM users
@@ -219,6 +241,7 @@ app.post('/login', multipartMiddleware, async (req, res) => {
 
 app.post('/forgottenPassword', multipartMiddleware, async (req, res) => {
     try {
+        req.body.email = req.body.email.toLowerCase()
         const users = await db.qry(
             `SELECT *
             FROM users
@@ -349,6 +372,17 @@ app.post('/resetPassword', multipartMiddleware, async (req, res) => {
 
 app.post('/changeEmail', multipartMiddleware, async (req, res) => {
     try {
+        const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        if (!re.test(String(req.body.new_email).toLowerCase())) {
+            return res.json({
+                status: false,
+                message: 'Invalid email address',
+            })
+        }
+
+        req.body.email = req.body.email.toLowerCase()
+        req.body.new_email = req.body.email.toLowerCase()
+
         const usersA = await db.qry(
             `SELECT *
             FROM users
@@ -530,6 +564,8 @@ app.post('/changePassword', multipartMiddleware, async (req, res) => {
 
 app.post('/deleteAccount', multipartMiddleware, async (req, res) => {
     try {
+        req.body.email = req.body.email.toLowerCase()
+
         const users = await db.qry(
             `SELECT *
             FROM users
@@ -639,6 +675,7 @@ app.post('/heartbeat', multipartMiddleware, async (req, res) => {
         if (user.matched) {
             return res.json({
                 status: true,
+                user,
             })
         }
 

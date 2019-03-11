@@ -5,6 +5,44 @@ const crypto = require('crypto')
 
 let reset_time = 3000
 
+const checkGames = async () => {
+    // GET VALID GAMES
+    const games = await db.qry(
+        `SELECT *
+    FROM games
+    WHERE valid = 1
+    AND completed = 0
+    AND removed = 0
+    AND quitted = 0`
+    )
+    // IF GAMES EXIST
+    if (games && games.length) {
+        // FIND GAMES WHOSE INITIALISATION DATE WAS MORE THAN 3 MINUTES AGO
+        let dead_games = ''
+        games.forEach(async game => {
+            // IF DEAD THEN ADD THEIR ID TO THE DEAD_GAMES
+            if (
+                !game.initialisation_date ||
+                moment().diff(game.initialisation_date, 'seconds') > 180
+            ) {
+                dead_games += game.id + ','
+            }
+        })
+        // SET DEAD QUEUED USERS TO REMOVED
+        if (dead_games.length) {
+            dead_games = `(${dead_games.slice(0, -1)})` // eg: "(1,2,3,4,5)"
+            await db.qry(
+                `UPDATE games
+            SET valid = 0,
+            completed = 1
+            WHERE id IN ${dead_games}
+            AND valid = 1
+            AND removed = 0`
+            )
+        }
+    }
+}
+
 const checkMatches = async () => {
     // GET VALID USERS IN THE QUEUE
     const queued_users = await db.qry(
@@ -42,9 +80,11 @@ const checkMatches = async () => {
             AND removed = 0`
         )
     }
+
     // GROUP THE REMAINING ALIVE USERS BY THEIR CHOSEN GAME MODE
     const grouped_users = _.groupBy(alive_queued_users, 'game_mode')
-    let ids = ''
+    let queue_ids = ''
+    let user_ids = ''
     let queued_values = ''
     let game_values = ''
     // FOR EACH GAME MODE
@@ -61,9 +101,12 @@ const checkMatches = async () => {
                 grouped_users[key][i].game_mode
             }', 0, '${moment(grouped_users[key][i].initialisation_date).format(
                 'YYYY-MM-DD HH:mm:ss'
-            )}', 1, '${moment().format('YYYY-MM-DD HH:mm:ss')}', ${grouped_users[key][i + 1].id}, ${
-                grouped_users[key][i + 1].user_id
-            }, '${token}'),\n`
+            )}', 1, '${moment().format('YYYY-MM-DD HH:mm:ss')}', '${
+                grouped_users[key][i + 1].id
+            }', ${grouped_users[key][i + 1].user_id}, '${moment(
+                grouped_users[key][i + 1].last_heartbeat,
+                'ddd MMM DD YYYY hh:mm:ss [GMT]ZZ'
+            ).format('YYYY-MM-DD HH:mm:ss')}', '${token}'),\n`
             //
             // (id, user_id, game_mode, valid, initialisation_date, matched, matched_date, match_id, match_user_id)
             // RECORD USER B'S DATA AS A STRING
@@ -73,27 +116,37 @@ const checkMatches = async () => {
                 grouped_users[key][i + 1].initialisation_date
             ).format('YYYY-MM-DD HH:mm:ss')}', 1, '${moment().format('YYYY-MM-DD HH:mm:ss')}', ${
                 grouped_users[key][i].id
-            }, ${grouped_users[key][i].user_id}, '${token}'),\n`
+            }, ${grouped_users[key][i].user_id}, '${moment(
+                grouped_users[key][i + 1].last_heartbeat,
+                'ddd MMM DD YYYY hh:mm:ss [GMT]ZZ'
+            ).format('YYYY-MM-DD HH:mm:ss')}', '${token}'),\n`
             //
             // (p1_user_id, p2_user_id, game_mode, token)
             // RECORD THE GAME'S DATA AS A STRING
 
             const temp3 = `(${grouped_users[key][i].user_id}, ${
                 grouped_users[key][i + 1].user_id
-            }, '${grouped_users[key][i].game_mode}', '${token}'),\n`
+            }, '${grouped_users[key][i].game_mode}', '${token}', '${moment().format(
+                'YYYY-MM-DD HH:mm:ss'
+            )}'),\n`
 
             queued_values += temp1
             queued_values += temp2
 
             game_values += temp3
 
-            ids += grouped_users[key][i].id + ','
-            ids += grouped_users[key][i + 1].id + ','
+            queue_ids += grouped_users[key][i].id + ','
+            queue_ids += grouped_users[key][i + 1].id + ','
+
+            user_ids += grouped_users[key][i].user_id + ','
+            user_ids += grouped_users[key][i + 1].user_id + ','
         }
     })
+
     // IF MATCHES WERE MADE
-    if (ids.length) {
-        ids = `(${ids.slice(0, -1)})` // eg: "(1,2,3,4,5)"
+    if (queue_ids.length) {
+        queue_ids = `(${queue_ids.slice(0, -1)})` // eg: "(1,2,3,4,5)"
+        user_ids = `(${user_ids.slice(0, -1)})` // eg: "(1,2,3,4,5)"
         queued_values = queued_values.slice(0, -2) // eg: "(1,2,3),(4,5,6),(7,8,9)"
         game_values = game_values.slice(0, -2) // eg: "(1,2,3),(4,5,6),(7,8,9)"
 
@@ -101,18 +154,29 @@ const checkMatches = async () => {
         await db.qry(
             `DELETE
             FROM queued_users
-            WHERE id IN ${ids}`
+            WHERE id IN ${queue_ids}`
         )
         // REINSERT THESE QUEUED USERS WITH THEIR MATCHES
         await db.qry(
             `INSERT INTO queued_users
-            (id, user_id, game_mode, valid, initialisation_date, matched, matched_date, match_id, match_user_id, game_token)
+            (id, user_id, game_mode, valid, initialisation_date, matched, matched_date, match_id, match_user_id, last_heartbeat, game_token)
             VALUES ${queued_values}`
+        )
+        // CLEAR PREVIOUS GAMES
+        await db.qry(
+            `UPDATE games
+            SET valid = 0, removed = 1
+            WHERE valid = 1
+            AND
+            (
+            p1_user_id IN ${user_ids}
+            OR p2_user_id IN ${user_ids}
+            )`
         )
         // INSERT THE GAME DETAILS
         await db.qry(
             `INSERT INTO games
-            (p1_user_id, p2_user_id, game_mode, token)
+            (p1_user_id, p2_user_id, game_mode, token, initialisation_date)
             VALUES ${game_values}`
         )
     }
@@ -120,6 +184,7 @@ const checkMatches = async () => {
     return true
 }
 const checkForMatches = async () => {
+    checkGames()
     const users_exist = await checkMatches()
     if (!users_exist && reset_time < 21000) {
         reset_time += 3000
