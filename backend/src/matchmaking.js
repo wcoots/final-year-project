@@ -20,7 +20,6 @@ const checkGames = async () => {
         // FIND GAMES WHOSE INITIALISATION DATE WAS MORE THAN 3 MINUTES AGO
         let dead_games = ''
         games.forEach(async game => {
-            console.log(game)
             // IF DEAD THEN ADD THEIR ID TO THE DEAD_GAMES
             if (
                 !game.initialisation_date ||
