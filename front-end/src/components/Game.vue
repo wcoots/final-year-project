@@ -3,13 +3,37 @@
     <Header v-bind:user="user"/>
     <div>
       <div class="container">
-        <br>
-        <br>
-        <h3>Lets play</h3>
-        <br>
-        <p>Hello player user_id: {{user.user_id}}</p>
-        <p>You are playing with user_id: {{opponent.user_id}}</p>
-        <el-button @click="quit()">Quit</el-button>
+        <div v-if="game">
+          <br>
+          <br>
+
+          <el-row :gutter="20">
+            <el-col :span="14">
+              <h1>{{ game.words[current_word_index] }}</h1>
+              <br>
+              <el-input placeholder="Please input" v-model="input">
+                <el-button @click="submit(input)" slot="append" icon="el-icon-caret-right"></el-button>
+              </el-input>
+
+              <br>
+              <br>
+              <el-button :disabled="next_disabled" @click="nextWord()">Next</el-button>
+              <el-button disabled @click="quit()">Quit</el-button>
+              <br>
+              <br>
+            </el-col>
+            <el-col :span="4">
+              <h2></h2>
+            </el-col>
+            <el-col :span="6">
+              <div v-if="answers.length">
+                <el-table :data="answers" width="180">
+                  <el-table-column prop="answer" label="Answers" width="180"></el-table-column>
+                </el-table>
+              </div>
+            </el-col>
+          </el-row>
+        </div>
       </div>
     </div>
   </div>
@@ -18,6 +42,7 @@
 <script>
 import Header from './Header'
 import { apiRequest } from '../api/auth'
+import _ from 'lodash'
 
 export default {
     name: 'Game',
@@ -26,48 +51,62 @@ export default {
     },
     data() {
         return {
-            user: {
-                user_id: '',
-            },
-            opponent: {
-                user_id: '',
-            },
-            game: {},
+            token: this.$route.query.token ? this.$route.query.token : null,
+            user: null,
+            game: null,
+            current_word_index: 0,
+            next_disabled: false,
+            input: '',
+            answers: [],
         }
     },
-    created() {
+    async created() {
         if (localStorage.getItem('token') === 'null' || localStorage.getItem('token') === null) {
             localStorage.setItem('token', JSON.stringify(null))
             localStorage.setItem('user', JSON.stringify(null))
             this.$router.push({ name: 'SignUp' })
         }
-    },
-    async mounted() {
+        // TODO: remove this
+        if (this.token !== 'test_token') {
+            this.$router.push({ name: 'Home' })
+        }
+
         this.user = JSON.parse(localStorage.getItem('user'))
 
         const data = {
             user_id: JSON.parse(localStorage.getItem('user')).user_id,
+            token: this.token,
         }
 
-        const res = await apiRequest('post', 'getOpponent', data)
+        const res = await apiRequest('post', 'getGameInfo', data)
 
-        if (!res.data.status) {
-            this.$router.push({ name: 'Home' })
-        } else {
-            if (this.user.user_id === res.data.game.p1_user_id) {
-                this.opponent.user_id = res.data.game.p2_user_id
-            } else if (this.user.user_id === res.data.game.p2_user_id) {
-                this.opponent.user_id = res.data.game.p1_user_id
-            } else {
-                this.$router.push({ name: 'Home' })
-            }
-            this.game = res.data.game
-        }
+        res.data.status ? (this.game = res.data.game) : this.$router.push({ name: 'Home' })
     },
+    async mounted() {},
     methods: {
+        async submit(input) {
+            const words = _.words(input)
+            words.forEach(word => {
+                const data = { answer: word }
+                if (!_.filter(this.answers, data).length && word.length) {
+                    this.answers.push(data)
+                }
+            })
+
+            this.input = ''
+        },
+        nextWord() {
+            this.input = ''
+            this.answers = []
+            if (this.game.words.length > this.current_word_index + 2) {
+                this.current_word_index++
+            } else if (this.game.words.length === this.current_word_index + 2) {
+                this.current_word_index++
+                this.next_disabled = true
+            }
+        },
         async quit() {
-            const data = this.game
-            const res = await apiRequest('post', 'quitGame', data)
+            const res = await apiRequest('post', 'quitGame', this.game)
             this.$router.push({ name: 'Home' })
         },
     },

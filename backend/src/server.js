@@ -700,21 +700,25 @@ app.post('/heartbeat', multipartMiddleware, async (req, res) => {
     }
 })
 
-app.post('/getOpponent', multipartMiddleware, async (req, res) => {
+app.post('/getGameInfo', multipartMiddleware, async (req, res) => {
     try {
+        // TODO: change games_copy to games when in production
         const games = await db.qry(
             `SELECT *
-            FROM games
+            FROM games_copy
             WHERE valid = 1
             AND completed = 0
             AND quitted = 0
+            AND removed = 0
+            AND token = ?
             AND (p1_user_id = ?
                 OR p2_user_id = ?)`,
-            [req.body.user_id, req.body.user_id]
+            [req.body.token, req.body.user_id, req.body.user_id]
         )
         const game = games[0]
 
         if (game) {
+            game.words = JSON.parse(game.words)
             return res.json({
                 status: true,
                 game,

@@ -13,6 +13,7 @@
     "axios": "^0.18.0",
     "buefy": "^0.7.2",
     "element-ui": "^2.5.4",
+    "lodash": "^4.17.11",
     "password-strength-utility": "^1.1.6",
     "vue": "^2.6.6",
     "vue-password-strength-meter": "^1.4.1",
