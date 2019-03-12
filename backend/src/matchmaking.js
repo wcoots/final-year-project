@@ -2,6 +2,7 @@ const db = require('./db')
 const _ = require('lodash')
 const moment = require('moment')
 const crypto = require('crypto')
+const wordnet = require('./wordnet')
 
 let reset_time = 3000
 
@@ -95,6 +96,7 @@ const checkMatches = async () => {
         for (let i = 0; i < grouped_users[key].length - 1; i += 2) {
             const token_val = crypto.randomBytes(20)
             const token = token_val.toString('hex')
+            const words = wordnet.getWords()
             // (id, user_id, game_mode, valid, initialisation_date, matched, matched_date, match_id, match_user_id)
             // RECORD USER A'S DATA AS A STRING
             const temp1 = `(${grouped_users[key][i].id}, ${grouped_users[key][i].user_id}, '${
@@ -128,7 +130,7 @@ const checkMatches = async () => {
                 grouped_users[key][i + 1].user_id
             }, '${grouped_users[key][i].game_mode}', '${token}', '${moment().format(
                 'YYYY-MM-DD HH:mm:ss'
-            )}'),\n`
+            )}', '${words}'),\n`
 
             queued_values += temp1
             queued_values += temp2
@@ -176,7 +178,7 @@ const checkMatches = async () => {
         // INSERT THE GAME DETAILS
         await db.qry(
             `INSERT INTO games
-            (p1_user_id, p2_user_id, game_mode, token, initialisation_date)
+            (p1_user_id, p2_user_id, game_mode, token, initialisation_date, words)
             VALUES ${game_values}`
         )
     }
