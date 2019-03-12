@@ -34,11 +34,12 @@ const checkGames = async () => {
             dead_games = `(${dead_games.slice(0, -1)})` // eg: "(1,2,3,4,5)"
             await db.qry(
                 `UPDATE games
-            SET valid = 0,
-            completed = 1
-            WHERE id IN ${dead_games}
-            AND valid = 1
-            AND removed = 0`
+                SET valid = 0,
+                completed = 1
+                WHERE id IN ${dead_games}
+                AND valid = 1
+                AND removed = 0
+                AND quitted = 0`
             )
         }
     }
@@ -169,6 +170,8 @@ const checkMatches = async () => {
             `UPDATE games
             SET valid = 0, removed = 1
             WHERE valid = 1
+            AND completed = 0
+            AND quitted = 0
             AND
             (
             p1_user_id IN ${user_ids}

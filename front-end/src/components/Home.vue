@@ -43,26 +43,6 @@ export default {
         redirect(location) {
             this.$router.push({ name: location })
         },
-        async initialise(game_mode) {
-            this.loading = true
-            const data = {
-                user_id: JSON.parse(localStorage.getItem('user')).user_id,
-                game_mode,
-            }
-
-            const res = await apiRequest('post', 'initialiseGame', data)
-
-            const alive = await setInterval(async () => {
-                const hb_res = await apiRequest('post', 'heartbeat', data)
-                if (hb_res.data.status) {
-                    this.loading = false
-                    this.$router.push({ name: 'Game' })
-                    clearInterval(alive)
-                }
-            }, 2000)
-
-            //
-        },
     },
 }
 </script>

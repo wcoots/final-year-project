@@ -607,8 +607,9 @@ app.post('/deleteAccount', multipartMiddleware, async (req, res) => {
     }
 })
 
-app.post('/initialiseGame', multipartMiddleware, async (req, res) => {
+app.post('/joinQueue', multipartMiddleware, async (req, res) => {
     try {
+        // REMOVE PREVIOUS QUEUE INSTANCES
         await db.qry(
             `UPDATE queued_users
             SET valid = 0,
@@ -617,12 +618,24 @@ app.post('/initialiseGame', multipartMiddleware, async (req, res) => {
             AND matched = 0`,
             [req.body.user_id]
         )
+        // REMOVE PREVIOUS GAMES
+        await db.qry(
+            `UPDATE games
+            SET valid = 0, removed = 1
+            WHERE valid = 1
+            AND completed = 0
+            AND quitted = 0
+            AND
+            (
+            p1_user_id = ?
+            OR p2_user_id = ?
+            )`,
+            [req.body.user_id, req.body.user_id]
+        )
 
-        if (
-            req.body.game_mode !== 'SYN' &&
-            req.body.game_mode !== 'ANT' &&
-            req.body.game_mode !== 'HYP'
-        ) {
+        const game_modes = ['SYN', 'ANT', 'HYP']
+
+        if (game_modes.indexOf(req.body.game_mode) === -1) {
             return res.json({
                 status: false,
                 message: `${req.body.game_mode} is not a valid game mode`,
@@ -722,7 +735,9 @@ app.post('/quitGame', multipartMiddleware, async (req, res) => {
             `UPDATE games
             SET valid = 0,
             quitted = 1
-            WHERE id = ?`,
+            WHERE id = ?
+            AND completed = 0
+            AND removed = 0`,
             [req.body.id]
         )
 

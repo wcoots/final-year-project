@@ -91,7 +91,7 @@ export default {
                 game_mode,
             }
 
-            const res = await apiRequest('post', 'initialiseGame', data)
+            const res = await apiRequest('post', 'joinQueue', data)
 
             this.alive = await setInterval(async () => {
                 const hb_res = await apiRequest('post', 'heartbeat', data)
