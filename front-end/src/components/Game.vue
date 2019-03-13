@@ -4,6 +4,13 @@
     <div>
       <div class="container">
         <div v-if="game">
+          <el-header height="100px">
+            <br>
+            <br>
+            <Countdown v-bind:date="game.termination_date" style="float:centre;"></Countdown>
+            <br>
+          </el-header>
+
           <br>
           <br>
 
@@ -16,23 +23,39 @@
               </el-input>
 
               <br>
+              <br>Definition
               <br>
-              <el-button :disabled="next_disabled" @click="nextWord()">Next</el-button>
-              <el-button disabled @click="quit()">Quit</el-button>
+              <br>
+              <el-button
+                :disabled="next_disabled"
+                @click="nextWord()"
+                type="danger"
+                plain
+                style="float:left;"
+              >Skip word</el-button>
+
               <br>
               <br>
             </el-col>
-            <el-col :span="4">
+            <el-col :span="2">
               <h2></h2>
             </el-col>
-            <el-col :span="6">
-              <div v-if="answers.length">
-                <el-table :data="answers" width="180">
-                  <el-table-column prop="answer" label="Answers" width="180"></el-table-column>
-                </el-table>
-              </div>
+            <el-col :span="8">
+              <br>
+              <br>
+              <el-tag
+                type="warning"
+              >The other player has submitted {{ no_of_opponent_answers }} answers</el-tag>
+              <br>
+              <br>
+              <el-table :data="answers" width="180">
+                <el-table-column prop="answer" label="Answers" width="180"></el-table-column>
+              </el-table>
             </el-col>
           </el-row>
+          <el-footer>
+            <el-button disabled @click="quit()" style="float:right;">Quit</el-button>
+          </el-footer>
         </div>
       </div>
     </div>
@@ -44,10 +67,13 @@ import Header from './Header'
 import { apiRequest } from '../api/auth'
 import _ from 'lodash'
 
+import Countdown from './Countdown.vue'
+
 export default {
     name: 'Game',
     components: {
         Header,
+        Countdown,
     },
     data() {
         return {
@@ -58,6 +84,7 @@ export default {
             next_disabled: false,
             input: '',
             answers: [],
+            no_of_opponent_answers: 0,
         }
     },
     async created() {

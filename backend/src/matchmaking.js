@@ -131,7 +131,9 @@ const checkMatches = async () => {
                 grouped_users[key][i + 1].user_id
             }, '${grouped_users[key][i].game_mode}', '${token}', '${moment().format(
                 'YYYY-MM-DD HH:mm:ss'
-            )}', '${words}'),\n`
+            )}', '${moment()
+                .add(150, 'seconds')
+                .format('YYYY-MM-DD HH:mm:ss')}', '${words}'),\n`
 
             queued_values += temp1
             queued_values += temp2
@@ -181,7 +183,7 @@ const checkMatches = async () => {
         // INSERT THE GAME DETAILS
         await db.qry(
             `INSERT INTO games
-            (p1_user_id, p2_user_id, game_mode, token, initialisation_date, words)
+            (p1_user_id, p2_user_id, game_mode, token, initialisation_date, termination_date, words)
             VALUES ${game_values}`
         )
     }
