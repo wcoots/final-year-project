@@ -126,7 +126,6 @@ const checkMatches = async () => {
             //
             // (p1_user_id, p2_user_id, game_mode, token)
             // RECORD THE GAME'S DATA AS A STRING
-
             const temp3 = `(${grouped_users[key][i].user_id}, ${
                 grouped_users[key][i + 1].user_id
             }, '${grouped_users[key][i].game_mode}', '${token}', '${moment().format(
@@ -185,6 +184,32 @@ const checkMatches = async () => {
             `INSERT INTO games
             (p1_user_id, p2_user_id, game_mode, token, initialisation_date, termination_date, words)
             VALUES ${game_values}`
+        )
+    }
+
+    // GET GAMES WHOSE WORDS HAVE NOT BEEN ADDED TO THE WORDS TABLE
+    const undocumented_games = await db.qry(
+        `SELECT id, words
+        FROM games
+        WHERE id NOT IN (
+            SELECT game_id
+            FROM words
+        )`
+    )
+    if (undocumented_games.length) {
+        let queued_words = ''
+        undocumented_games.forEach(game => {
+            JSON.parse(game.words).forEach(word => {
+                const temp4 = `(${game.id}, '${word}'),\n`
+                queued_words += temp4
+            })
+        })
+        queued_words = queued_words.slice(0, -2) // eg: "(1,2,3),(4,5,6),(7,8,9)"
+        // INSERT THE WORDS
+        await db.qry(
+            `INSERT INTO words
+            (game_id, word)
+            VALUES ${queued_words}`
         )
     }
 

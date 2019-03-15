@@ -704,7 +704,7 @@ app.post('/getGameInfo', multipartMiddleware, async (req, res) => {
     try {
         // TODO: change games_copy to games when in production
         const games = await db.qry(
-            `SELECT *
+            `SELECT id, p1_user_id, p2_user_id, game_mode, initialisation_date, termination_date, token, words
             FROM games_copy
             WHERE valid = 1
             AND completed = 0
@@ -722,6 +722,7 @@ app.post('/getGameInfo', multipartMiddleware, async (req, res) => {
             return res.json({
                 status: true,
                 game,
+                player_no: game.p1_user_id === req.body.user_id ? 1 : 2,
             })
         }
 
@@ -735,7 +736,7 @@ app.post('/getGameInfo', multipartMiddleware, async (req, res) => {
 
 app.post('/quitGame', multipartMiddleware, async (req, res) => {
     try {
-        const games = await db.qry(
+        await db.qry(
             `UPDATE games
             SET valid = 0,
             quitted = 1
@@ -744,6 +745,81 @@ app.post('/quitGame', multipartMiddleware, async (req, res) => {
             AND removed = 0`,
             [req.body.id]
         )
+
+        return res.json({
+            status: true,
+        })
+    } catch (error) {
+        throw error
+    }
+})
+
+app.post('/submitAnswer', multipartMiddleware, async (req, res) => {
+    try {
+        const this_player_no_answers = `${(req.body.player_no = 1 ? 'p1' : 'p2')}_answers`
+        const other_player_no_answers = `${(req.body.player_no = 1 ? 'p2' : 'p1')}_answers`
+        const answers_as_string = await db.qry(
+            `SELECT ${this_player_no_answers} AS this_player, ${other_player_no_answers} AS other_player
+            FROM words
+            WHERE game_id = ?
+            AND word = ?`,
+            [req.body.game_id, req.body.current_word]
+        )
+
+        if (!answers_as_string.length) {
+            return res.json({
+                status: false,
+            })
+        }
+
+        const answers = answers_as_string[0]
+
+        const this_players_words = JSON.parse(answers.this_player)
+        const other_players_words = JSON.parse(answers.other_player)
+
+        const match = {
+            status: false,
+            answer: null,
+        }
+
+        req.body.answers.forEach(answer => {
+            this_players_words.push(answer.answer)
+            if (_.indexOf(other_players_words, answer.answer) !== -1) {
+                match.status = true
+                match.answer = answer.answer
+            }
+        })
+
+        let this_players_words_as_string = ''
+        this_players_words.forEach(word => {
+            this_players_words_as_string += `"${word}", `
+        })
+        this_players_words_as_string = `[${this_players_words_as_string.slice(0, -2)}]`
+
+        if (match.status) {
+            await db.qry(
+                `UPDATE words
+                SET matched = 1,
+                matched_word = ?,
+                ${this_player_no_answers} = ?
+                WHERE game_id = ?
+                AND word = ?`,
+                [
+                    match.answer,
+                    this_players_words_as_string,
+                    req.body.game_id,
+                    req.body.current_word,
+                ]
+            )
+        } else {
+            await db.qry(
+                `UPDATE words
+                SET ${this_player_no_answers} = ?
+                WHERE game_id = ?
+                AND word = ?`,
+                [this_players_words_as_string, req.body.game_id, req.body.current_word]
+            )
+        }
 
         return res.json({
             status: true,

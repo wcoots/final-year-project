@@ -85,6 +85,7 @@ export default {
             input: '',
             answers: [],
             no_of_opponent_answers: 0,
+            player_no: null,
         }
     },
     async created() {
@@ -107,18 +108,32 @@ export default {
 
         const res = await apiRequest('post', 'getGameInfo', data)
 
+        this.player_no = res.data.player_no
+
         res.data.status ? (this.game = res.data.game) : this.$router.push({ name: 'Home' })
     },
     async mounted() {},
     methods: {
         async submit(input) {
+            input = _.toLower(input)
+            const data = {
+                game_id: this.game.id,
+                current_word: this.game.words[this.current_word_index],
+                answers: [],
+                user_id: this.user.user_id,
+                player_no: this.player_no,
+            }
             const words = _.words(input)
             words.forEach(word => {
-                const data = { answer: word }
-                if (!_.filter(this.answers, data).length && word.length) {
-                    this.answers.push(data)
+                const x = { answer: word }
+                if (!_.filter(this.answers, x).length && word.length) {
+                    this.answers.push(x)
+                    data.answers.push(x)
                 }
             })
+            if (data.answers.length) {
+                const res = await apiRequest('post', 'submitAnswer', data)
+            }
 
             this.input = ''
         },
