@@ -802,6 +802,7 @@ app.post('/submitAnswer', multipartMiddleware, async (req, res) => {
             await db.qry(
                 `UPDATE words
                 SET matched = 1,
+                passed = 0,
                 matched_word = ?,
                 ${this_player_no_answers} = ?
                 WHERE game_id = ?
@@ -831,6 +832,24 @@ app.post('/submitAnswer', multipartMiddleware, async (req, res) => {
                 status: false,
             })
         }
+    } catch (error) {
+        throw error
+    }
+})
+
+app.post('/skipWord', multipartMiddleware, async (req, res) => {
+    try {
+        await db.qry(
+            `UPDATE words
+            SET passed = 1,
+            matched = 0
+            WHERE game_id = ?
+            AND word = ?`,
+            [req.body.game_id, req.body.current_word]
+        )
+        return res.json({
+            status: true,
+        })
     } catch (error) {
         throw error
     }

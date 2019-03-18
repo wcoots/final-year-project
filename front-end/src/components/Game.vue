@@ -28,7 +28,7 @@
               <br>
               <el-button
                 :disabled="next_disabled"
-                @click="nextWord()"
+                @click="skipWord()"
                 type="danger"
                 plain
                 style="float:left;"
@@ -142,8 +142,26 @@ export default {
                     this.nextWord()
                 }
             }
-
             this.input = ''
+        },
+        async skipWord() {
+            const data = {
+                game_id: this.game.id,
+                current_word: this.game.words[this.current_word_index],
+                user_id: this.user.user_id,
+            }
+            await apiRequest('post', 'skipWord', data)
+            await this.$alert('Waiting for the other player to confirm', 'Word skipped', {
+                confirmButtonText: 'OK',
+                closeOnClickModal: false,
+                showClose: false,
+                type: 'info',
+                beforeClose: action => {
+                    setInterval(10000000000)
+                    // LISTEN HERE FOR THE OTHER PLAYER SKIPPING
+                },
+            })
+            this.nextWord()
         },
         nextWord() {
             this.input = ''
