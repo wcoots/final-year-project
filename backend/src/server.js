@@ -784,11 +784,13 @@ app.post('/submitAnswer', multipartMiddleware, async (req, res) => {
 
         req.body.answers.forEach(answer => {
             this_players_words.push(answer.answer)
-            if (_.indexOf(other_players_words, answer.answer) !== -1) {
-                match.status = true
-                match.answer = answer.answer
-            }
         })
+
+        const matches = _.intersection(this_players_words, other_players_words)
+        if (matches.length) {
+            match.status = true
+            match.answer = matches[0]
+        }
 
         let this_players_words_as_string = ''
         this_players_words.forEach(word => {
@@ -811,6 +813,11 @@ app.post('/submitAnswer', multipartMiddleware, async (req, res) => {
                     req.body.current_word,
                 ]
             )
+
+            return res.json({
+                status: true,
+                word: match.answer,
+            })
         } else {
             await db.qry(
                 `UPDATE words
@@ -819,11 +826,11 @@ app.post('/submitAnswer', multipartMiddleware, async (req, res) => {
                 AND word = ?`,
                 [this_players_words_as_string, req.body.game_id, req.body.current_word]
             )
-        }
 
-        return res.json({
-            status: true,
-        })
+            return res.json({
+                status: false,
+            })
+        }
     } catch (error) {
         throw error
     }

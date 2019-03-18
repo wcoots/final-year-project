@@ -133,6 +133,14 @@ export default {
             })
             if (data.answers.length) {
                 const res = await apiRequest('post', 'submitAnswer', data)
+                if (res.data.status) {
+                    this.$message({
+                        dangerouslyUseHTMLString: true,
+                        message: `You matched on the word "<strong>${res.data.word}</strong>"`,
+                        type: 'success',
+                    })
+                    this.nextWord()
+                }
             }
 
             this.input = ''
