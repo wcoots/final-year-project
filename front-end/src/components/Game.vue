@@ -116,20 +116,32 @@ export default {
 
         if (process.env.NODE_ENV === 'development') {
             this.socket = io.connect('localhost:8080', { query: `token=${this.game.token}` })
-        } else if (process.env.NODE_ENV === 'development') {
+        } else if (process.env.NODE_ENV === 'production') {
             this.socket = io.connect('api.werdz.fun', { query: `token=${this.game.token}` })
         } else {
             this.$router.push({ name: 'Home' })
         }
     },
-    // mounted() {
-    //     this.socket.on('MESSAGE', data => {
-    //         this.messages.push(data.message)
-    //     })
-    // },
+    mounted() {
+        this.socket.on('answerSubmitted', data => {
+            console.log(data)
+            // if (data.status) {
+            //     this.$message({
+            //         dangerouslyUseHTMLString: true,
+            //         message: `You matched on the word "<strong>${data.word}</strong>"`,
+            //         type: 'success',
+            //     })
+            //     this.nextWord()
+            // } else {
+            //     this.no_of_opponent_answers =
+            //         data.this_player_id === this.user.user_id
+            //             ? other_player_word_count
+            //             : this_player_word_count
+            // }
+        })
+    },
     methods: {
         submit(e) {
-            const input = _.toLower(this.input)
             const data = {
                 game_id: this.game.id,
                 current_word: this.game.words[this.current_word_index],
@@ -138,7 +150,8 @@ export default {
                 player_no: this.player_no,
                 game_token: this.game.token,
             }
-            const words = _.words(input)
+            // DONE IN FRONTEND SO AS TO NOT ADD MUTLIPLE WORDS TO THE LIST
+            const words = _.words(_.toLower(this.input))
             words.forEach(word => {
                 const x = { answer: word }
                 if (!_.filter(this.answers, x).length && word.length) {
@@ -148,17 +161,7 @@ export default {
             })
             if (data.answers.length) {
                 e.preventDefault()
-
                 this.socket.emit('submitAnswer', data)
-                // const res = await apiRequest('post', 'submitAnswer', data)
-                // if (res.data.status) {
-                //     this.$message({
-                //         dangerouslyUseHTMLString: true,
-                //         message: `You matched on the word "<strong>${res.data.word}</strong>"`,
-                //         type: 'success',
-                //     })
-                //     this.nextWord()
-                // }
             }
             this.input = ''
         },
