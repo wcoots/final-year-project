@@ -13,7 +13,6 @@ import ValidateNewEmail from '@/components/ValidateNewEmail'
 import SinglePlayer from '@/components/SinglePlayer'
 import MultiPlayer from '@/components/MultiPlayer'
 import Game from '@/components/Game'
-import Test from '@/components/Test'
 
 Vue.use(Router)
 
@@ -84,11 +83,6 @@ export default new Router({
             path: '/game',
             name: 'Game',
             component: Game,
-        },
-        {
-            path: '/test',
-            name: 'Test',
-            component: Test,
         },
     ],
 })
