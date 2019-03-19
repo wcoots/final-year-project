@@ -760,24 +760,6 @@ app.post('/quitGame', multipartMiddleware, async (req, res) => {
     }
 })
 
-app.post('/skipWord', multipartMiddleware, async (req, res) => {
-    try {
-        await db.qry(
-            `UPDATE words
-            SET passed = 1,
-            matched = 0
-            WHERE game_id = ?
-            AND word = ?`,
-            [req.body.game_id, req.body.current_word]
-        )
-        return res.json({
-            status: true,
-        })
-    } catch (error) {
-        throw error
-    }
-})
-
 app.use((req, res, next) => {
     const token = req.body.token || req.query.token || req.headers['x-access-token']
 
@@ -881,6 +863,7 @@ io.on('connection', socket => {
                 )
 
                 io.in(req.game_token).emit('answerSubmitted', {
+                    // EMIT TO BOTH PLAYERS
                     status: true,
                     word: match.answer,
                 })
@@ -905,6 +888,56 @@ io.on('connection', socket => {
 
                 return
             }
+        } catch (error) {
+            throw error
+        }
+    })
+
+    socket.on('skipWord', async req => {
+        try {
+            await db.qry(
+                `UPDATE words
+                SET passed = 1,
+                matched = 0
+                WHERE game_id = ?
+                AND word = ?`,
+                [req.game_id, req.current_word]
+            )
+            socket.to(req.game_token).emit('otherPlayerSkipped', {
+                // EMIT ONLY TO OTHER PLAYER
+                status: true,
+            })
+        } catch (error) {
+            throw error
+        }
+    })
+
+    socket.on('confirmSkip', async req => {
+        try {
+            socket.to(req.game_token).emit('otherPlayerConfirmedSkipped', {
+                // EMIT ONLY TO OTHER PLAYER
+                status: true,
+            })
+        } catch (error) {
+            throw error
+        }
+    })
+
+    socket.on('quitGame', async req => {
+        try {
+            await db.qry(
+                `UPDATE games
+                SET valid = 0,
+                quitted = 1
+                WHERE id = ?
+                AND completed = 0
+                AND removed = 0`,
+                [req.id]
+            )
+            socket.to(req.game_token).emit('otherPlayerQuit', {
+                // EMIT ONLY TO OTHER PLAYER
+                status: true,
+            })
         } catch (error) {
             throw error
         }

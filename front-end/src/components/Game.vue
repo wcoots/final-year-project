@@ -88,6 +88,7 @@ export default {
             answers: [],
             no_of_opponent_answers: 0,
             player_no: null,
+            word_skipped: false,
         }
     },
     async created() {
@@ -107,12 +108,9 @@ export default {
             user_id: JSON.parse(localStorage.getItem('user')).user_id,
             token: this.token,
         }
-
         const res = await apiRequest('post', 'getGameInfo', data)
-
-        this.player_no = res.data.player_no
-
         res.data.status ? (this.game = res.data.game) : this.$router.push({ name: 'Home' })
+        this.player_no = res.data.player_no
 
         if (process.env.NODE_ENV === 'development') {
             this.socket = io.connect('localhost:8080', { query: `token=${this.game.token}` })
@@ -123,7 +121,9 @@ export default {
         }
 
         this.socket.on('answerSubmitted', data => {
+            // WHEN EITHER PLAYER SUBMITS AN ANSWER
             if (data.status) {
+                // IF THE ANSWER WAS A MATCH
                 this.$message({
                     dangerouslyUseHTMLString: true,
                     message: `You matched on the word "<strong>${data.word}</strong>"`,
@@ -131,12 +131,33 @@ export default {
                 })
                 this.nextWord()
             } else {
+                // IF THE ANSWER WAS NOT A MATCH
                 this.no_of_opponent_answers =
                     data.this_player_id === this.user.user_id
                         ? data.other_player_word_count
                         : data.this_player_word_count
             }
         })
+        this.socket.on('otherPlayerSkipped', data => {
+            // WHEN THE OTHER PLAYER SKIPS THE WORD
+            this.$alert('The other player skipped this word', 'Word skipped', {
+                confirmButtonText: 'OK',
+                closeOnClickModal: false,
+                showClose: false,
+                type: 'info',
+                beforeClose: action => {
+                    const data = { game_token: this.game.token }
+                    this.socket.emit('confirmSkip', data)
+                    this.nextWord()
+                },
+            })
+        })
+        this.socket.on('otherPlayerConfirmedSkipped', data => {
+            this.word_skipped = false
+        })
+        // this.socket.on('otherPlayerQuit', data => {
+        //     // WHEN THE OTHER PLAYER SKIPS THE WORD
+        // })
     },
     methods: {
         submit(e) {
@@ -163,21 +184,29 @@ export default {
             }
             this.input = ''
         },
-        async skipWord() {
+        async skipWord(e) {
             const data = {
                 game_id: this.game.id,
                 current_word: this.game.words[this.current_word_index],
                 user_id: this.user.user_id,
+                game_token: this.game.token,
             }
-            await apiRequest('post', 'skipWord', data)
+            this.socket.emit('skipWord', data)
+            this.word_skipped = true
             await this.$alert('Waiting for the other player to confirm', 'Word skipped', {
                 confirmButtonText: 'OK',
                 closeOnClickModal: false,
                 showClose: false,
                 type: 'info',
                 beforeClose: action => {
-                    setInterval(10000000000)
-                    // LISTEN HERE FOR THE OTHER PLAYER SKIPPING
+                    const x = () => {
+                        console.log(this.word_skipped)
+                        if (!this.word_skipped) {
+                            clearInterval(id)
+                        }
+                    }
+                    const id = setInterval(x, 1000)
+                    // console.log('hi')
                 },
             })
             this.nextWord()
@@ -192,8 +221,9 @@ export default {
                 this.next_disabled = true
             }
         },
-        async quit() {
-            const res = await apiRequest('post', 'quitGame', this.game)
+        quit(e) {
+            e.preventDefault()
+            this.socket.emit('quitGame', this.game)
             this.$router.push({ name: 'Home' })
         },
     },
