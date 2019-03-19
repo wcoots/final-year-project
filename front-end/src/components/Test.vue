@@ -76,13 +76,6 @@ export default {
             this.$router.push({ name: 'SignUp' })
         }
         this.user = JSON.parse(localStorage.getItem('user'))
-        if (process.env.NODE_ENV === 'development') {
-            this.socket = io('localhost:8080')
-        } else if (process.env.NODE_ENV === 'production') {
-            this.socket = io('api.werdz.fun')
-        } else {
-            this.$router.push({ name: 'SignUp' })
-        }
     },
     async mounted() {
         this.socket.on('MESSAGE', data => {

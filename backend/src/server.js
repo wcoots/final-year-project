@@ -894,20 +894,16 @@ const server = app.listen(PORT, () => {
 
 const io = require('socket.io')(server)
 
-io.on('connection', function(socket) {
-    socket.join('room1')
-    socket.on('SEND_MESSAGE', function(data) {
-        console.log('sent')
+io.on('connection', socket => {
+    var handshakeData = socket.request
+    const token = handshakeData._query['token']
+    if (token) {
+        socket.join(token)
+    }
+
+    socket.on('submitAnswer', data => {
         console.log(data)
-        console.log(socket.id)
         console.log('\n------------\n')
-        io.in('room1').emit('MESSAGE', data)
-    })
-    socket.on('RECIEVE_MESSAGE', function(data) {
-        console.log('recieved')
-        console.log(data)
-        console.log(socket.id)
-        console.log('\n------------\n')
-        io.in('room1').emit('MESSAGE', data)
+        io.in('test_token').emit('MESSAGE', data)
     })
 })
