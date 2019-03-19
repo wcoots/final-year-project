@@ -820,9 +820,10 @@ io.on('connection', socket => {
     socket.on('submitAnswer', async req => {
         try {
             // THE SUBMITTING PLAYER'S PLAYER NUMBER
-            const this_player_no_answers = `${(req.player_no = 1 ? 'p1' : 'p2')}_answers`
+            const this_player_no_answers = req.player_no === 1 ? 'p1_answers' : 'p2_answers'
             // THE OTHER PLAYER'S PLAYER NUMBER
-            const other_player_no_answers = `${(req.player_no = 1 ? 'p2' : 'p1')}_answers`
+            const other_player_no_answers = req.player_no === 1 ? 'p2_answers' : 'p1_answers'
+
             // GET THE CURRENT ANSWERS PREVIOUSLY ENTERED BY BOTH PLAYERS
             const answers_as_string = await db.qry(
                 `SELECT ${this_player_no_answers} AS this_player, ${other_player_no_answers} AS other_player
