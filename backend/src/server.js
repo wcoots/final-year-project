@@ -29,9 +29,15 @@ app.set('appSecret', 'secretforproject')
 // Multiparty Middleware
 const multipartMiddleware = multipart()
 
+// const io = require('socket.io')(app)
+
 function isEmpty(str) {
     return !str || 0 === str.length
 }
+
+// io.on('connection', function(socket) {
+//     console.log('a user connected')
+// })
 
 app.post('/register', multipartMiddleware, async (req, res) => {
     try {
@@ -882,6 +888,26 @@ app.get('/', (req, res) => {
     res.send('<h1>Welcome to Werdz</h1>')
 })
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`App running on port ${PORT}`)
+})
+
+const io = require('socket.io')(server)
+
+io.on('connection', function(socket) {
+    socket.join('room1')
+    socket.on('SEND_MESSAGE', function(data) {
+        console.log('sent')
+        console.log(data)
+        console.log(socket.id)
+        console.log('\n------------\n')
+        io.in('room1').emit('MESSAGE', data)
+    })
+    socket.on('RECIEVE_MESSAGE', function(data) {
+        console.log('recieved')
+        console.log(data)
+        console.log(socket.id)
+        console.log('\n------------\n')
+        io.in('room1').emit('MESSAGE', data)
+    })
 })
