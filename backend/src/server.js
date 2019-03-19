@@ -819,104 +819,90 @@ io.on('connection', socket => {
 
     socket.on('submitAnswer', async req => {
         try {
-            // // THE SUBMITTING PLAYER'S PLAYER NUMBER
-            // const this_player_no_answers = `${(req.player_no = 1 ? 'p1' : 'p2')}_answers`
-            // // THE OTHER PLAYER'S PLAYER NUMBER
-            // const other_player_no_answers = `${(req.player_no = 1 ? 'p2' : 'p1')}_answers`
-            // // GET THE CURRENT ANSWERS PREVIOUSLY ENTERED BY BOTH PLAYERS
-            // const answers_as_string = await db.qry(
-            //     `SELECT ${this_player_no_answers} AS this_player, ${other_player_no_answers} AS other_player
-            //     FROM words
-            //     WHERE game_id = ?
-            //     AND word = ?`,
-            //     [req.game_id, req.current_word]
-            // )
+            // THE SUBMITTING PLAYER'S PLAYER NUMBER
+            const this_player_no_answers = `${(req.player_no = 1 ? 'p1' : 'p2')}_answers`
+            // THE OTHER PLAYER'S PLAYER NUMBER
+            const other_player_no_answers = `${(req.player_no = 1 ? 'p2' : 'p1')}_answers`
+            // GET THE CURRENT ANSWERS PREVIOUSLY ENTERED BY BOTH PLAYERS
+            const answers_as_string = await db.qry(
+                `SELECT ${this_player_no_answers} AS this_player, ${other_player_no_answers} AS other_player
+                FROM words
+                WHERE game_id = ?
+                AND word = ?`,
+                [req.game_id, req.current_word]
+            )
 
-            // if (!answers_as_string.length) {
-            //     return
-            // }
+            if (!answers_as_string.length) {
+                return
+            }
 
-            // const answers = answers_as_string[0]
+            const answers = answers_as_string[0]
 
-            // // CONVERT STRINGS TO ACTUAL
-            // const this_players_words = JSON.parse(answers.this_player)
-            // const other_players_words = JSON.parse(answers.other_player)
+            // CONVERT STRINGS TO ACTUAL
+            const this_players_words = JSON.parse(answers.this_player)
+            const other_players_words = JSON.parse(answers.other_player)
 
-            // const match = {
-            //     status: false,
-            //     answer: null,
-            // }
+            const match = {
+                status: false,
+                answer: null,
+            }
 
-            // // FOR EACH NEW ANSWER, ADD IT TO THIS PLAYER'S ANSWERS
-            // req.answers.forEach(answer => {
-            //     this_players_words.push(answer.answer)
-            // })
+            // FOR EACH NEW ANSWER, ADD IT TO THIS PLAYER'S ANSWERS
+            req.answers.forEach(answer => {
+                this_players_words.push(answer.answer)
+            })
 
-            // // FIND ANSWERS THAT ARE IN BOTH PLAYER'S ARRAYS OF ANSWERS
-            // const matches = _.intersection(this_players_words, other_players_words)
-            // if (matches.length) {
-            //     match.status = true
-            //     match.answer = matches[0]
-            // }
+            // FIND ANSWERS THAT ARE IN BOTH PLAYER'S ARRAYS OF ANSWERS
+            const matches = _.intersection(this_players_words, other_players_words)
+            if (matches.length) {
+                match.status = true
+                match.answer = matches[0]
+            }
 
-            // // PREPARE ANSWERS TO BE RE-ADDED TO THE DATABASE
-            // let this_players_words_as_string = ''
-            // this_players_words.forEach(word => {
-            //     this_players_words_as_string += `"${word}", `
-            // })
-            // this_players_words_as_string = `[${this_players_words_as_string.slice(0, -2)}]`
+            // PREPARE ANSWERS TO BE RE-ADDED TO THE DATABASE
+            let this_players_words_as_string = ''
+            this_players_words.forEach(word => {
+                this_players_words_as_string += `"${word}", `
+            })
+            this_players_words_as_string = `[${this_players_words_as_string.slice(0, -2)}]`
 
-            // if (match.status) {
-            //     // IF THERE WAS A MATCH
-            //     await db.qry(
-            //         `UPDATE words
-            //         SET matched = 1,
-            //         passed = 0,
-            //         matched_word = ?,
-            //         ${this_player_no_answers} = ?
-            //         WHERE game_id = ?
-            //         AND word = ?`,
-            //         [match.answer, this_players_words_as_string, req.game_id, req.current_word]
-            //     )
+            if (match.status) {
+                // IF THERE WAS A MATCH
+                await db.qry(
+                    `UPDATE words
+                    SET matched = 1,
+                    passed = 0,
+                    matched_word = ?,
+                    ${this_player_no_answers} = ?
+                    WHERE game_id = ?
+                    AND word = ?`,
+                    [match.answer, this_players_words_as_string, req.game_id, req.current_word]
+                )
 
-            //     io.in(req.game_token).emit('answerSubmitted', {
-            //         status: true,
-            //         word: match.answer,
-            //     })
-
-            //     return
-            // } else {
-            //     // IF THERE WAS NOT A MATCH
-            //     await db.qry(
-            //         `UPDATE words
-            //         SET ${this_player_no_answers} = ?
-            //         WHERE game_id = ?
-            //         AND word = ?`,
-            //         [this_players_words_as_string, req.game_id, req.current_word]
-            //     )
-
-            //     io.in(req.game_token).emit('answerSubmitted', {
-            //         status: false,
-            //         this_player_id: req.user_id,
-            //         this_player_word_count: this_players_words.length,
-            //         other_player_word_count: other_players_words.length,
-            //     })
-
-            //     return
-            // }
-            const x = true
-            if (x) {
                 io.in(req.game_token).emit('answerSubmitted', {
                     status: true,
-                    word: 'shit',
+                    word: match.answer,
                 })
+
+                return
             } else {
+                // IF THERE WAS NOT A MATCH
+                await db.qry(
+                    `UPDATE words
+                    SET ${this_player_no_answers} = ?
+                    WHERE game_id = ?
+                    AND word = ?`,
+                    [this_players_words_as_string, req.game_id, req.current_word]
+                )
+
                 io.in(req.game_token).emit('answerSubmitted', {
                     status: false,
                     this_player_id: req.user_id,
-                    this_player_word_count: 5,
-                    other_player_word_count: 6,
+                    this_player_word_count: this_players_words.length,
+                    other_player_word_count: other_players_words.length,
                 })
+
+                return
             }
         } catch (error) {
             throw error

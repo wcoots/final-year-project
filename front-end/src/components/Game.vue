@@ -121,23 +121,21 @@ export default {
         } else {
             this.$router.push({ name: 'Home' })
         }
-    },
-    mounted() {
+
         this.socket.on('answerSubmitted', data => {
-            console.log(data)
-            // if (data.status) {
-            //     this.$message({
-            //         dangerouslyUseHTMLString: true,
-            //         message: `You matched on the word "<strong>${data.word}</strong>"`,
-            //         type: 'success',
-            //     })
-            //     this.nextWord()
-            // } else {
-            //     this.no_of_opponent_answers =
-            //         data.this_player_id === this.user.user_id
-            //             ? other_player_word_count
-            //             : this_player_word_count
-            // }
+            if (data.status) {
+                this.$message({
+                    dangerouslyUseHTMLString: true,
+                    message: `You matched on the word "<strong>${data.word}</strong>"`,
+                    type: 'success',
+                })
+                this.nextWord()
+            } else {
+                this.no_of_opponent_answers =
+                    data.this_player_id === this.user.user_id
+                        ? data.other_player_word_count
+                        : data.this_player_word_count
+            }
         })
     },
     methods: {
