@@ -27,9 +27,13 @@
 
 <script>
 import moment from 'moment'
+import { apiRequest } from '../api/auth'
+
 export default {
     props: {
         date: String,
+        game_id: Number,
+        token: String,
     },
     data() {
         return {
@@ -41,6 +45,7 @@ export default {
             bar_percentage: 100,
             bar_colour: '#67C23A',
             max_sec: 1,
+            timer_is_going: false,
         }
     },
     created() {
@@ -77,10 +82,24 @@ export default {
         getDifference() {
             return this.termination_date - this.actualTime
         },
-        compute() {
+        async compute() {
             let duration = moment.duration(this.getDifference(), 'seconds')
             this.minutes = duration.minutes() > 0 ? duration.minutes() : 0
             this.seconds = duration.seconds() > 0 ? duration.seconds() : 0
+            if (!this.minutes && !this.seconds) {
+                if (this.timer_is_going) {
+                    const data = {
+                        game_id: this.game_id,
+                    }
+                    const res = await apiRequest('post', 'finishGame', data)
+                    this.$router.push({
+                        name: 'GameResults',
+                        query: { token: this.token },
+                    })
+                } else {
+                    this.timer_is_going = true
+                }
+            }
         },
     },
     watch: {

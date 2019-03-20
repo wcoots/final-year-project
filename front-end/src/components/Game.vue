@@ -7,7 +7,12 @@
           <el-header height="100px">
             <br>
             <br>
-            <Countdown v-bind:date="game.termination_date" style="float:centre;"></Countdown>
+            <Countdown
+              v-bind:date="game.termination_date"
+              v-bind:game_id="game.id"
+              v-bind:token="token"
+              style="float:centre;"
+            ></Countdown>
             <br>
           </el-header>
 
@@ -135,7 +140,7 @@ export default {
             this.$router.push({ name: 'Home' })
         }
 
-        this.socket.on('answerSubmitted', data => {
+        this.socket.on('answerSubmitted', async data => {
             // WHEN EITHER PLAYER SUBMITS AN ANSWER
             if (data.status) {
                 // IF THE ANSWER WAS A MATCH
@@ -205,6 +210,8 @@ export default {
                 user_id: this.user.user_id,
                 player_no: this.player_no,
                 game_token: this.game.token,
+                current_word_index: this.current_word_index,
+                max_word_index: this.game.words.length - 1,
             }
             // DONE IN FRONTEND SO AS TO NOT ADD MUTLIPLE WORDS TO THE LIST
             const words = _.words(_.toLower(this.input))

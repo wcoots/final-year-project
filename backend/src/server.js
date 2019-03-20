@@ -740,6 +740,27 @@ app.post('/getGameInfo', multipartMiddleware, async (req, res) => {
     }
 })
 
+app.post('/finishGame', multipartMiddleware, async (req, res) => {
+    try {
+        // TODO: change games_copy to games when in production
+        await db.qry(
+            `UPDATE games_copy
+            SET completed = 1,
+            valid = 0
+            WHERE id = ?
+            AND quitted = 0
+            AND removed = 0`,
+            [req.body.game_id]
+        )
+
+        return res.json({
+            status: true,
+        })
+    } catch (error) {
+        throw error
+    }
+})
+
 app.post('/getGameResults', multipartMiddleware, async (req, res) => {
     try {
         // TODO: change games_copy to games when in production
@@ -904,6 +925,18 @@ io.on('connection', socket => {
                     [match.answer, this_players_words_as_string, req.game_id, req.current_word]
                 )
 
+                if (req.max_word_index === req.current_word_index) {
+                    await db.qry(
+                        `UPDATE games_copy
+                        SET completed = 1,
+                        valid = 0
+                        WHERE id = ?
+                        AND quitted = 0
+                        AND removed = 0`,
+                        [req.game_id]
+                    )
+                }
+
                 io.in(req.game_token).emit('answerSubmitted', {
                     // EMIT TO BOTH PLAYERS
                     status: true,
@@ -974,6 +1007,14 @@ io.on('connection', socket => {
                 WHERE id = ?
                 AND completed = 0
                 AND removed = 0`,
+                [req.game_id]
+            )
+            await db.qry(
+                `UPDATE words
+                SET uncompleted = 1
+                WHERE game_id = ?
+                AND matched is NULL
+                AND passed is NULL`,
                 [req.game_id]
             )
             socket.to(req.game_token).emit('otherPlayerQuit', {
