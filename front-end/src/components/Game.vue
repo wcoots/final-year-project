@@ -49,6 +49,12 @@
             <el-col :span="8">
               <br>
               <br>
+              <el-tag type="warning">
+                <span
+                  v-if="current_word_index !== game.words.length - 1"
+                >{{ game.words.length - 1 - current_word_index }} words remaining</span>
+                <span v-if="current_word_index === game.words.length - 1">final word</span>
+              </el-tag>
               <el-tag
                 type="warning"
               >The other player has submitted {{ no_of_opponent_answers }} answers</el-tag>
@@ -138,7 +144,14 @@ export default {
                     message: `You matched on the word "<strong>${data.word}</strong>"`,
                     type: 'success',
                 })
-                this.nextWord()
+                if (this.current_word_index === this.game.words.length - 1) {
+                    this.$router.push({
+                        name: 'GameResults',
+                        query: { token: this.token },
+                    })
+                } else {
+                    this.nextWord()
+                }
             } else {
                 // IF THE ANSWER WAS NOT A MATCH
                 this.no_of_opponent_answers =
