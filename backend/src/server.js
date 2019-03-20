@@ -740,20 +740,62 @@ app.post('/getGameInfo', multipartMiddleware, async (req, res) => {
     }
 })
 
-app.post('/quitGame', multipartMiddleware, async (req, res) => {
+app.post('/getGameResults', multipartMiddleware, async (req, res) => {
     try {
-        await db.qry(
-            `UPDATE games
-            SET valid = 0,
-            quitted = 1
-            WHERE id = ?
-            AND completed = 0
-            AND removed = 0`,
-            [req.body.id]
+        // TODO: change games_copy to games when in production
+        const games = await db.qry(
+            `SELECT id, p1_user_id, p2_user_id
+            FROM games_copy
+            WHERE token = ?`,
+            [req.body.token]
+        )
+        const game = games[0]
+
+        // DETERMINE PLAYER NUMBER
+        const player_no = game.p1_user_id === req.body.user_id ? 1 : 2
+        // THE SUBMITTING PLAYER'S PLAYER NUMBER
+        const this_player_no_answers = player_no === 1 ? 'p1_answers' : 'p2_answers'
+        // THE OTHER PLAYER'S PLAYER NUMBER
+        const other_player_no_answers = player_no === 1 ? 'p2_answers' : 'p1_answers'
+
+        // GET ALL WORDS FOR THAT GAME
+        const words = await db.qry(
+            `SELECT word, ${this_player_no_answers} AS this_player, ${other_player_no_answers} AS other_player, matched, matched_word, passed
+            FROM words
+            WHERE game_id = ?`,
+            [game.id]
         )
 
+        if (words.length) {
+            let matched_count = 0
+            let passed_count = 0
+            words.forEach(word => {
+                if (word.matched) {
+                    matched_count++
+                } else {
+                    passed_count++
+                }
+                let this_player_words = ''
+                let other_player_words = ''
+                JSON.parse(word.this_player).forEach(answer => {
+                    this_player_words += `${answer}, `
+                })
+                JSON.parse(word.other_player).forEach(answer => {
+                    other_player_words += `${answer}, `
+                })
+                word.this_player = this_player_words.slice(0, -2)
+                word.other_player = other_player_words.slice(0, -2)
+            })
+            return res.json({
+                status: true,
+                words,
+                matched_count,
+                passed_count,
+            })
+        }
+
         return res.json({
-            status: true,
+            status: false,
         })
     } catch (error) {
         throw error
@@ -926,13 +968,13 @@ io.on('connection', socket => {
     socket.on('quitGame', async req => {
         try {
             await db.qry(
-                `UPDATE games
+                `UPDATE games_copy
                 SET valid = 0,
                 quitted = 1
                 WHERE id = ?
                 AND completed = 0
                 AND removed = 0`,
-                [req.id]
+                [req.game_id]
             )
             socket.to(req.game_token).emit('otherPlayerQuit', {
                 // EMIT ONLY TO OTHER PLAYER

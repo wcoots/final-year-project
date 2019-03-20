@@ -18,8 +18,13 @@
             <el-col :span="14">
               <h1>{{ game.words[current_word_index] }}</h1>
               <br>
-              <el-input placeholder="Please input" v-model="input">
-                <el-button @click="submit" slot="append" icon="el-icon-caret-right"></el-button>
+              <el-input placeholder="Please input" v-model="input" :disabled="submit_disabled">
+                <el-button
+                  @click="submit"
+                  slot="append"
+                  icon="el-icon-caret-right"
+                  :disabled="submit_disabled"
+                ></el-button>
               </el-input>
 
               <br>
@@ -27,12 +32,13 @@
               <br>
               <br>
               <el-button
-                :disabled="next_disabled"
+                :disabled="skip_button_disabled"
+                :loading="skip_button_loading"
                 @click="skipWord()"
                 type="danger"
                 plain
                 style="float:left;"
-              >Skip word</el-button>
+              >{{ skip_button_text }}</el-button>
 
               <br>
               <br>
@@ -54,7 +60,7 @@
             </el-col>
           </el-row>
           <el-footer>
-            <el-button disabled @click="quit()" style="float:right;">Quit</el-button>
+            <el-button @click="quit()" style="float:right;">Quit</el-button>
           </el-footer>
         </div>
       </div>
@@ -83,7 +89,10 @@ export default {
             user: null,
             game: null,
             current_word_index: 0,
-            next_disabled: false,
+            submit_disabled: false,
+            skip_button_disabled: false,
+            skip_button_loading: false,
+            skip_button_text: 'Skip word',
             input: '',
             answers: [],
             no_of_opponent_answers: 0,
@@ -145,19 +154,34 @@ export default {
                 closeOnClickModal: false,
                 showClose: false,
                 type: 'info',
-                beforeClose: action => {
-                    const data = { game_token: this.game.token }
-                    this.socket.emit('confirmSkip', data)
+                callback: action => {
+                    this.socket.emit('confirmSkip', { game_token: this.game.token })
                     this.nextWord()
                 },
             })
         })
         this.socket.on('otherPlayerConfirmedSkipped', data => {
-            this.word_skipped = false
+            // WHEN THE OTHER PLAYER CONFIRMS THE SKIP
+            this.skip_button_loading = false
+            this.submit_disabled = false
+            this.skip_button_text = 'Skip word'
+            this.nextWord()
         })
-        // this.socket.on('otherPlayerQuit', data => {
-        //     // WHEN THE OTHER PLAYER SKIPS THE WORD
-        // })
+        this.socket.on('otherPlayerQuit', data => {
+            // WHEN THE OTHER PLAYER QUITS THE GAME
+            this.$alert('Sorry, it looks like the other player quit the game :(', 'Game ended', {
+                confirmButtonText: 'OK',
+                closeOnClickModal: false,
+                showClose: false,
+                type: 'info',
+                callback: action => {
+                    this.$router.push({
+                        name: 'GameResults',
+                        query: { token: this.token },
+                    })
+                },
+            })
+        })
     },
     methods: {
         submit(e) {
@@ -184,7 +208,7 @@ export default {
             }
             this.input = ''
         },
-        async skipWord(e) {
+        skipWord(e) {
             const data = {
                 game_id: this.game.id,
                 current_word: this.game.words[this.current_word_index],
@@ -192,24 +216,9 @@ export default {
                 game_token: this.game.token,
             }
             this.socket.emit('skipWord', data)
-            this.word_skipped = true
-            await this.$alert('Waiting for the other player to confirm', 'Word skipped', {
-                confirmButtonText: 'OK',
-                closeOnClickModal: false,
-                showClose: false,
-                type: 'info',
-                beforeClose: action => {
-                    const x = () => {
-                        console.log(this.word_skipped)
-                        if (!this.word_skipped) {
-                            clearInterval(id)
-                        }
-                    }
-                    const id = setInterval(x, 1000)
-                    // console.log('hi')
-                },
-            })
-            this.nextWord()
+            this.skip_button_loading = true
+            this.submit_disabled = true
+            this.skip_button_text = 'Waiting for other player to skip'
         },
         nextWord() {
             this.input = ''
@@ -218,13 +227,20 @@ export default {
                 this.current_word_index++
             } else if (this.game.words.length === this.current_word_index + 2) {
                 this.current_word_index++
-                this.next_disabled = true
+                this.skip_button_disabled = true
             }
         },
-        quit(e) {
-            e.preventDefault()
-            this.socket.emit('quitGame', this.game)
-            this.$router.push({ name: 'Home' })
+        quit() {
+            const data = {
+                game_id: this.game.id,
+                game_token: this.game.token,
+                player_no: this.player_no,
+            }
+            this.socket.emit('quitGame', data)
+            this.$router.push({
+                name: 'GameResults',
+                query: { token: this.token },
+            })
         },
     },
 }
