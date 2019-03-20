@@ -86,6 +86,9 @@ export default {
             let duration = moment.duration(this.getDifference(), 'seconds')
             this.minutes = duration.minutes() > 0 ? duration.minutes() : 0
             this.seconds = duration.seconds() > 0 ? duration.seconds() : 0
+            if (this.minutes > 2 || (this.seconds >= 30 && this.minutes === 2)) {
+                console.log('too early') // ADD CODE HERE
+            }
             if (!this.minutes && !this.seconds) {
                 if (this.timer_is_going) {
                     const data = {
