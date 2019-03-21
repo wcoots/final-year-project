@@ -1,15 +1,15 @@
 <template>
-  <div>
-    <Header/>
-    <div class="container">
-      <br>
-      <br>
-      <br>
-      <p>Your account has now been set up.</p>
-      <br>
-      <el-button type="primary" plain v-on:click="redirect">Back to login</el-button>
+    <div>
+        <Header />
+        <div class="container">
+            <br />
+            <br />
+            <br />
+            <p>Your account has now been set up.</p>
+            <br />
+            <el-button type="primary" plain v-on:click="redirect">Back to login</el-button>
+        </div>
     </div>
-  </div>
 </template>
 
 <script>

@@ -2,6 +2,7 @@ const db = require('./db')
 const _ = require('lodash')
 const moment = require('moment')
 const crypto = require('crypto')
+const wordnet = require('./wordnet')
 
 let reset_time = 3000
 
@@ -33,11 +34,12 @@ const checkGames = async () => {
             dead_games = `(${dead_games.slice(0, -1)})` // eg: "(1,2,3,4,5)"
             await db.qry(
                 `UPDATE games
-            SET valid = 0,
-            completed = 1
-            WHERE id IN ${dead_games}
-            AND valid = 1
-            AND removed = 0`
+                SET valid = 0,
+                completed = 1
+                WHERE id IN ${dead_games}
+                AND valid = 1
+                AND removed = 0
+                AND quitted = 0`
             )
         }
     }
@@ -95,6 +97,7 @@ const checkMatches = async () => {
         for (let i = 0; i < grouped_users[key].length - 1; i += 2) {
             const token_val = crypto.randomBytes(20)
             const token = token_val.toString('hex')
+            const words = wordnet.getWords(grouped_users[key][i].game_mode)
             // (id, user_id, game_mode, valid, initialisation_date, matched, matched_date, match_id, match_user_id)
             // RECORD USER A'S DATA AS A STRING
             const temp1 = `(${grouped_users[key][i].id}, ${grouped_users[key][i].user_id}, '${
@@ -123,12 +126,13 @@ const checkMatches = async () => {
             //
             // (p1_user_id, p2_user_id, game_mode, token)
             // RECORD THE GAME'S DATA AS A STRING
-
             const temp3 = `(${grouped_users[key][i].user_id}, ${
                 grouped_users[key][i + 1].user_id
             }, '${grouped_users[key][i].game_mode}', '${token}', '${moment().format(
                 'YYYY-MM-DD HH:mm:ss'
-            )}'),\n`
+            )}', '${moment()
+                .add(160, 'seconds')
+                .format('YYYY-MM-DD HH:mm:ss')}', '${words}'),\n`
 
             queued_values += temp1
             queued_values += temp2
@@ -167,6 +171,8 @@ const checkMatches = async () => {
             `UPDATE games
             SET valid = 0, removed = 1
             WHERE valid = 1
+            AND completed = 0
+            AND quitted = 0
             AND
             (
             p1_user_id IN ${user_ids}
@@ -176,8 +182,34 @@ const checkMatches = async () => {
         // INSERT THE GAME DETAILS
         await db.qry(
             `INSERT INTO games
-            (p1_user_id, p2_user_id, game_mode, token, initialisation_date)
+            (p1_user_id, p2_user_id, game_mode, token, initialisation_date, termination_date, words)
             VALUES ${game_values}`
+        )
+    }
+
+    // GET GAMES WHOSE WORDS HAVE NOT BEEN ADDED TO THE WORDS TABLE
+    const undocumented_games = await db.qry(
+        `SELECT id, words
+        FROM games
+        WHERE id NOT IN (
+            SELECT game_id
+            FROM words
+        )`
+    )
+    if (undocumented_games.length) {
+        let queued_words = ''
+        undocumented_games.forEach(game => {
+            JSON.parse(game.words).forEach(word => {
+                const temp4 = `(${game.id}, '${word}'),\n`
+                queued_words += temp4
+            })
+        })
+        queued_words = queued_words.slice(0, -2) // eg: "(1,2,3),(4,5,6),(7,8,9)"
+        // INSERT THE WORDS
+        await db.qry(
+            `INSERT INTO words
+            (game_id, word)
+            VALUES ${queued_words}`
         )
     }
 

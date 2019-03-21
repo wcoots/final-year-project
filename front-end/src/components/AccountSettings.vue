@@ -1,128 +1,135 @@
 <template>
-  <div>
-    <Header v-bind:user="user"/>
     <div>
-      <div class="container">
-        <br>
-        <br>
-        <h2>Account Settings</h2>
-        <br>
-        <hr>
-        <br>
+        <Header v-bind:user="user" />
+        <div>
+            <div class="container">
+                <br />
+                <br />
+                <h2>Account Settings</h2>
+                <br />
+                <hr />
+                <br />
 
-        <!-- UPDATE EMAIL ADDRESS -->
-        <h4>Update your email address</h4>
-        <br>
-        <el-form ref="new_email_model" :model="new_email_model" :rules="rules" label-width="200px">
-          <!-- CURRENT PASSWORD -->
-          <el-form-item label="Current password:">
-            <el-input
-              v-model="new_email_model.email_current_password"
-              type="password"
-              required
-              placeholder="Enter Password"
-              :disabled="isEmailInputDisabled"
-            ></el-input>
-          </el-form-item>
-          <!-- NEW EMAIL -->
-          <el-form-item label="New email address:" prop="new_email">
-            <el-input
-              v-model="new_email_model.new_email"
-              required
-              placeholder="e.g. bob@example.co.uk"
-              :disabled="isEmailInputDisabled"
-            ></el-input>
-          </el-form-item>
-          <!-- SUBMIT -->
-          <el-form-item>
-            <el-button
-              :loading="this.email_loading"
-              @click="onSubmitNewEmail"
-              :disabled="isEmailSubmitDisabled"
-            >{{this.change_email_button}}</el-button>
-          </el-form-item>
-        </el-form>
-        <br>
-        <hr>
-        <br>
+                <!-- UPDATE EMAIL ADDRESS -->
+                <h4>Update your email address</h4>
+                <br />
+                <el-form
+                    ref="new_email_model"
+                    :model="new_email_model"
+                    :rules="rules"
+                    label-width="200px"
+                >
+                    <!-- CURRENT PASSWORD -->
+                    <el-form-item label="Current password:">
+                        <el-input
+                            v-model="new_email_model.email_current_password"
+                            type="password"
+                            required
+                            placeholder="Enter Password"
+                            :disabled="isEmailInputDisabled"
+                        ></el-input>
+                    </el-form-item>
+                    <!-- NEW EMAIL -->
+                    <el-form-item label="New email address:" prop="new_email">
+                        <el-input
+                            v-model="new_email_model.new_email"
+                            required
+                            placeholder="e.g. bob@example.co.uk"
+                            :disabled="isEmailInputDisabled"
+                        ></el-input>
+                    </el-form-item>
+                    <!-- SUBMIT -->
+                    <el-form-item>
+                        <el-button
+                            :loading="this.email_loading"
+                            :disabled="isEmailSubmitDisabled"
+                            @click="onSubmitNewEmail"
+                            >{{ this.change_email_button }}</el-button
+                        >
+                    </el-form-item>
+                </el-form>
+                <br />
+                <hr />
+                <br />
 
-        <!-- CHANGE PASSWORD -->
-        <h4>Change your password</h4>
-        <br>
-        <el-form
-          ref="new_password_model"
-          :model="new_password_model"
-          :rules="rules"
-          label-width="200px"
-        >
-          <!-- CURRENT PASSWORD -->
-          <el-form-item label="Current password:">
-            <el-input
-              v-model="new_password_model.current_password"
-              type="password"
-              required
-              placeholder="Enter Current Password"
-              :disabled="isPasswordInputDisabled"
-            ></el-input>
-          </el-form-item>
-          <!-- NEW PASSWORD -->
-          <el-form-item label="New password:">
-            <el-input
-              v-model="new_password_model.new_password"
-              type="password"
-              required
-              placeholder="Enter New Password"
-              :disabled="isPasswordInputDisabled"
-            ></el-input>
-          </el-form-item>
-          <!-- CONFRIM NEW PASSWORD -->
-          <el-form-item label="Confirm password:" prop="c_new_password">
-            <el-input
-              v-model="new_password_model.c_new_password"
-              type="password"
-              required
-              placeholder="Confirm New Password"
-              :disabled="isPasswordInputDisabled"
-            ></el-input>
-          </el-form-item>
-          <!-- PASSWORD STRENTH METER -->
-          <el-form-item>
-            <password
-              v-model="new_password_model.new_password"
-              :strength-meter-only="true"
-              :toggle="true"
-              @score="showScore"
-            />
-          </el-form-item>
-          <!-- SUBMIT -->
-          <el-form-item>
-            <el-button
-              :loading="this.password_loading"
-              @click="onSubmitNewPassword"
-              :disabled="isPasswordSubmitDisabled"
-            >{{this.change_password_button}}</el-button>
-          </el-form-item>
-        </el-form>
-        <br>
-        <br>
-        <hr>
-        <br>
+                <!-- CHANGE PASSWORD -->
+                <h4>Change your password</h4>
+                <br />
+                <el-form
+                    ref="new_password_model"
+                    :model="new_password_model"
+                    :rules="rules"
+                    label-width="200px"
+                >
+                    <!-- CURRENT PASSWORD -->
+                    <el-form-item label="Current password:">
+                        <el-input
+                            v-model="new_password_model.current_password"
+                            type="password"
+                            required
+                            placeholder="Enter Current Password"
+                            :disabled="isPasswordInputDisabled"
+                        ></el-input>
+                    </el-form-item>
+                    <!-- NEW PASSWORD -->
+                    <el-form-item label="New password:">
+                        <el-input
+                            v-model="new_password_model.new_password"
+                            type="password"
+                            required
+                            placeholder="Enter New Password"
+                            :disabled="isPasswordInputDisabled"
+                        ></el-input>
+                    </el-form-item>
+                    <!-- CONFRIM NEW PASSWORD -->
+                    <el-form-item label="Confirm password:" prop="c_new_password">
+                        <el-input
+                            v-model="new_password_model.c_new_password"
+                            type="password"
+                            required
+                            placeholder="Confirm New Password"
+                            :disabled="isPasswordInputDisabled"
+                        ></el-input>
+                    </el-form-item>
+                    <!-- PASSWORD STRENTH METER -->
+                    <el-form-item>
+                        <password
+                            v-model="new_password_model.new_password"
+                            :strength-meter-only="true"
+                            :toggle="true"
+                            @score="showScore"
+                        />
+                    </el-form-item>
+                    <!-- SUBMIT -->
+                    <el-form-item>
+                        <el-button
+                            :loading="this.password_loading"
+                            :disabled="isPasswordSubmitDisabled"
+                            @click="onSubmitNewPassword"
+                            >{{ this.change_password_button }}</el-button
+                        >
+                    </el-form-item>
+                </el-form>
+                <br />
+                <br />
+                <hr />
+                <br />
 
-        <!-- DELETE ACCOUNT -->
-        <el-button
-          type="danger"
-          plain
-          v-on:click="redirect('DeleteAccount')"
-          style="float:right;"
-        >Delete Account</el-button>
-        <br>
-        <br>
-        <br>
-      </div>
+                <!-- DELETE ACCOUNT -->
+                <el-button
+                    type="danger"
+                    plain
+                    style="float:right;"
+                    v-on:click="redirect('DeleteAccount')"
+                    >Delete Account</el-button
+                >
+                <br />
+                <br />
+                <br />
+            </div>
+        </div>
     </div>
-  </div>
 </template>
-
 
 <script>
 import Header from './Header'
@@ -227,7 +234,7 @@ export default {
             return true
         },
         async onSubmitNewEmail() {
-            this.$refs['new_email_model'].validate(async valid => {
+            this.$refs.new_email_model.validate(async valid => {
                 if (!valid) {
                     this.$message({
                         message: 'Invalid email address',
@@ -304,7 +311,6 @@ export default {
                 this.new_password_model.c_new_password = ''
 
                 if (res.data.status) {
-                    const h = this.$createElement
                     this.password_status = 'Password changed successfully'
                     this.$message({
                         message: this.password_status,

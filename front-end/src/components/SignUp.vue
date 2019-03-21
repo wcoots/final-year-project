@@ -1,170 +1,184 @@
 <template>
-  <div>
-    <Header/>
-    <div class="container">
-      <ul id="pills-tab" class="nav nav-pills nav-fill mb-3" role="tablist">
-        <li class="nav-item">
-          <a
-            id="pills-login-tab"
-            class="nav-link active"
-            data-toggle="pill"
-            href="#pills-login"
-            role="tab"
-            aria-controls="pills-upload"
-            aria-selected="true"
-          >Log in</a>
-        </li>
-        <li class="nav-item">
-          <a
-            id="pills-register-tab"
-            class="nav-link"
-            data-toggle="pill"
-            href="#pills-register"
-            role="tab"
-            aria-controls="pills-verify"
-            aria-selected="false"
-          >Register</a>
-        </li>
-      </ul>
+    <div>
+        <Header />
+        <div class="container">
+            <ul id="pills-tab" class="nav nav-pills nav-fill mb-3" role="tablist">
+                <li class="nav-item">
+                    <a
+                        id="pills-login-tab"
+                        class="nav-link active"
+                        data-toggle="pill"
+                        href="#pills-login"
+                        role="tab"
+                        aria-controls="pills-upload"
+                        aria-selected="true"
+                        >Log in</a
+                    >
+                </li>
+                <li class="nav-item">
+                    <a
+                        id="pills-register-tab"
+                        class="nav-link"
+                        data-toggle="pill"
+                        href="#pills-register"
+                        role="tab"
+                        aria-controls="pills-verify"
+                        aria-selected="false"
+                        >Register</a
+                    >
+                </li>
+            </ul>
 
-      <br>
+            <br />
 
-      <!-- LOGIN -->
-      <div id="pills-tabContent" class="tab-content">
-        <div
-          id="pills-login"
-          class="tab-pane fade show active"
-          role="tabpanel"
-          aria-labelledby="pills-login-tab"
-        >
-          <el-form ref="login_model" :model="login_model" label-width="120px">
-            <!-- EMAIL -->
-            <el-form-item label="Email:">
-              <el-input
-                v-model="login_model.email"
-                required
-                placeholder="e.g. bob@example.co.uk"
-                :disabled="isInputDisabled"
-              ></el-input>
-            </el-form-item>
-            <!-- PASSWORD -->
-            <el-form-item label="Password:">
-              <el-input
-                v-model="login_model.password"
-                type="password"
-                required
-                placeholder="Enter Password"
-                :disabled="isInputDisabled"
-              ></el-input>
-            </el-form-item>
-            <!-- SUBMIT -->
-            <el-form-item>
-              <el-button
-                :loading="this.loading"
-                @click="login"
-                type="primary"
-                :disabled="isLoginSubmitDisabled"
-              >{{this.login_button}}</el-button>
-              <!-- PASSWORD RECOVERY LINK -->
-              <el-button
-                type="text"
-                style="color:#426cb9; float:right;"
-                v-on:click="redirect('ForgottenPassword')"
-              >Forgotten password</el-button>
-            </el-form-item>
-          </el-form>
+            <!-- LOGIN -->
+            <div id="pills-tabContent" class="tab-content">
+                <div
+                    id="pills-login"
+                    class="tab-pane fade show active"
+                    role="tabpanel"
+                    aria-labelledby="pills-login-tab"
+                >
+                    <el-form ref="login_model" :model="login_model" label-width="120px">
+                        <!-- EMAIL -->
+                        <el-form-item label="Email:">
+                            <el-input
+                                v-model="login_model.email"
+                                required
+                                placeholder="e.g. bob@example.co.uk"
+                                :disabled="isInputDisabled"
+                            ></el-input>
+                        </el-form-item>
+                        <!-- PASSWORD -->
+                        <el-form-item label="Password:">
+                            <el-input
+                                v-model="login_model.password"
+                                type="password"
+                                required
+                                placeholder="Enter Password"
+                                :disabled="isInputDisabled"
+                            ></el-input>
+                        </el-form-item>
+                        <!-- SUBMIT -->
+                        <el-form-item>
+                            <el-button
+                                :loading="this.loading"
+                                type="primary"
+                                :disabled="isLoginSubmitDisabled"
+                                @click="login"
+                                >{{ this.login_button }}</el-button
+                            >
+                            <!-- PASSWORD RECOVERY LINK -->
+                            <el-button
+                                type="text"
+                                style="color:#426cb9; float:right;"
+                                v-on:click="redirect('ForgottenPassword')"
+                                >Forgotten password</el-button
+                            >
+                        </el-form-item>
+                    </el-form>
+                </div>
+
+                <!-- REGISTER -->
+                <div
+                    id="pills-register"
+                    class="tab-pane fade"
+                    role="tabpanel"
+                    aria-labelledby="pills-register-tab"
+                >
+                    <el-form
+                        ref="register_model"
+                        :model="register_model"
+                        :rules="rules"
+                        label-width="200px"
+                    >
+                        <!-- FORENAME -->
+                        <el-form-item label="Forename:" prop="forename">
+                            <el-input
+                                v-model="register_model.forename"
+                                required
+                                placeholder="e.g. Bob"
+                                :disabled="isInputDisabled"
+                            ></el-input>
+                        </el-form-item>
+                        <!-- SURNAME -->
+                        <el-form-item label="Surname:" prop="surname">
+                            <el-input
+                                v-model="register_model.surname"
+                                required
+                                placeholder="e.g. Bob"
+                                :disabled="isInputDisabled"
+                            ></el-input>
+                        </el-form-item>
+                        <!-- EMAIL -->
+                        <el-form-item label="Email:" prop="new_email">
+                            <el-input
+                                v-model="register_model.new_email"
+                                required
+                                placeholder="e.g. bob@example.co.uk"
+                                :disabled="isInputDisabled"
+                            ></el-input>
+                        </el-form-item>
+                        <!-- NEW PASSWORD -->
+                        <el-form-item label="New password:" prop="new_password">
+                            <el-input
+                                v-model="register_model.new_password"
+                                type="password"
+                                required
+                                placeholder="Enter New Password"
+                                :disabled="isInputDisabled"
+                            ></el-input>
+                        </el-form-item>
+                        <!-- CONFRIM NEW PASSWORD -->
+                        <el-form-item label="Confirm password:" prop="confirm_password">
+                            <el-input
+                                v-model="register_model.confirm_password"
+                                type="password"
+                                required
+                                placeholder="Confirm New Password"
+                                :disabled="isInputDisabled"
+                            ></el-input>
+                        </el-form-item>
+                        <!-- PASSWORD STRENGTH METER -->
+                        <el-form-item>
+                            <password
+                                v-model="register_model.new_password"
+                                :strength-meter-only="true"
+                                :toggle="true"
+                                @score="showScore"
+                            />
+                        </el-form-item>
+                        <!-- TERMS AND CONDITIONS -->
+                        <el-form-item>
+                            <el-checkbox v-model="register_model.terms_agreed"></el-checkbox>By
+                            checking this box you declare that you have read and agree to the
+                            <el-button
+                                type="text"
+                                style="color:#426cb9;"
+                                v-on:click="redirectInNewTab('TermsAndConditions')"
+                                >terms and conditions</el-button
+                            >
+                        </el-form-item>
+                        <!-- SUBMIT -->
+                        <el-form-item>
+                            <el-button
+                                :loading="this.loading"
+                                type="primary"
+                                :disabled="isRegisterSubmitDisabled"
+                                @click="register"
+                                >{{ this.register_button }}</el-button
+                            >
+                            <el-button :disabled="isInputDisabled" plain @click="resetForm"
+                                >Reset</el-button
+                            >
+                        </el-form-item>
+                    </el-form>
+                    <br />
+                    <br />
+                </div>
+            </div>
         </div>
-
-        <!-- REGISTER -->
-        <div
-          id="pills-register"
-          class="tab-pane fade"
-          role="tabpanel"
-          aria-labelledby="pills-register-tab"
-        >
-          <el-form ref="register_model" :model="register_model" :rules="rules" label-width="200px">
-            <!-- FORENAME -->
-            <el-form-item label="Forename:" prop="forename">
-              <el-input
-                v-model="register_model.forename"
-                required
-                placeholder="e.g. Bob"
-                :disabled="isInputDisabled"
-              ></el-input>
-            </el-form-item>
-            <!-- SURNAME -->
-            <el-form-item label="Surname:" prop="surname">
-              <el-input
-                v-model="register_model.surname"
-                required
-                placeholder="e.g. Bob"
-                :disabled="isInputDisabled"
-              ></el-input>
-            </el-form-item>
-            <!-- EMAIL -->
-            <el-form-item label="Email:" prop="new_email">
-              <el-input
-                v-model="register_model.new_email"
-                required
-                placeholder="e.g. bob@example.co.uk"
-                :disabled="isInputDisabled"
-              ></el-input>
-            </el-form-item>
-            <!-- NEW PASSWORD -->
-            <el-form-item label="New password:" prop="new_password">
-              <el-input
-                v-model="register_model.new_password"
-                type="password"
-                required
-                placeholder="Enter New Password"
-                :disabled="isInputDisabled"
-              ></el-input>
-            </el-form-item>
-            <!-- CONFRIM NEW PASSWORD -->
-            <el-form-item label="Confirm password:" prop="confirm_password">
-              <el-input
-                v-model="register_model.confirm_password"
-                type="password"
-                required
-                placeholder="Confirm New Password"
-                :disabled="isInputDisabled"
-              ></el-input>
-            </el-form-item>
-            <!-- PASSWORD STRENGTH METER -->
-            <el-form-item>
-              <password
-                v-model="register_model.new_password"
-                :strength-meter-only="true"
-                :toggle="true"
-                @score="showScore"
-              />
-            </el-form-item>
-            <!-- TERMS AND CONDITIONS -->
-            <el-form-item>
-              <el-checkbox v-model="register_model.terms_agreed"></el-checkbox>By checking this box you declare that you have read and agree to the
-              <el-button
-                type="text"
-                style="color:#426cb9;"
-                v-on:click="redirectInNewTab('TermsAndConditions')"
-              >terms and conditions</el-button>
-            </el-form-item>
-            <!-- SUBMIT -->
-            <el-form-item>
-              <el-button
-                :loading="this.loading"
-                @click="register"
-                type="primary"
-                :disabled="isRegisterSubmitDisabled"
-              >{{this.register_button}}</el-button>
-              <el-button :disabled="isInputDisabled" @click="resetForm" plain>Reset</el-button>
-            </el-form-item>
-          </el-form>
-          <br>
-          <br>
-        </div>
-      </div>
     </div>
-  </div>
 </template>
 
 <script>
@@ -301,7 +315,7 @@ export default {
             this.$router.push({ name: location })
         },
         redirectInNewTab(location) {
-            let routeData = this.$router.resolve({ name: location })
+            const routeData = this.$router.resolve({ name: location })
             window.open(routeData.href, '_blank')
         },
         showFeedback({ warning }) {
@@ -323,11 +337,11 @@ export default {
             return true
         },
         resetForm() {
-            this.$refs['register_model'].resetFields()
+            this.$refs.register_model.resetFields()
             this.register_model.terms_agreed = false
         },
         async register() {
-            this.$refs['register_model'].validate(async valid => {
+            this.$refs.register_model.validate(async valid => {
                 if (!valid) {
                     this.$message({
                         message: 'All fields with a (*) must be completed and valid',
@@ -424,4 +438,3 @@ export default {
     },
 }
 </script>
-

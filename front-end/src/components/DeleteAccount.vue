@@ -1,49 +1,50 @@
 <template>
-  <div>
-    <Header v-bind:user="user"/>
     <div>
-      <div class="container">
-        <br>
-        <br>
-        <h2>Delete Account</h2>
-        <br>
-        <hr>
-        <br>
-        <!-- EMAIL -->
-        <el-form ref="form" :model="model" label-width="100px">
-          <el-form-item label="Email:">
-            <el-input
-              v-model="model.email"
-              type="email"
-              required
-              placeholder="e.g. bob@example.co.uk"
-              :disabled="isInputDisabled"
-            ></el-input>
-          </el-form-item>
-          <!-- PASSWORD -->
-          <el-form-item label="Password:">
-            <el-input
-              v-model="model.password"
-              type="password"
-              required
-              placeholder="Enter Password"
-              :disabled="isInputDisabled"
-            ></el-input>
-          </el-form-item>
-          <!-- SUBMIT -->
-          <el-form-item>
-            <el-button
-              :loading="this.loading"
-              type="danger"
-              @click="deleteAccount"
-              :disabled="isSubmitDisabled"
-            >{{this.submit_button}}</el-button>
-            <el-button @click="redirect('AccountSettings')">Cancel</el-button>
-          </el-form-item>
-        </el-form>
-      </div>
+        <Header v-bind:user="user" />
+        <div>
+            <div class="container">
+                <br />
+                <br />
+                <h2>Delete Account</h2>
+                <br />
+                <hr />
+                <br />
+                <!-- EMAIL -->
+                <el-form ref="form" :model="model" label-width="100px">
+                    <el-form-item label="Email:">
+                        <el-input
+                            v-model="model.email"
+                            type="email"
+                            required
+                            placeholder="e.g. bob@example.co.uk"
+                            :disabled="isInputDisabled"
+                        ></el-input>
+                    </el-form-item>
+                    <!-- PASSWORD -->
+                    <el-form-item label="Password:">
+                        <el-input
+                            v-model="model.password"
+                            type="password"
+                            required
+                            placeholder="Enter Password"
+                            :disabled="isInputDisabled"
+                        ></el-input>
+                    </el-form-item>
+                    <!-- SUBMIT -->
+                    <el-form-item>
+                        <el-button
+                            :loading="this.loading"
+                            type="danger"
+                            :disabled="isSubmitDisabled"
+                            @click="deleteAccount"
+                            >{{ this.submit_button }}</el-button
+                        >
+                        <el-button @click="redirect('AccountSettings')">Cancel</el-button>
+                    </el-form-item>
+                </el-form>
+            </div>
+        </div>
     </div>
-  </div>
 </template>
 
 <script>

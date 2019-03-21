@@ -29,9 +29,15 @@ app.set('appSecret', 'secretforproject')
 // Multiparty Middleware
 const multipartMiddleware = multipart()
 
+// const io = require('socket.io')(app)
+
 function isEmpty(str) {
     return !str || 0 === str.length
 }
+
+// io.on('connection', function(socket) {
+//     console.log('a user connected')
+// })
 
 app.post('/register', multipartMiddleware, async (req, res) => {
     try {
@@ -607,8 +613,9 @@ app.post('/deleteAccount', multipartMiddleware, async (req, res) => {
     }
 })
 
-app.post('/initialiseGame', multipartMiddleware, async (req, res) => {
+app.post('/joinQueue', multipartMiddleware, async (req, res) => {
     try {
+        // REMOVE PREVIOUS QUEUE INSTANCES
         await db.qry(
             `UPDATE queued_users
             SET valid = 0,
@@ -617,12 +624,24 @@ app.post('/initialiseGame', multipartMiddleware, async (req, res) => {
             AND matched = 0`,
             [req.body.user_id]
         )
+        // REMOVE PREVIOUS GAMES
+        await db.qry(
+            `UPDATE games
+            SET valid = 0, removed = 1
+            WHERE valid = 1
+            AND completed = 0
+            AND quitted = 0
+            AND
+            (
+            p1_user_id = ?
+            OR p2_user_id = ?
+            )`,
+            [req.body.user_id, req.body.user_id]
+        )
 
-        if (
-            req.body.game_mode !== 'SYN' &&
-            req.body.game_mode !== 'ANT' &&
-            req.body.game_mode !== 'HYP'
-        ) {
+        const game_modes = ['SYN', 'ANT', 'HYP']
+
+        if (game_modes.indexOf(req.body.game_mode) === -1) {
             return res.json({
                 status: false,
                 message: `${req.body.game_mode} is not a valid game mode`,
@@ -687,24 +706,28 @@ app.post('/heartbeat', multipartMiddleware, async (req, res) => {
     }
 })
 
-app.post('/getOpponent', multipartMiddleware, async (req, res) => {
+app.post('/getGameInfo', multipartMiddleware, async (req, res) => {
     try {
         const games = await db.qry(
-            `SELECT *
+            `SELECT id, p1_user_id, p2_user_id, game_mode, initialisation_date, termination_date, token, words
             FROM games
             WHERE valid = 1
             AND completed = 0
             AND quitted = 0
+            AND removed = 0
+            AND token = ?
             AND (p1_user_id = ?
                 OR p2_user_id = ?)`,
-            [req.body.user_id, req.body.user_id]
+            [req.body.token, req.body.user_id, req.body.user_id]
         )
         const game = games[0]
 
         if (game) {
+            game.words = JSON.parse(game.words)
             return res.json({
                 status: true,
                 game,
+                player_no: game.p1_user_id === req.body.user_id ? 1 : 2,
             })
         }
 
@@ -716,18 +739,81 @@ app.post('/getOpponent', multipartMiddleware, async (req, res) => {
     }
 })
 
-app.post('/quitGame', multipartMiddleware, async (req, res) => {
+app.post('/finishGame', multipartMiddleware, async (req, res) => {
     try {
-        const games = await db.qry(
+        await db.qry(
             `UPDATE games
-            SET valid = 0,
-            quitted = 1
-            WHERE id = ?`,
-            [req.body.id]
+            SET completed = 1,
+            valid = 0
+            WHERE id = ?
+            AND quitted = 0
+            AND removed = 0`,
+            [req.body.game_id]
         )
 
         return res.json({
             status: true,
+        })
+    } catch (error) {
+        throw error
+    }
+})
+
+app.post('/getGameResults', multipartMiddleware, async (req, res) => {
+    try {
+        const games = await db.qry(
+            `SELECT id, p1_user_id, p2_user_id
+            FROM games
+            WHERE token = ?`,
+            [req.body.token]
+        )
+        const game = games[0]
+
+        // DETERMINE PLAYER NUMBER
+        const player_no = game.p1_user_id === req.body.user_id ? 1 : 2
+        // THE SUBMITTING PLAYER'S PLAYER NUMBER
+        const this_player_no_answers = player_no === 1 ? 'p1_answers' : 'p2_answers'
+        // THE OTHER PLAYER'S PLAYER NUMBER
+        const other_player_no_answers = player_no === 1 ? 'p2_answers' : 'p1_answers'
+
+        // GET ALL WORDS FOR THAT GAME
+        const words = await db.qry(
+            `SELECT word, ${this_player_no_answers} AS this_player, ${other_player_no_answers} AS other_player, matched, matched_word, passed
+            FROM words
+            WHERE game_id = ?`,
+            [game.id]
+        )
+
+        if (words.length) {
+            let matched_count = 0
+            let passed_count = 0
+            words.forEach(word => {
+                if (word.matched) {
+                    matched_count++
+                } else {
+                    passed_count++
+                }
+                let this_player_words = ''
+                let other_player_words = ''
+                JSON.parse(word.this_player).forEach(answer => {
+                    this_player_words += `${answer}, `
+                })
+                JSON.parse(word.other_player).forEach(answer => {
+                    other_player_words += `${answer}, `
+                })
+                word.this_player = this_player_words.slice(0, -2)
+                word.other_player = other_player_words.slice(0, -2)
+            })
+            return res.json({
+                status: true,
+                words,
+                matched_count,
+                passed_count,
+            })
+        }
+
+        return res.json({
+            status: false,
         })
     } catch (error) {
         throw error
@@ -761,6 +847,179 @@ app.get('/', (req, res) => {
     res.send('<h1>Welcome to Werdz</h1>')
 })
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`App running on port ${PORT}`)
+})
+
+const io = require('socket.io')(server)
+
+io.on('connection', socket => {
+    const token = socket.request._query['token']
+    if (token) {
+        socket.join(token)
+    }
+
+    socket.on('submitAnswer', async req => {
+        try {
+            // THE SUBMITTING PLAYER'S PLAYER NUMBER
+            const this_player_no_answers = req.player_no === 1 ? 'p1_answers' : 'p2_answers'
+            // THE OTHER PLAYER'S PLAYER NUMBER
+            const other_player_no_answers = req.player_no === 1 ? 'p2_answers' : 'p1_answers'
+
+            // GET THE CURRENT ANSWERS PREVIOUSLY ENTERED BY BOTH PLAYERS
+            const answers_as_string = await db.qry(
+                `SELECT ${this_player_no_answers} AS this_player, ${other_player_no_answers} AS other_player
+                FROM words
+                WHERE game_id = ?
+                AND word = ?`,
+                [req.game_id, req.current_word]
+            )
+
+            if (!answers_as_string.length) {
+                return
+            }
+
+            const answers = answers_as_string[0]
+
+            // CONVERT STRINGS TO ACTUAL
+            const this_players_words = JSON.parse(answers.this_player)
+            const other_players_words = JSON.parse(answers.other_player)
+
+            const match = {
+                status: false,
+                answer: null,
+            }
+
+            // FOR EACH NEW ANSWER, ADD IT TO THIS PLAYER'S ANSWERS
+            req.answers.forEach(answer => {
+                this_players_words.push(answer.answer)
+            })
+
+            // FIND ANSWERS THAT ARE IN BOTH PLAYER'S ARRAYS OF ANSWERS
+            const matches = _.intersection(this_players_words, other_players_words)
+            if (matches.length) {
+                match.status = true
+                match.answer = matches[0]
+            }
+
+            // PREPARE ANSWERS TO BE RE-ADDED TO THE DATABASE
+            let this_players_words_as_string = ''
+            this_players_words.forEach(word => {
+                this_players_words_as_string += `"${word}", `
+            })
+            this_players_words_as_string = `[${this_players_words_as_string.slice(0, -2)}]`
+
+            if (match.status) {
+                // IF THERE WAS A MATCH
+                await db.qry(
+                    `UPDATE words
+                    SET matched = 1,
+                    passed = 0,
+                    matched_word = ?,
+                    ${this_player_no_answers} = ?
+                    WHERE game_id = ?
+                    AND word = ?`,
+                    [match.answer, this_players_words_as_string, req.game_id, req.current_word]
+                )
+
+                if (req.max_word_index === req.current_word_index) {
+                    await db.qry(
+                        `UPDATE games
+                        SET completed = 1,
+                        valid = 0
+                        WHERE id = ?
+                        AND quitted = 0
+                        AND removed = 0`,
+                        [req.game_id]
+                    )
+                }
+
+                io.in(req.game_token).emit('answerSubmitted', {
+                    // EMIT TO BOTH PLAYERS
+                    status: true,
+                    word: match.answer,
+                })
+
+                return
+            } else {
+                // IF THERE WAS NOT A MATCH
+                await db.qry(
+                    `UPDATE words
+                    SET ${this_player_no_answers} = ?
+                    WHERE game_id = ?
+                    AND word = ?`,
+                    [this_players_words_as_string, req.game_id, req.current_word]
+                )
+
+                io.in(req.game_token).emit('answerSubmitted', {
+                    status: false,
+                    this_player_id: req.user_id,
+                    this_player_word_count: this_players_words.length,
+                    other_player_word_count: other_players_words.length,
+                })
+
+                return
+            }
+        } catch (error) {
+            throw error
+        }
+    })
+
+    socket.on('skipWord', async req => {
+        try {
+            await db.qry(
+                `UPDATE words
+                SET passed = 1,
+                matched = 0
+                WHERE game_id = ?
+                AND word = ?`,
+                [req.game_id, req.current_word]
+            )
+            socket.to(req.game_token).emit('otherPlayerSkipped', {
+                // EMIT ONLY TO OTHER PLAYER
+                status: true,
+            })
+        } catch (error) {
+            throw error
+        }
+    })
+
+    socket.on('confirmSkip', async req => {
+        try {
+            socket.to(req.game_token).emit('otherPlayerConfirmedSkipped', {
+                // EMIT ONLY TO OTHER PLAYER
+                status: true,
+            })
+        } catch (error) {
+            throw error
+        }
+    })
+
+    socket.on('quitGame', async req => {
+        try {
+            await db.qry(
+                `UPDATE games
+                SET valid = 0,
+                quitted = 1
+                WHERE id = ?
+                AND completed = 0
+                AND removed = 0`,
+                [req.game_id]
+            )
+            await db.qry(
+                `UPDATE words
+                SET uncompleted = 1
+                WHERE game_id = ?
+                AND matched is NULL
+                AND passed is NULL`,
+                [req.game_id]
+            )
+            socket.to(req.game_token).emit('otherPlayerQuit', {
+                // EMIT ONLY TO OTHER PLAYER
+                status: true,
+            })
+        } catch (error) {
+            throw error
+        }
+    })
 })
