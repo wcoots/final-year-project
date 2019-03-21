@@ -387,7 +387,7 @@ app.post('/changeEmail', multipartMiddleware, async (req, res) => {
         }
 
         req.body.email = req.body.email.toLowerCase()
-        req.body.new_email = req.body.email.toLowerCase()
+        req.body.new_email = req.body.new_email.toLowerCase()
 
         const usersA = await db.qry(
             `SELECT *
