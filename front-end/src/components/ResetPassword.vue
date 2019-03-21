@@ -1,54 +1,55 @@
 <template>
-  <div>
-    <Header/>
-    <div class="container">
-      <h3>Reset Password</h3>
+    <div>
+        <Header />
+        <div class="container">
+            <h3>Reset Password</h3>
 
-      <br>
-      <hr>
-      <br>
+            <br />
+            <hr />
+            <br />
 
-      <el-form ref="model" :model="model" :rules="rules" label-width="200px">
-        <!-- NEW PASSWORD -->
-        <el-form-item label="New password:" prop="new_password">
-          <el-input
-            v-model="model.new_password"
-            type="password"
-            required
-            placeholder="Enter New Password"
-            :disabled="isInputDisabled"
-          ></el-input>
-        </el-form-item>
-        <!-- CONFRIM NEW PASSWORD -->
-        <el-form-item label="Confirm password:" prop="c_new_password">
-          <el-input
-            v-model="model.c_new_password"
-            type="password"
-            required
-            placeholder="Confirm New Password"
-            :disabled="isInputDisabled"
-          ></el-input>
-        </el-form-item>
-        <!-- PASSWORD STRENGTH METER -->
-        <el-form-item>
-          <password
-            v-model="model.new_password"
-            :strength-meter-only="true"
-            :toggle="true"
-            @score="showScore"
-          />
-        </el-form-item>
-        <!-- SUBMIT -->
-        <el-form-item>
-          <el-button
-            :loading="this.loading"
-            @click="onSubmitNewPassword"
-            :disabled="isSubmitDisabled"
-          >{{this.submit_button}}</el-button>
-        </el-form-item>
-      </el-form>
+            <el-form ref="model" :model="model" :rules="rules" label-width="200px">
+                <!-- NEW PASSWORD -->
+                <el-form-item label="New password:" prop="new_password">
+                    <el-input
+                        v-model="model.new_password"
+                        type="password"
+                        required
+                        placeholder="Enter New Password"
+                        :disabled="isInputDisabled"
+                    ></el-input>
+                </el-form-item>
+                <!-- CONFRIM NEW PASSWORD -->
+                <el-form-item label="Confirm password:" prop="c_new_password">
+                    <el-input
+                        v-model="model.c_new_password"
+                        type="password"
+                        required
+                        placeholder="Confirm New Password"
+                        :disabled="isInputDisabled"
+                    ></el-input>
+                </el-form-item>
+                <!-- PASSWORD STRENGTH METER -->
+                <el-form-item>
+                    <password
+                        v-model="model.new_password"
+                        :strength-meter-only="true"
+                        :toggle="true"
+                        @score="showScore"
+                    />
+                </el-form-item>
+                <!-- SUBMIT -->
+                <el-form-item>
+                    <el-button
+                        :loading="this.loading"
+                        :disabled="isSubmitDisabled"
+                        @click="onSubmitNewPassword"
+                        >{{ this.submit_button }}</el-button
+                    >
+                </el-form-item>
+            </el-form>
+        </div>
     </div>
-  </div>
 </template>
 
 <script>

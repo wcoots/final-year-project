@@ -1,22 +1,25 @@
 <template>
-  <div>
-    <Header v-bind:user="user"/>
     <div>
-      <div class="container" v-loading="loading">
-        <br>
-        <br>
-        <h3>Choose game mode</h3>
-        <br>
-        <el-button type="primary" round disabled @click="redirect('SinglePlayer')">Single Player</el-button>
-        <el-button type="success" round @click="redirect('MultiPlayer')">Multiplayer</el-button>
-      </div>
+        <Header v-bind:user="user" />
+        <div>
+            <div v-loading="loading" class="container">
+                <br />
+                <br />
+                <h3>Choose game mode</h3>
+                <br />
+                <el-button type="primary" round disabled @click="redirect('SinglePlayer')"
+                    >Single Player</el-button
+                >
+                <el-button type="success" round @click="redirect('MultiPlayer')"
+                    >Multiplayer</el-button
+                >
+            </div>
+        </div>
     </div>
-  </div>
 </template>
 
 <script>
 import Header from './Header'
-import { apiRequest } from '../api/auth'
 
 export default {
     name: 'Home',

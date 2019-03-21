@@ -1,28 +1,28 @@
 <template>
-  <div class="timer">
-    <el-row v-if="time_has_started">
-      <el-col :span="3">
-        <span v-if="minutes">
-          <el-tag v-bind:type="tag_type">{{ minutes }} min</el-tag>
-        </span>
-        <span v-if="seconds || minutes">
-          <el-tag v-bind:type="tag_type">{{ seconds }} sec</el-tag>
-        </span>
-        <span v-if="!(seconds || minutes)">
-          <el-tag v-bind:type="tag_type">Time up!</el-tag>
-        </span>
-      </el-col>
-      <el-col :span="21">
-        <el-progress
-          v-bind:percentage="bar_percentage"
-          v-bind:color="bar_colour"
-          :show-text="false"
-        ></el-progress>
-      </el-col>
-    </el-row>
+    <div class="timer">
+        <el-row v-if="time_has_started">
+            <el-col :span="3">
+                <span v-if="minutes">
+                    <el-tag v-bind:type="tag_type">{{ minutes }} min</el-tag>
+                </span>
+                <span v-if="seconds || minutes">
+                    <el-tag v-bind:type="tag_type">{{ seconds }} sec</el-tag>
+                </span>
+                <span v-if="!(seconds || minutes)">
+                    <el-tag v-bind:type="tag_type">Time up!</el-tag>
+                </span>
+            </el-col>
+            <el-col :span="21">
+                <el-progress
+                    v-bind:percentage="bar_percentage"
+                    v-bind:color="bar_colour"
+                    :show-text="false"
+                ></el-progress>
+            </el-col>
+        </el-row>
 
-    <br>
-  </div>
+        <br />
+    </div>
 </template>
 
 <script>
@@ -87,7 +87,7 @@ export default {
             return this.termination_date - this.actualTime
         },
         async compute() {
-            let duration = moment.duration(this.getDifference(), 'seconds')
+            const duration = moment.duration(this.getDifference(), 'seconds')
             this.minutes = duration.minutes() > 0 ? duration.minutes() : 0
             this.seconds = duration.seconds() > 0 ? duration.seconds() : 0
             const current_time = this.seconds + 60 * this.minutes
@@ -102,7 +102,7 @@ export default {
                     const data = {
                         game_id: this.game_id,
                     }
-                    const res = await apiRequest('post', 'finishGame', data)
+                    await apiRequest('post', 'finishGame', data)
                     this.$router.push({
                         name: 'GameResults',
                         query: { token: this.token },

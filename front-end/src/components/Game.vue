@@ -1,94 +1,107 @@
 <template>
-  <div>
-    <Header/>
     <div>
-      <div class="container">
-        <div v-if="game">
-          <el-header height="100px">
-            <br>
-            <br>
-            <Timer
-              v-bind:date="game.termination_date"
-              v-bind:game_id="game.id"
-              v-bind:token="token"
-              @start_game="startGame"
-              @delay_game="delayGame"
-              style="float:centre;"
-            ></Timer>
-            <br>
-          </el-header>
+        <Header />
+        <div>
+            <div class="container">
+                <div v-if="game">
+                    <el-header height="100px">
+                        <br />
+                        <br />
+                        <Timer
+                            v-bind:date="game.termination_date"
+                            v-bind:game_id="game.id"
+                            v-bind:token="token"
+                            style="float:centre;"
+                            @start_game="startGame"
+                            @delay_game="delayGame"
+                        ></Timer>
+                        <br />
+                    </el-header>
 
-          <br>
-          <br>
+                    <br />
+                    <br />
 
-          <span v-if="!game_started && time_until_start">
-            <h1 style="text-align: center;">Game starts in</h1>
-            <h1 style="text-align: center;">
-              <b style="font-size: 150%;>">{{time_until_start}}</b>
-            </h1>
-            <h1 style="text-align: center;">seconds</h1>
-          </span>
-          
-          <span v-if="game_started">
-            <el-row :gutter="20">
-              <el-col :span="14">
-                <h1>{{ game.words[current_word_index] }}</h1>
-                <br>
-                <el-input placeholder="Please input" v-model="input" :disabled="submit_disabled">
-                  <el-button
-                    @click="submit"
-                    slot="append"
-                    icon="el-icon-caret-right"
-                    :disabled="submit_disabled"
-                  ></el-button>
-                </el-input>
+                    <span v-if="!game_started && time_until_start">
+                        <h1 style="text-align: center;">Game starts in</h1>
+                        <h1 style="text-align: center;">
+                            <b style="font-size: 150%;>">{{ time_until_start }}</b>
+                        </h1>
+                        <h1 style="text-align: center;">seconds</h1>
+                    </span>
 
-                <br>
-                <br>Definition
-                <br>
-                <br>
-                <el-button
-                  :disabled="skip_button_disabled"
-                  :loading="skip_button_loading"
-                  @click="skipWord()"
-                  type="danger"
-                  plain
-                  style="float:left;"
-                >{{ skip_button_text }}</el-button>
+                    <span v-if="game_started">
+                        <el-row :gutter="20">
+                            <el-col :span="14">
+                                <h1>{{ game.words[current_word_index] }}</h1>
+                                <br />
+                                <el-input
+                                    v-model="input"
+                                    placeholder="Please input"
+                                    :disabled="submit_disabled"
+                                >
+                                    <el-button
+                                        slot="append"
+                                        icon="el-icon-caret-right"
+                                        :disabled="submit_disabled"
+                                        @click="submit"
+                                    ></el-button>
+                                </el-input>
 
-                <br>
-                <br>
-              </el-col>
-              <el-col :span="2">
-                <h2></h2>
-              </el-col>
-              <el-col :span="8">
-                <br>
-                <br>
-                <el-tag type="warning">
-                  <span
-                    v-if="current_word_index !== game.words.length - 1"
-                  >{{ game.words.length - 1 - current_word_index }} words remaining</span>
-                  <span v-if="current_word_index === game.words.length - 1">final word</span>
-                </el-tag>
-                <el-tag
-                  type="warning"
-                >The other player has submitted {{ no_of_opponent_answers }} answers</el-tag>
-                <br>
-                <br>
-                <el-table :data="answers" width="180">
-                  <el-table-column prop="answer" label="Answers" width="180"></el-table-column>
-                </el-table>
-              </el-col>
-            </el-row>
-            <el-footer>
-              <el-button @click="quit()" style="float:right;">Quit</el-button>
-            </el-footer>
-          </span>
+                                <br />
+                                <br />Definition
+                                <br />
+                                <br />
+                                <el-button
+                                    :disabled="skip_button_disabled"
+                                    :loading="skip_button_loading"
+                                    type="danger"
+                                    plain
+                                    style="float:left;"
+                                    @click="skipWord()"
+                                    >{{ skip_button_text }}</el-button
+                                >
+
+                                <br />
+                                <br />
+                            </el-col>
+                            <el-col :span="2">
+                                <h2></h2>
+                            </el-col>
+                            <el-col :span="8">
+                                <br />
+                                <br />
+                                <el-tag type="warning">
+                                    <span v-if="current_word_index !== game.words.length - 1">
+                                        {{ game.words.length - 1 - current_word_index }} words
+                                        remaining
+                                    </span>
+                                    <span v-if="current_word_index === game.words.length - 1"
+                                        >final word</span
+                                    >
+                                </el-tag>
+                                <el-tag type="warning">
+                                    The other player has submitted
+                                    {{ no_of_opponent_answers }} answers
+                                </el-tag>
+                                <br />
+                                <br />
+                                <el-table :data="answers" width="180">
+                                    <el-table-column
+                                        prop="answer"
+                                        label="Answers"
+                                        width="180"
+                                    ></el-table-column>
+                                </el-table>
+                            </el-col>
+                        </el-row>
+                        <el-footer>
+                            <el-button style="float:right;" @click="quit()">Quit</el-button>
+                        </el-footer>
+                    </span>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </template>
 
 <script>
@@ -176,34 +189,34 @@ export default {
                         : data.this_player_word_count
             }
         })
-        this.socket.on('otherPlayerSkipped', data => {
+        this.socket.on('otherPlayerSkipped', () => {
             // WHEN THE OTHER PLAYER SKIPS THE WORD
             this.$alert('The other player skipped this word', 'Word skipped', {
                 confirmButtonText: 'OK',
                 closeOnClickModal: false,
                 showClose: false,
                 type: 'info',
-                callback: action => {
+                callback: () => {
                     this.socket.emit('confirmSkip', { game_token: this.game.token })
                     this.nextWord()
                 },
             })
         })
-        this.socket.on('otherPlayerConfirmedSkipped', data => {
+        this.socket.on('otherPlayerConfirmedSkipped', () => {
             // WHEN THE OTHER PLAYER CONFIRMS THE SKIP
             this.skip_button_loading = false
             this.submit_disabled = false
             this.skip_button_text = 'Skip word'
             this.nextWord()
         })
-        this.socket.on('otherPlayerQuit', data => {
+        this.socket.on('otherPlayerQuit', () => {
             // WHEN THE OTHER PLAYER QUITS THE GAME
             this.$alert('Sorry, it looks like the other player quit the game :(', 'Game ended', {
                 confirmButtonText: 'OK',
                 closeOnClickModal: false,
                 showClose: false,
                 type: 'info',
-                callback: action => {
+                callback: () => {
                     this.$router.push({
                         name: 'GameResults',
                         query: { token: this.token },
@@ -245,7 +258,7 @@ export default {
             }
             this.input = ''
         },
-        skipWord(e) {
+        skipWord() {
             const data = {
                 game_id: this.game.id,
                 current_word: this.game.words[this.current_word_index],

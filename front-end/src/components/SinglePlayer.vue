@@ -1,54 +1,77 @@
 <template>
-  <div>
-    <Header v-bind:user="user"/>
     <div>
-      <div class="container">
-        <br>
-        <br>
-        <h3>Single Player</h3>
-        <br>
-        <h4>Choose word type</h4>
-        <br>
-        <el-row :gutter="20">
-          <el-col :span="4">
-            <!-- SYNONYMS -->
-            <el-popover placement="bottom-start" title="Synonyms" width="240" trigger="hover">
-              <div>Words with the same meaning
-                <br>eg: fast -> quick
-              </div>
-              <el-button slot="reference" type="warning" round @click="initialise('SYN')">Synonyms</el-button>
-            </el-popover>
-          </el-col>
-          <el-col :span="4">
-            <!-- ANTONYMS -->
-            <el-popover placement="bottom" title="Antonyms" width="255" trigger="hover">
-              <div>Words with the opposite meaning
-                <br>eg: fast -> slow
-              </div>
-              <el-button slot="reference" type="warning" round @click="initialise('ANT')">Antonyms</el-button>
-            </el-popover>
-          </el-col>
-          <el-col :span="4">
-            <!-- HYPERNYMS -->
-            <el-popover placement="bottom-end" title="Hypernyms" width="260" trigger="hover">
-              <div>Words with a more general meaning
-                <br>eg: chair -> furniture
-              </div>
-              <el-button slot="reference" type="warning" round @click="initialise('HYP')">Hypernyms</el-button>
-            </el-popover>
-          </el-col>
-        </el-row>
+        <Header v-bind:user="user" />
+        <div>
+            <div class="container">
+                <br />
+                <br />
+                <h3>Single Player</h3>
+                <br />
+                <h4>Choose word type</h4>
+                <br />
+                <el-row :gutter="20">
+                    <el-col :span="4">
+                        <!-- SYNONYMS -->
+                        <el-popover
+                            placement="bottom-start"
+                            title="Synonyms"
+                            width="240"
+                            trigger="hover"
+                        >
+                            <div>Words with the same meaning <br />eg: fast -> quick</div>
+                            <el-button
+                                slot="reference"
+                                type="warning"
+                                round
+                                @click="initialise('SYN')"
+                                >Synonyms</el-button
+                            >
+                        </el-popover>
+                    </el-col>
+                    <el-col :span="4">
+                        <!-- ANTONYMS -->
+                        <el-popover placement="bottom" title="Antonyms" width="255" trigger="hover">
+                            <div>Words with the opposite meaning <br />eg: fast -> slow</div>
+                            <el-button
+                                slot="reference"
+                                type="warning"
+                                round
+                                @click="initialise('ANT')"
+                                >Antonyms</el-button
+                            >
+                        </el-popover>
+                    </el-col>
+                    <el-col :span="4">
+                        <!-- HYPERNYMS -->
+                        <el-popover
+                            placement="bottom-end"
+                            title="Hypernyms"
+                            width="260"
+                            trigger="hover"
+                        >
+                            <div>
+                                Words with a more general meaning <br />eg: chair -> furniture
+                            </div>
+                            <el-button
+                                slot="reference"
+                                type="warning"
+                                round
+                                @click="initialise('HYP')"
+                                >Hypernyms</el-button
+                            >
+                        </el-popover>
+                    </el-col>
+                </el-row>
 
-        <br>
-        <br>
-      </div>
+                <br />
+                <br />
+            </div>
+        </div>
     </div>
-  </div>
 </template>
 
 <script>
 import Header from './Header'
-import { apiRequest } from '../api/auth'
 
 export default {
     name: 'Home',
@@ -70,8 +93,6 @@ export default {
     mounted() {
         this.user = JSON.parse(localStorage.getItem('user'))
     },
-    methods: {
-        async initialise(game_mode) {},
-    },
+    methods: {},
 }
 </script>
