@@ -114,7 +114,7 @@ export default {
         },
     },
     watch: {
-        actualTime(val, oldVal) {
+        actualTime() {
             this.compute()
         },
     },
