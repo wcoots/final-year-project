@@ -708,10 +708,9 @@ app.post('/heartbeat', multipartMiddleware, async (req, res) => {
 
 app.post('/getGameInfo', multipartMiddleware, async (req, res) => {
     try {
-        // TODO: change games_copy to games when in production
         const games = await db.qry(
             `SELECT id, p1_user_id, p2_user_id, game_mode, initialisation_date, termination_date, token, words
-            FROM games_copy
+            FROM games
             WHERE valid = 1
             AND completed = 0
             AND quitted = 0
@@ -742,9 +741,8 @@ app.post('/getGameInfo', multipartMiddleware, async (req, res) => {
 
 app.post('/finishGame', multipartMiddleware, async (req, res) => {
     try {
-        // TODO: change games_copy to games when in production
         await db.qry(
-            `UPDATE games_copy
+            `UPDATE games
             SET completed = 1,
             valid = 0
             WHERE id = ?
@@ -763,10 +761,9 @@ app.post('/finishGame', multipartMiddleware, async (req, res) => {
 
 app.post('/getGameResults', multipartMiddleware, async (req, res) => {
     try {
-        // TODO: change games_copy to games when in production
         const games = await db.qry(
             `SELECT id, p1_user_id, p2_user_id
-            FROM games_copy
+            FROM games
             WHERE token = ?`,
             [req.body.token]
         )
@@ -927,7 +924,7 @@ io.on('connection', socket => {
 
                 if (req.max_word_index === req.current_word_index) {
                     await db.qry(
-                        `UPDATE games_copy
+                        `UPDATE games
                         SET completed = 1,
                         valid = 0
                         WHERE id = ?
@@ -1001,7 +998,7 @@ io.on('connection', socket => {
     socket.on('quitGame', async req => {
         try {
             await db.qry(
-                `UPDATE games_copy
+                `UPDATE games
                 SET valid = 0,
                 quitted = 1
                 WHERE id = ?

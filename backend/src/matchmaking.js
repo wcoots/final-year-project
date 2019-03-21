@@ -131,7 +131,7 @@ const checkMatches = async () => {
             }, '${grouped_users[key][i].game_mode}', '${token}', '${moment().format(
                 'YYYY-MM-DD HH:mm:ss'
             )}', '${moment()
-                .add(150, 'seconds')
+                .add(160, 'seconds')
                 .format('YYYY-MM-DD HH:mm:ss')}', '${words}'),\n`
 
             queued_values += temp1

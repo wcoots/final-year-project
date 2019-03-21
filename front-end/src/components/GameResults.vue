@@ -70,10 +70,6 @@ export default {
             localStorage.setItem('user', JSON.stringify(null))
             this.$router.push({ name: 'SignUp' })
         }
-        // TODO: remove this
-        if (this.token !== 'test_token') {
-            this.$router.push({ name: 'Home' })
-        }
 
         this.user = JSON.parse(localStorage.getItem('user'))
 

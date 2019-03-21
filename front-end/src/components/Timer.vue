@@ -1,6 +1,6 @@
 <template>
-  <div class="countdown">
-    <el-row>
+  <div class="timer">
+    <el-row v-if="time_has_started">
       <el-col :span="3">
         <span v-if="minutes">
           <el-tag v-bind:type="tag_type">{{ minutes }} min</el-tag>
@@ -38,6 +38,7 @@ export default {
     data() {
         return {
             actualTime: moment().format('X'),
+            game_length: 150,
             termination_date: null,
             minutes: 0,
             seconds: 0,
@@ -46,6 +47,7 @@ export default {
             bar_colour: '#67C23A',
             max_sec: 1,
             timer_is_going: false,
+            time_has_started: false,
         }
     },
     created() {
@@ -73,10 +75,12 @@ export default {
                     this.tag_type = 'success'
                     this.bar_colour = '#67C23A'
                 }
-                let total_secs = this.seconds + this.minutes * 60 - 1
-                total_secs = total_secs > 0 ? total_secs : 0
-                this.max_sec = total_secs > this.max_sec ? total_secs : this.max_sec
-                this.bar_percentage = Math.round((total_secs / this.max_sec) * 100)
+                const current_time = this.seconds + 60 * this.minutes
+                if (this.timer_is_going && current_time <= this.game_length + 1) {
+                    this.max_sec = this.game_length > this.max_sec ? this.game_length : this.max_sec
+                    this.bar_percentage = Math.round((current_time / this.max_sec) * 100)
+                    this.bar_percentage = this.bar_percentage > 100 ? 100 : this.bar_percentage
+                }
             }, 1000)
         },
         getDifference() {
@@ -86,8 +90,12 @@ export default {
             let duration = moment.duration(this.getDifference(), 'seconds')
             this.minutes = duration.minutes() > 0 ? duration.minutes() : 0
             this.seconds = duration.seconds() > 0 ? duration.seconds() : 0
-            if (this.minutes > 2 || (this.seconds >= 30 && this.minutes === 2)) {
-                console.log('too early') // ADD CODE HERE
+            const current_time = this.seconds + 60 * this.minutes
+            if (this.timer_is_going && current_time <= this.game_length) {
+                this.$emit('start_game')
+                this.time_has_started = true
+            } else if (this.timer_is_going && current_time > this.game_length) {
+                this.$emit('delay_game', current_time)
             }
             if (!this.minutes && !this.seconds) {
                 if (this.timer_is_going) {
