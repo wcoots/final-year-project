@@ -1,92 +1,101 @@
 <template>
-  <div>
-    <Header/>
     <div>
-      <div class="container">
-        <div v-if="game">
-          <el-header height="100px">
-            <br>
-            <br>
-            <Timer
-              v-bind:date="game.termination_date"
-              v-bind:game_id="game.id"
-              v-bind:token="token"
-              style="float:centre;"
-              @start_game="startGame"
-              @delay_game="delayGame"
-            ></Timer>
-            <br>
-          </el-header>
+        <Header />
+        <div>
+            <div class="container">
+                <div v-if="game">
+                    <el-header height="100px">
+                        <br />
+                        <br />
+                        <Timer
+                            v-bind:date="game.termination_date"
+                            v-bind:game_id="game.id"
+                            v-bind:token="token"
+                            style="float:centre;"
+                            @start_game="startGame"
+                            @delay_game="delayGame"
+                        ></Timer>
+                        <br />
+                    </el-header>
 
-          <br>
-          <br>
+                    <br />
+                    <br />
 
-          <span v-if="!game_started && time_until_start">
-            <h1 style="text-align: center;">Game starts in</h1>
-            <h1 style="text-align: center;">
-              <b style="font-size: 150%;>">{{ time_until_start }}</b>
-            </h1>
-            <h1 style="text-align: center;">seconds</h1>
-          </span>
-          
-          <span v-if="game_started">
-            <el-row :gutter="20">
-              <el-col :span="14">
-                <h1>{{ game.words[current_word_index] }}</h1>
-                <br>
-                <el-input v-model="input" placeholder="Please input" :disabled="submit_disabled">
-                  <el-button
-                    slot="append"
-                    icon="el-icon-caret-right"
-                    :disabled="submit_disabled"
-                    @click="submit"
-                  ></el-button>
-                </el-input>
+                    <span v-if="!game_started && time_until_start">
+                        <h1 style="text-align: center;">Game starts in</h1>
+                        <h1 style="text-align: center;">
+                            <b style="font-size: 150%;>">{{ time_until_start }}</b>
+                        </h1>
+                        <h1 style="text-align: center;">seconds</h1>
+                    </span>
 
-                <br>
-                <br>Definition
-                <br>
-                <br>
-                <el-button
-                  :disabled="skip_button_disabled"
-                  :loading="skip_button_loading"
-                  type="danger"
-                  plain
-                  style="float:left;"
-                  @click="skipWord()"
-                >{{ skip_button_text }}</el-button>
+                    <span v-if="game_started">
+                        <el-row :gutter="20">
+                            <el-col :span="14">
+                                <h1>{{ game.words[current_word_index] }}</h1>
+                                <br />
+                                <el-input
+                                    v-model="input"
+                                    placeholder="Please input"
+                                    :disabled="submit_disabled"
+                                >
+                                    <el-button
+                                        slot="append"
+                                        icon="el-icon-caret-right"
+                                        :disabled="submit_disabled"
+                                        @click="submit"
+                                    ></el-button>
+                                </el-input>
 
-                <br>
-                <br>
-              </el-col>
-              <el-col :span="2">
-                <h2></h2>
-              </el-col>
-              <el-col :span="8">
-                <br>
-                <br>
-                <el-tag type="warning">
-                  <b>{{ current_word_index + 1 }}/{{ game.words.length }}</b>
-                </el-tag>
-                <el-tag type="warning">
-                  The other player has submitted
-                  <b>{{ no_of_opponent_answers }}</b> answers
-                </el-tag>
-                <br>
-                <br>
-                <el-table :data="answers" width="180">
-                  <el-table-column prop="answer" label="Answers" width="180"></el-table-column>
-                </el-table>
-              </el-col>
-            </el-row>
-            <el-footer>
-              <el-button style="float:right;" @click="quit()">Quit</el-button>
-            </el-footer>
-          </span>
+                                <br />
+                                <br />Definition
+                                <br />
+                                <br />
+                                <el-button
+                                    :disabled="skip_button_disabled"
+                                    :loading="skip_button_loading"
+                                    type="danger"
+                                    plain
+                                    style="float:left;"
+                                    @click="skipWord()"
+                                    >{{ skip_button_text }}</el-button
+                                >
+
+                                <br />
+                                <br />
+                            </el-col>
+                            <el-col :span="2">
+                                <h2></h2>
+                            </el-col>
+                            <el-col :span="8">
+                                <br />
+                                <br />
+                                <el-tag type="warning">
+                                    <b>{{ current_word_index + 1 }}/{{ game.words.length }}</b>
+                                </el-tag>
+                                <el-tag type="warning">
+                                    The other player has submitted
+                                    <b>{{ no_of_opponent_answers }}</b> answers
+                                </el-tag>
+                                <br />
+                                <br />
+                                <el-table :data="answers" width="180">
+                                    <el-table-column
+                                        prop="answer"
+                                        label="Answers"
+                                        width="180"
+                                    ></el-table-column>
+                                </el-table>
+                            </el-col>
+                        </el-row>
+                        <el-footer>
+                            <el-button style="float:right;" @click="quit()">Quit</el-button>
+                        </el-footer>
+                    </span>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </template>
 
 <script>

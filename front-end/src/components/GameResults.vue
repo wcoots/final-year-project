@@ -1,56 +1,81 @@
 <template>
-  <div>
-    <Header v-bind:user="user"/>
     <div>
-      <div class="container">
-        <br>
-        <br>
+        <Header v-bind:user="user" />
+        <div>
+            <div class="container">
+                <br />
+                <br />
 
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <h3>Results:</h3>
-          </el-col>
-          <el-col :span="12">
-            <span style="float:right;">
-              <el-tag type="success">
-                <i class="el-icon-success" style="color:#67C23A;"></i>
-                Matched:
-                <b>{{ matched_count }}</b>
-              </el-tag>
-              <el-tag type="warning">
-                <i class="el-icon-error" style="color:#E6A23C;"></i>
-                Passed:
-                <b>{{ passed_count }}</b>
-              </el-tag>
-              <el-tag type="danger">
-                <i class="el-icon-error" style="color:#F56C6C;"></i>
-                Uncompleted:
-                <b>{{ uncompleted_count }}</b>
-              </el-tag>
-            </span>
-          </el-col>
-        </el-row>
+                <el-row :gutter="20">
+                    <el-col :span="12">
+                        <h3>Results:</h3>
+                    </el-col>
+                    <el-col :span="12">
+                        <span style="float:right;">
+                            <el-tag type="success">
+                                <i class="el-icon-success" style="color:#67C23A;"></i>
+                                Matched:
+                                <b>{{ matched_count }}</b>
+                            </el-tag>
+                            <el-tag type="warning">
+                                <i class="el-icon-error" style="color:#E6A23C;"></i>
+                                Passed:
+                                <b>{{ passed_count }}</b>
+                            </el-tag>
+                            <el-tag type="danger">
+                                <i class="el-icon-error" style="color:#F56C6C;"></i>
+                                Uncompleted:
+                                <b>{{ uncompleted_count }}</b>
+                            </el-tag>
+                        </span>
+                    </el-col>
+                </el-row>
 
-        <br>
-        <el-table :data="table_data" style="width: 100%" :row-class-name="tableRowClassName">
-          <el-table-column prop="matched" width="40">
-            <template slot-scope="scope">
-              <i v-if="scope.row.matched" class="el-icon-success" style="color:#67C23A;"></i>
-              <i v-if="scope.row.passed" class="el-icon-warning" style="color:#E6A23C;"></i>
-              <i v-if="scope.row.uncompleted" class="el-icon-error" style="color:#F56C6C;"></i>
-            </template>
-          </el-table-column>
-          <el-table-column prop="word" label="Word" width="180"></el-table-column>
-          <el-table-column prop="matched_word" label="Match" width="180"></el-table-column>
-          <el-table-column prop="this_player" label="Your answers"></el-table-column>
-          <el-table-column prop="other_player" label="Opponent's answers"></el-table-column>
-        </el-table>
+                <br />
+                <el-table
+                    :data="table_data"
+                    style="width: 100%"
+                    :row-class-name="tableRowClassName"
+                >
+                    <el-table-column prop="matched" width="40">
+                        <template slot-scope="scope">
+                            <i
+                                v-if="scope.row.matched"
+                                class="el-icon-success"
+                                style="color:#67C23A;"
+                            ></i>
+                            <i
+                                v-if="scope.row.passed"
+                                class="el-icon-warning"
+                                style="color:#E6A23C;"
+                            ></i>
+                            <i
+                                v-if="scope.row.uncompleted"
+                                class="el-icon-error"
+                                style="color:#F56C6C;"
+                            ></i>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="word" label="Word" width="180"></el-table-column>
+                    <el-table-column
+                        prop="matched_word"
+                        label="Match"
+                        width="180"
+                    ></el-table-column>
+                    <el-table-column prop="this_player" label="Your answers"></el-table-column>
+                    <el-table-column
+                        prop="other_player"
+                        label="Opponent's answers"
+                    ></el-table-column>
+                </el-table>
 
-        <br>
-        <el-button type="success" round style="float:right;" @click="redirect('Home')">New Game</el-button>
-      </div>
+                <br />
+                <el-button type="success" round style="float:right;" @click="redirect('Home')"
+                    >New Game</el-button
+                >
+            </div>
+        </div>
     </div>
-  </div>
 </template>
 
 <script>
