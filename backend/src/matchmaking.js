@@ -10,11 +10,11 @@ const checkGames = async () => {
     // GET VALID GAMES
     const games = await db.qry(
         `SELECT *
-    FROM games
-    WHERE valid = 1
-    AND completed = 0
-    AND removed = 0
-    AND quitted = 0`
+        FROM games
+        WHERE valid = 1
+        AND completed = 0
+        AND removed = 0
+        AND quitted = 0`
     )
     // IF GAMES EXIST
     if (games && games.length) {
@@ -98,7 +98,7 @@ const checkMatches = async () => {
             const token_val = crypto.randomBytes(20)
             const token = token_val.toString('hex')
             const words = wordnet.getWords(grouped_users[key][i].game_mode)
-            // (id, user_id, game_mode, valid, initialisation_date, matched, matched_date, match_id, match_user_id)
+            // (id, user_id, game_mode, valid, initialisation_date, matched, matched_date, match_id, match_user_id, last_heartbeat, game_token)
             // RECORD USER A'S DATA AS A STRING
             const temp1 = `(${grouped_users[key][i].id}, ${grouped_users[key][i].user_id}, '${
                 grouped_users[key][i].game_mode
@@ -111,7 +111,7 @@ const checkMatches = async () => {
                 'ddd MMM DD YYYY hh:mm:ss [GMT]ZZ'
             ).format('YYYY-MM-DD HH:mm:ss')}', '${token}'),\n`
             //
-            // (id, user_id, game_mode, valid, initialisation_date, matched, matched_date, match_id, match_user_id)
+            // (id, user_id, game_mode, valid, initialisation_date, matched, matched_date, match_id, match_user_id, last_heartbeat, game_token)
             // RECORD USER B'S DATA AS A STRING
             const temp2 = `(${grouped_users[key][i + 1].id}, ${
                 grouped_users[key][i + 1].user_id

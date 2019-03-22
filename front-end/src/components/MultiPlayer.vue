@@ -1,80 +1,55 @@
 <template>
+  <div>
+    <Header v-bind:user="user"/>
     <div>
-        <Header v-bind:user="user" />
-        <div>
-            <div class="container">
-                <br />
-                <br />
-                <h3>Single Player</h3>
-                <br />
-                <h4>Choose word type</h4>
-                <br />
-                <el-row :gutter="20">
-                    <el-col :span="4">
-                        <!-- SYNONYMS -->
-                        <el-popover
-                            placement="bottom-start"
-                            title="Synonyms"
-                            width="240"
-                            trigger="hover"
-                        >
-                            <div>
-                                Words with the
-                                <b>same</b> meaning <br />eg: fast → quick
-                            </div>
-                            <el-button
-                                slot="reference"
-                                type="warning"
-                                round
-                                @click="initialise('SYN')"
-                                >Synonyms</el-button
-                            >
-                        </el-popover>
-                    </el-col>
-                    <el-col :span="4">
-                        <!-- ANTONYMS -->
-                        <el-popover placement="bottom" title="Antonyms" width="255" trigger="hover">
-                            <div>
-                                Words with the
-                                <b>opposite</b> meaning <br />eg: fast → slow
-                            </div>
-                            <el-button
-                                slot="reference"
-                                type="warning"
-                                round
-                                @click="initialise('ANT')"
-                                >Antonyms</el-button
-                            >
-                        </el-popover>
-                    </el-col>
-                    <el-col :span="4">
-                        <!-- HYPERNYMS -->
-                        <el-popover
-                            placement="bottom-end"
-                            title="Hypernyms"
-                            width="270"
-                            trigger="hover"
-                        >
-                            <div>
-                                Words with a
-                                <b>more general</b> meaning <br />eg: chair → furniture
-                            </div>
-                            <el-button
-                                slot="reference"
-                                type="warning"
-                                round
-                                @click="initialise('HYP')"
-                                >Hypernyms</el-button
-                            >
-                        </el-popover>
-                    </el-col>
-                </el-row>
+      <div class="container">
+        <br>
+        <br>
+        <h3>Multiplayer</h3>
+        <br>
+        <h4>Choose word type</h4>
+        <br>
+        <el-row :gutter="20">
+          <el-col :span="4">
+            <!-- SYNONYMS -->
+            <el-popover placement="bottom-start" title="Synonyms" width="240" trigger="hover">
+              <div>
+                Words with the
+                <b>same</b> meaning
+                <br>eg: fast → quick
+              </div>
+              <el-button slot="reference" type="warning" round @click="initialise('SYN')">Synonyms</el-button>
+            </el-popover>
+          </el-col>
+          <el-col :span="4">
+            <!-- ANTONYMS -->
+            <el-popover placement="bottom" title="Antonyms" width="255" trigger="hover">
+              <div>
+                Words with the
+                <b>opposite</b> meaning
+                <br>eg: fast → slow
+              </div>
+              <el-button slot="reference" type="warning" round @click="initialise('ANT')">Antonyms</el-button>
+            </el-popover>
+          </el-col>
+          <el-col :span="4">
+            <!-- HYPERNYMS -->
+            <el-popover placement="bottom-end" title="Hypernyms" width="270" trigger="hover">
+              <div>
+                Words with a
+                <b>more general</b> meaning
+                <br>eg: chair → furniture
+              </div>
+              <el-button slot="reference" type="warning" round @click="initialise('HYP')">Hypernyms</el-button>
+            </el-popover>
+          </el-col>
+        </el-row>
 
-                <br />
-                <br />
-            </div>
-        </div>
+        <br>
+        <br>
+      </div>
     </div>
+  </div>
 </template>
 
 <script>
