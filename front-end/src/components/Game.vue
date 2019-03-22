@@ -71,17 +71,11 @@
                                 <br />
                                 <br />
                                 <el-tag type="warning">
-                                    <span v-if="current_word_index !== game.words.length - 1">
-                                        {{ game.words.length - 1 - current_word_index }} words
-                                        remaining
-                                    </span>
-                                    <span v-if="current_word_index === game.words.length - 1"
-                                        >final word</span
-                                    >
+                                    <b>{{ current_word_index + 1 }}/{{ game.words.length }}</b>
                                 </el-tag>
                                 <el-tag type="warning">
                                     The other player has submitted
-                                    {{ no_of_opponent_answers }} answers
+                                    <b>{{ no_of_opponent_answers }}</b> answers
                                 </el-tag>
                                 <br />
                                 <br />
@@ -211,17 +205,15 @@ export default {
         })
         this.socket.on('otherPlayerQuit', () => {
             // WHEN THE OTHER PLAYER QUITS THE GAME
+            this.$router.push({
+                name: 'GameResults',
+                query: { token: this.token },
+            })
             this.$alert('Sorry, it looks like the other player quit the game :(', 'Game ended', {
                 confirmButtonText: 'OK',
                 closeOnClickModal: false,
                 showClose: false,
                 type: 'info',
-                callback: () => {
-                    this.$router.push({
-                        name: 'GameResults',
-                        query: { token: this.token },
-                    })
-                },
             })
         })
     },
@@ -247,7 +239,11 @@ export default {
             const words = _.words(_.toLower(this.input))
             words.forEach(word => {
                 const x = { answer: word }
-                if (!_.filter(this.answers, x).length && word.length) {
+                if (
+                    !_.filter(this.answers, x).length &&
+                    word.length &&
+                    word !== _.toLower(this.game.words[this.current_word_index])
+                ) {
                     this.answers.push(x)
                     data.answers.push(x)
                 }

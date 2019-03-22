@@ -43,7 +43,7 @@
 <script>
 export default {
     name: 'Header',
-    props: { user: String },
+    props: { user: Object },
     methods: {
         redirect(action) {
             if (action === 'Logout') {

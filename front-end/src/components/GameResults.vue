@@ -14,11 +14,18 @@
                         <span style="float:right;">
                             <el-tag type="success">
                                 <i class="el-icon-success" style="color:#67C23A;"></i>
-                                Matched: {{ matched_count }}
+                                Matched:
+                                <b>{{ matched_count }}</b>
+                            </el-tag>
+                            <el-tag type="warning">
+                                <i class="el-icon-error" style="color:#E6A23C;"></i>
+                                Passed:
+                                <b>{{ passed_count }}</b>
                             </el-tag>
                             <el-tag type="danger">
                                 <i class="el-icon-error" style="color:#F56C6C;"></i>
-                                Passed: {{ passed_count }}
+                                Uncompleted:
+                                <b>{{ uncompleted_count }}</b>
                             </el-tag>
                         </span>
                     </el-col>
@@ -38,7 +45,12 @@
                                 style="color:#67C23A;"
                             ></i>
                             <i
-                                v-if="!scope.row.matched"
+                                v-if="scope.row.passed"
+                                class="el-icon-warning"
+                                style="color:#E6A23C;"
+                            ></i>
+                            <i
+                                v-if="scope.row.uncompleted"
                                 class="el-icon-error"
                                 style="color:#F56C6C;"
                             ></i>
@@ -82,6 +94,7 @@ export default {
             table_data: null,
             matched_count: null,
             passed_count: null,
+            uncompleted_count: null,
         }
     },
     async created() {
@@ -102,13 +115,16 @@ export default {
         this.table_data = res.data.words
         this.matched_count = res.data.matched_count
         this.passed_count = res.data.passed_count
+        this.uncompleted_count = res.data.uncompleted_count
     },
     methods: {
         tableRowClassName({ row }) {
-            if (row.passed) {
-                return 'warning-row'
-            } else if (row.matched) {
+            if (row.matched) {
                 return 'success-row'
+            } else if (row.passed) {
+                return 'warning-row'
+            } else if (row.uncompleted) {
+                return 'danger-row'
             }
             return ''
         },
@@ -120,8 +136,12 @@ export default {
 </script>
 
 <style>
+.el-table .danger-row {
+    background: #fde6e6;
+}
+
 .el-table .warning-row {
-    background: oldlace;
+    background: #fdf5e6;
 }
 
 .el-table .success-row {

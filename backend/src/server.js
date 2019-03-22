@@ -750,6 +750,14 @@ app.post('/finishGame', multipartMiddleware, async (req, res) => {
             AND removed = 0`,
             [req.body.game_id]
         )
+        await db.qry(
+            `UPDATE words
+            SET uncompleted = 1
+            WHERE game_id = ?
+            AND matched = 0
+            AND passed = 0`,
+            [req.body.game_id]
+        )
 
         return res.json({
             status: true,
@@ -778,7 +786,7 @@ app.post('/getGameResults', multipartMiddleware, async (req, res) => {
 
         // GET ALL WORDS FOR THAT GAME
         const words = await db.qry(
-            `SELECT word, ${this_player_no_answers} AS this_player, ${other_player_no_answers} AS other_player, matched, matched_word, passed
+            `SELECT word, ${this_player_no_answers} AS this_player, ${other_player_no_answers} AS other_player, matched, matched_word, passed, uncompleted
             FROM words
             WHERE game_id = ?`,
             [game.id]
@@ -787,11 +795,14 @@ app.post('/getGameResults', multipartMiddleware, async (req, res) => {
         if (words.length) {
             let matched_count = 0
             let passed_count = 0
+            let uncompleted_count = 0
             words.forEach(word => {
                 if (word.matched) {
                     matched_count++
-                } else {
+                } else if (word.passed) {
                     passed_count++
+                } else if (word.uncompleted) {
+                    uncompleted_count++
                 }
                 let this_player_words = ''
                 let other_player_words = ''
@@ -809,6 +820,7 @@ app.post('/getGameResults', multipartMiddleware, async (req, res) => {
                 words,
                 matched_count,
                 passed_count,
+                uncompleted_count,
             })
         }
 
@@ -932,6 +944,14 @@ io.on('connection', socket => {
                         AND removed = 0`,
                         [req.game_id]
                     )
+                    await db.qry(
+                        `UPDATE words
+                        SET uncompleted = 1
+                        WHERE game_id = ?
+                        AND matched = 0
+                        AND passed = 0`,
+                        [req.game_id]
+                    )
                 }
 
                 io.in(req.game_token).emit('answerSubmitted', {
@@ -1010,8 +1030,8 @@ io.on('connection', socket => {
                 `UPDATE words
                 SET uncompleted = 1
                 WHERE game_id = ?
-                AND matched is NULL
-                AND passed is NULL`,
+                AND matched = 0
+                AND passed = 0`,
                 [req.game_id]
             )
             socket.to(req.game_token).emit('otherPlayerQuit', {

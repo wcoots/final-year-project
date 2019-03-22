@@ -5,7 +5,7 @@
             <div class="container">
                 <br />
                 <br />
-                <h3>Single Player</h3>
+                <h3>Multiplayer</h3>
                 <br />
                 <h4>Choose word type</h4>
                 <br />
