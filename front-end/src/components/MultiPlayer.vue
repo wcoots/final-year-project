@@ -1,93 +1,105 @@
 <template>
-  <div>
-    <Header v-bind:user="user"/>
     <div>
-      <div class="container">
-        <br>
-        <br>
-        <h3>Multiplayer</h3>
-        <br>
-        <h4>Choose word type</h4>
-        <br>
+        <Header v-bind:user="user" />
+        <div>
+            <div class="container">
+                <br />
+                <br />
+                <h3>Multiplayer</h3>
+                <br />
+                <h4>Choose word type</h4>
+                <br />
 
-        <el-row :gutter="12">
-          <!-- SYNONYMS -->
-          <el-col :span="8">
-            <el-card shadow="hover">
-              <div slot="header" class="clearfix">
-                <el-button type="warning" round @click="initialise('SYN')">Synonyms</el-button>
-              </div>
-              <div>
-                Words with the
-                <b>same</b> meaning
-              </div>
-              <div>eg: fast → quick</div>
-              <br>
-              <div>
-                <span v-if="syn_queueing" style="color:#67C23A;">
-                  <b>{{ syn_queueing }}</b>
-                </span>
-                <span v-else style="color:#F56C6C;">
-                  <b>{{ syn_queueing }}</b>
-                </span> users queueing
-              </div>
-            </el-card>
-          </el-col>
-          <!-- ANTONYMS -->
-          <el-col :span="8">
-            <el-card shadow="hover">
-              <div slot="header" class="clearfix">
-                <el-button slot="reference" type="warning" round @click="initialise('ANT')">Antonyms</el-button>
-              </div>
-              <div>
-                Words with the
-                <b>opposite</b> meaning
-              </div>
-              <div>eg: fast → slow</div>
-              <br>
-              <div>
-                <span v-if="ant_queueing" style="color:#67C23A;">
-                  <b>{{ ant_queueing }}</b>
-                </span>
-                <span v-else style="color:#F56C6C;">
-                  <b>{{ ant_queueing }}</b>
-                </span> users queueing
-              </div>
-            </el-card>
-          </el-col>
-          <!-- HYPERNYMS -->
-          <el-col :span="8">
-            <el-card shadow="hover">
-              <div slot="header" class="clearfix">
-                <el-button
-                  slot="reference"
-                  type="warning"
-                  round
-                  @click="initialise('HYP')"
-                >Hypernyms</el-button>
-              </div>
-              <div>
-                Words with a
-                <b>more general</b> meaning
-              </div>
-              <div>eg: chair → furniture</div>
-              <br>
-              <div>
-                <span v-if="hyp_queueing" style="color:#67C23A;">
-                  <b>{{ hyp_queueing }}</b>
-                </span>
-                <span v-else style="color:#F56C6C;">
-                  <b>{{ hyp_queueing }}</b>
-                </span> users queueing
-              </div>
-            </el-card>
-          </el-col>
-        </el-row>
+                <el-row :gutter="12">
+                    <!-- SYNONYMS -->
+                    <el-col :span="8">
+                        <el-card shadow="hover">
+                            <div slot="header" class="clearfix">
+                                <el-button type="warning" round @click="initialise('SYN')"
+                                    >Synonyms</el-button
+                                >
+                            </div>
+                            <div>
+                                Words with the
+                                <b>same</b> meaning
+                            </div>
+                            <div>eg: fast → quick</div>
+                            <br />
+                            <div>
+                                <span v-if="syn_queueing" style="color:#67C23A;">
+                                    <b>{{ syn_queueing }}</b>
+                                </span>
+                                <span v-else style="color:#F56C6C;">
+                                    <b>{{ syn_queueing }}</b>
+                                </span>
+                                users queueing
+                            </div>
+                        </el-card>
+                    </el-col>
+                    <!-- ANTONYMS -->
+                    <el-col :span="8">
+                        <el-card shadow="hover">
+                            <div slot="header" class="clearfix">
+                                <el-button
+                                    slot="reference"
+                                    type="warning"
+                                    round
+                                    @click="initialise('ANT')"
+                                    >Antonyms</el-button
+                                >
+                            </div>
+                            <div>
+                                Words with the
+                                <b>opposite</b> meaning
+                            </div>
+                            <div>eg: fast → slow</div>
+                            <br />
+                            <div>
+                                <span v-if="ant_queueing" style="color:#67C23A;">
+                                    <b>{{ ant_queueing }}</b>
+                                </span>
+                                <span v-else style="color:#F56C6C;">
+                                    <b>{{ ant_queueing }}</b>
+                                </span>
+                                users queueing
+                            </div>
+                        </el-card>
+                    </el-col>
+                    <!-- HYPERNYMS -->
+                    <el-col :span="8">
+                        <el-card shadow="hover">
+                            <div slot="header" class="clearfix">
+                                <el-button
+                                    slot="reference"
+                                    type="warning"
+                                    round
+                                    @click="initialise('HYP')"
+                                    >Hypernyms</el-button
+                                >
+                            </div>
+                            <div>
+                                Words with a
+                                <b>more general</b> meaning
+                            </div>
+                            <div>eg: chair → furniture</div>
+                            <br />
+                            <div>
+                                <span v-if="hyp_queueing" style="color:#67C23A;">
+                                    <b>{{ hyp_queueing }}</b>
+                                </span>
+                                <span v-else style="color:#F56C6C;">
+                                    <b>{{ hyp_queueing }}</b>
+                                </span>
+                                users queueing
+                            </div>
+                        </el-card>
+                    </el-col>
+                </el-row>
 
-        <br>
-      </div>
+                <br />
+            </div>
+        </div>
     </div>
-  </div>
 </template>
 
 <script>
