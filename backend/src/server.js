@@ -869,7 +869,26 @@ io.on('connection', socket => {
     const token = socket.request._query['token']
     if (token) {
         socket.join(token)
+    } else {
+        socket.join('queue')
     }
+
+    socket.on('inQueue', async req => {
+        try {
+            const queued_users = await db.qry(
+                `SELECT game_mode
+                FROM queued_users
+                WHERE valid = 1`
+            )
+            io.in('queue').emit('queueStatus', {
+                // EMIT TO ALL OTHER PLAYERS IN THE 'queue' ROOM
+                status: true,
+                queued_users,
+            })
+        } catch (error) {
+            throw error
+        }
+    })
 
     socket.on('submitAnswer', async req => {
         try {
