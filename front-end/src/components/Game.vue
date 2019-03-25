@@ -38,6 +38,7 @@
                                     v-model="input"
                                     placeholder="Please input"
                                     :disabled="submit_disabled"
+                                    @keyup.enter.native="submit"
                                 >
                                     <el-button
                                         slot="append"
