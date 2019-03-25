@@ -15,9 +15,7 @@ const _ = require('lodash')
 const bcrypt = require('bcrypt')
 const saltRounds = 10
 
-// const PORT = process.env.PORT || 3128
 const PORT = 8080
-let a = 0
 
 const app = express()
 app.use(cors())
@@ -26,18 +24,11 @@ app.use(bodyParser.json())
 
 app.set('appSecret', 'secretforproject')
 
-// Multiparty Middleware
 const multipartMiddleware = multipart()
-
-// const io = require('socket.io')(app)
 
 function isEmpty(str) {
     return !str || 0 === str.length
 }
-
-// io.on('connection', function(socket) {
-//     console.log('a user connected')
-// })
 
 app.post('/register', multipartMiddleware, async (req, res) => {
     try {
