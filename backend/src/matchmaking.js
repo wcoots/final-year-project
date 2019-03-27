@@ -199,8 +199,8 @@ const checkMatches = async () => {
     if (undocumented_games.length) {
         let queued_words = ''
         undocumented_games.forEach(game => {
-            JSON.parse(game.words).forEach(word => {
-                const temp4 = `(${game.id}, '${word.def}'),\n`
+            JSON.parse(game.words).forEach(item => {
+                const temp4 = `(${game.id}, '${item.word}'),\n`
                 queued_words += temp4
             })
         })
