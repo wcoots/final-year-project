@@ -111,12 +111,12 @@
                                     <!-- OTHER PLAYER ANSWER COUNT -->
                                     <div>
                                         The other player has submitted
-                                        <b v-if="no_of_opponent_answers" style="color:#67C23A;">{{
-                                            no_of_opponent_answers
-                                        }}</b>
-                                        <b v-else style="color:#F56C6C;">{{
-                                            no_of_opponent_answers
-                                        }}</b>
+                                        <b v-if="no_of_opponent_answers" style="color:#67C23A;">
+                                            {{ no_of_opponent_answers }}
+                                        </b>
+                                        <b v-else style="color:#F56C6C;">
+                                            {{ no_of_opponent_answers }}
+                                        </b>
                                         answers
                                     </div>
                                     <hr />
@@ -326,7 +326,7 @@ export default {
                 const cond1 = !_.filter(this.answers, x).length
                 const cond2 = word.length
                 const cond3 = word !== _.toLower(this.game.words[this.current_word_index].word)
-                const cond4 = _.words(
+                const cond4 = !_.words(
                     _.toLower(this.game.words[this.current_word_index].def)
                 ).includes(_.toLower(word))
                 if (cond1 && cond2 && cond3 && cond4) {
