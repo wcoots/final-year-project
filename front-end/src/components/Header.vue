@@ -18,13 +18,13 @@
                         <i class="el-icon-menu"></i>
                         Home
                     </el-dropdown-item>
-                    <el-dropdown-item index="1" command="SinglePlayer" disabled>
+                    <el-dropdown-item index="1" command="OnePlayerMenu" disabled>
                         <i class="el-icon-star-off"></i>
-                        Single player
+                        Single Player
                     </el-dropdown-item>
-                    <el-dropdown-item index="1" command="MultiPlayer">
+                    <el-dropdown-item index="1" command="TwoPlayerMenu">
                         <i class="el-icon-star-on"></i>
-                        Multiplayer
+                        Two Player
                     </el-dropdown-item>
                     <el-dropdown-item index="1" command="AccountSettings">
                         <i class="el-icon-setting"></i>

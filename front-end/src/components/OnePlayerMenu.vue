@@ -2,17 +2,12 @@
     <div>
         <Header v-bind:user="user" />
         <div>
-            <div v-loading="loading" class="container">
+            <div class="container">
                 <br />
                 <br />
-                <h3>Choose game mode</h3>
+                <h3>Fuck off</h3>
                 <br />
-                <el-button type="primary" round disabled @click="redirect('OnePlayerMeny')"
-                    >Single Player</el-button
-                >
-                <el-button type="success" round @click="redirect('TwoPlayerMenu')"
-                    >Two Player</el-button
-                >
+                <br />
             </div>
         </div>
     </div>
@@ -22,14 +17,13 @@
 import Header from './Header'
 
 export default {
-    name: 'Home',
+    name: 'OnePlayerMenu',
     components: {
         Header,
     },
     data() {
         return {
             user: null,
-            loading: false,
         }
     },
     created() {
@@ -42,10 +36,6 @@ export default {
     mounted() {
         this.user = JSON.parse(localStorage.getItem('user'))
     },
-    methods: {
-        redirect(location) {
-            this.$router.push({ name: location })
-        },
-    },
+    methods: {},
 }
 </script>

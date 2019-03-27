@@ -24,16 +24,10 @@
                                 <b>same</b> meaning
                             </div>
                             <div>eg: fast → quick</div>
-                            <br />
-                            <div>
-                                <span v-if="syn_queueing" style="color:#67C23A;">
-                                    <b>{{ syn_queueing }}</b>
-                                </span>
-                                <span v-else style="color:#F56C6C;">
-                                    <b>{{ syn_queueing }}</b>
-                                </span>
-                                users queueing
-                            </div>
+                            <hr />
+                            <b v-if="syn_queueing" style="color:#67C23A;">{{ syn_queueing }}</b>
+                            <b v-else style="color:#F56C6C;">{{ syn_queueing }}</b>
+                            users queueing
                         </el-card>
                     </el-col>
                     <!-- ANTONYMS -->
@@ -53,16 +47,10 @@
                                 <b>opposite</b> meaning
                             </div>
                             <div>eg: fast → slow</div>
-                            <br />
-                            <div>
-                                <span v-if="ant_queueing" style="color:#67C23A;">
-                                    <b>{{ ant_queueing }}</b>
-                                </span>
-                                <span v-else style="color:#F56C6C;">
-                                    <b>{{ ant_queueing }}</b>
-                                </span>
-                                users queueing
-                            </div>
+                            <hr />
+                            <b v-if="ant_queueing" style="color:#67C23A;">{{ ant_queueing }}</b>
+                            <b v-else style="color:#F56C6C;">{{ ant_queueing }}</b>
+                            users queueing
                         </el-card>
                     </el-col>
                     <!-- HYPERNYMS -->
@@ -82,16 +70,10 @@
                                 <b>more general</b> meaning
                             </div>
                             <div>eg: chair → furniture</div>
-                            <br />
-                            <div>
-                                <span v-if="hyp_queueing" style="color:#67C23A;">
-                                    <b>{{ hyp_queueing }}</b>
-                                </span>
-                                <span v-else style="color:#F56C6C;">
-                                    <b>{{ hyp_queueing }}</b>
-                                </span>
-                                users queueing
-                            </div>
+                            <hr />
+                            <b v-if="hyp_queueing" style="color:#67C23A;">{{ hyp_queueing }}</b>
+                            <b v-else style="color:#F56C6C;">{{ hyp_queueing }}</b>
+                            users queueing
                         </el-card>
                     </el-col>
                 </el-row>
@@ -108,7 +90,7 @@ import { apiRequest } from '../api/auth'
 import io from 'socket.io-client'
 
 export default {
-    name: 'Home',
+    name: 'TwoPlayerMenu',
     components: {
         Header,
     },
@@ -160,6 +142,9 @@ export default {
                 spinner: 'el-icon-loading',
                 background: 'rgba(0, 0, 0, 0.8)',
             })
+
+            this.socket.emit('inQueue')
+
             const data = {
                 user_id: JSON.parse(localStorage.getItem('user')).user_id,
                 game_mode,

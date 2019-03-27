@@ -12,17 +12,17 @@
                     </el-col>
                     <el-col :span="12">
                         <span style="float:right;">
-                            <el-tag type="success">
+                            <el-tag type="success" style="margin:5px;">
                                 <i class="el-icon-success" style="color:#67C23A;"></i>
                                 Matched:
                                 <b>{{ matched_count }}</b>
                             </el-tag>
-                            <el-tag type="warning">
+                            <el-tag type="warning" style="margin:5px;">
                                 <i class="el-icon-error" style="color:#E6A23C;"></i>
                                 Passed:
                                 <b>{{ passed_count }}</b>
                             </el-tag>
-                            <el-tag type="danger">
+                            <el-tag type="danger" style="margin:5px;">
                                 <i class="el-icon-error" style="color:#F56C6C;"></i>
                                 Uncompleted:
                                 <b>{{ uncompleted_count }}</b>
