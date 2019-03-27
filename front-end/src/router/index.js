@@ -10,8 +10,8 @@ import ForgottenPassword from '@/components/ForgottenPassword'
 import ResetPassword from '@/components/ResetPassword'
 import ValidateNewAccount from '@/components/ValidateNewAccount'
 import ValidateNewEmail from '@/components/ValidateNewEmail'
-import SinglePlayer from '@/components/SinglePlayer'
-import MultiPlayer from '@/components/MultiPlayer'
+import OnePlayerMenu from '@/components/OnePlayerMenu'
+import TwoPlayerMenu from '@/components/TwoPlayerMenu'
 import Game from '@/components/Game'
 import GameResults from '@/components/GameResults'
 
@@ -71,14 +71,14 @@ export default new Router({
             component: ValidateNewEmail,
         },
         {
-            path: '/singleplayer',
-            name: 'SinglePlayer',
-            component: SinglePlayer,
+            path: '/oneplayermenu',
+            name: 'OnePlayerMenu',
+            component: OnePlayerMenu,
         },
         {
-            path: '/multiplayer',
-            name: 'MultiPlayer',
-            component: MultiPlayer,
+            path: '/twoplayermenu',
+            name: 'TwoPlayerMenu',
+            component: TwoPlayerMenu,
         },
         {
             path: '/game',

@@ -32,11 +32,12 @@
                     <span v-if="game_started">
                         <el-row :gutter="20">
                             <el-col :span="14">
-                                <h1>{{ game.words[current_word_index] }}</h1>
+                                <h1>{{ game.words[current_word_index].word }}</h1>
                                 <br />
+                                <!-- WORD INPUT -->
                                 <el-input
                                     v-model="input"
-                                    placeholder="Please input"
+                                    :placeholder="input_placeholder"
                                     :disabled="submit_disabled"
                                     @keyup.enter.native="submit"
                                 >
@@ -49,9 +50,11 @@
                                 </el-input>
 
                                 <br />
-                                <br />Definition
+                                <br />
+                                {{ game.words[current_word_index].def }}
                                 <br />
                                 <br />
+                                <!-- SKIP WORD BUTTON -->
                                 <el-button
                                     :disabled="skip_button_disabled"
                                     :loading="skip_button_loading"
@@ -63,21 +66,72 @@
                                 >
 
                                 <br />
-                                <br />
                             </el-col>
+                            <!-- JUST FOR SPACING -->
                             <el-col :span="2">
                                 <h2></h2>
                             </el-col>
+
                             <el-col :span="8">
-                                <br />
-                                <br />
-                                <el-tag type="warning">
-                                    <b>{{ current_word_index + 1 }}/{{ game.words.length }}</b>
-                                </el-tag>
-                                <el-tag type="warning">
-                                    The other player has submitted
-                                    <b>{{ no_of_opponent_answers }}</b> answers
-                                </el-tag>
+                                <el-card shadow="always">
+                                    <!-- GAME MODE -->
+                                    <div slot="header" class="clearfix">
+                                        <span v-if="game.game_mode === 'SYN'">Syno</span>
+                                        <span v-if="game.game_mode === 'ANT'">Anto</span>
+                                        <span v-if="game.game_mode === 'HYP'">Hyper</span>nym
+                                        <!-- Yes this is ridiculuous but who cares -->
+                                        <b>{{ current_word_index + 1 }}</b> of
+                                        <b>{{ game.words.length }}</b>
+                                    </div>
+                                    <!-- SYNONYM DESC -->
+                                    <span v-if="game.game_mode === 'SYN'">
+                                        <div>
+                                            Words with the
+                                            <b>same</b> meaning
+                                        </div>
+                                        <div>eg: fast → quick</div>
+                                    </span>
+                                    <!-- ANTONYM DESC -->
+                                    <span v-if="game.game_mode === 'ANT'">
+                                        <div>
+                                            Words with the
+                                            <b>opposite</b> meaning
+                                        </div>
+                                        <div>eg: fast → slow</div>
+                                    </span>
+                                    <!-- HYPERNYM DESC -->
+                                    <span v-if="game.game_mode === 'HYP'">
+                                        <div>
+                                            Words with a
+                                            <b>more general</b> meaning
+                                        </div>
+                                        <div>eg: chair → furniture</div>
+                                    </span>
+                                    <hr />
+                                    <!-- OTHER PLAYER ANSWER COUNT -->
+                                    <div>
+                                        The other player has submitted
+                                        <b v-if="no_of_opponent_answers" style="color:#67C23A;">{{
+                                            no_of_opponent_answers
+                                        }}</b>
+                                        <b v-else style="color:#F56C6C;">{{
+                                            no_of_opponent_answers
+                                        }}</b>
+                                        answers
+                                    </div>
+                                    <hr />
+                                    <!-- RESULTS SO FAR -->
+                                    <el-tag type="success">
+                                        <i class="el-icon-success"></i>
+                                        Matched:
+                                        <b>{{ matched_count }}</b>
+                                    </el-tag>
+                                    <el-tag type="warning" style="margin:10px;">
+                                        <i class="el-icon-error" style="color:#E6A23C;"></i>
+                                        Passed:
+                                        <b>{{ passed_count }}</b>
+                                    </el-tag>
+                                </el-card>
                                 <br />
                                 <br />
                                 <el-table :data="answers" width="180">
@@ -90,6 +144,7 @@
                             </el-col>
                         </el-row>
                         <el-footer>
+                            <br />
                             <el-button style="float:right;" @click="quit()">Quit</el-button>
                         </el-footer>
                     </span>
@@ -127,10 +182,13 @@ export default {
             skip_button_loading: false,
             skip_button_text: 'Skip word',
             input: '',
+            input_placeholder: '',
             answers: [],
             no_of_opponent_answers: 0,
             player_no: null,
             word_skipped: false,
+            passed_count: 0,
+            matched_count: 0,
         }
     },
     async created() {
@@ -151,6 +209,14 @@ export default {
         res.data.status ? (this.game = res.data.game) : this.$router.push({ name: 'Home' })
         this.player_no = res.data.player_no
 
+        if (this.game.game_mode === 'SYN') {
+            this.input_placeholder = 'Please input a synonym...'
+        } else if (this.game.game_mode === 'ANT') {
+            this.input_placeholder = 'Please input an antonym...'
+        } else if (this.game.game_mode === 'HYP') {
+            this.input_placeholder = 'Please input a hypernym...'
+        }
+
         if (process.env.NODE_ENV === 'development') {
             this.socket = io.connect('localhost:8080', { query: `token=${this.token}` })
         } else if (process.env.NODE_ENV === 'production') {
@@ -159,13 +225,13 @@ export default {
             this.$router.push({ name: 'Home' })
         }
 
-        this.socket.on('answerSubmitted', async data => {
+        this.socket.on('answerSubmitted', async res => {
             // WHEN EITHER PLAYER SUBMITS AN ANSWER
-            if (data.status) {
+            if (res.status) {
                 // IF THE ANSWER WAS A MATCH
                 this.$message({
                     dangerouslyUseHTMLString: true,
-                    message: `You matched on the word "<strong>${data.word}</strong>"`,
+                    message: `You matched on the word "<strong>${res.word}</strong>"`,
                     type: 'success',
                 })
                 if (this.current_word_index === this.game.words.length - 1) {
@@ -174,48 +240,65 @@ export default {
                         query: { token: this.token },
                     })
                 } else {
+                    this.matched_count++
                     this.nextWord()
                 }
             } else {
                 // IF THE ANSWER WAS NOT A MATCH
                 this.no_of_opponent_answers =
-                    data.this_player_id === this.user.user_id
-                        ? data.other_player_word_count
-                        : data.this_player_word_count
+                    res.this_player_id === this.user.user_id
+                        ? res.other_player_word_count
+                        : res.this_player_word_count
             }
         })
-        this.socket.on('otherPlayerSkipped', () => {
+        this.socket.on('otherPlayerSkipped', async res => {
             // WHEN THE OTHER PLAYER SKIPS THE WORD
-            this.$alert('The other player skipped this word', 'Word skipped', {
-                confirmButtonText: 'OK',
-                closeOnClickModal: false,
-                showClose: false,
-                type: 'info',
-                callback: () => {
-                    this.socket.emit('confirmSkip', { game_token: this.game.token })
-                    this.nextWord()
-                },
-            })
+            if (res.status && res.user_id !== this.user.user_id) {
+                const data = {
+                    game_token: this.game.token,
+                    user_id: this.user.user_id,
+                }
+                this.$alert('The other player skipped this word', 'Word skipped', {
+                    confirmButtonText: 'OK',
+                    closeOnClickModal: false,
+                    showClose: false,
+                    type: 'info',
+                    callback: () => {
+                        this.socket.emit('confirmSkip', data)
+                        this.passed_count++
+                        this.nextWord()
+                    },
+                })
+            }
         })
-        this.socket.on('otherPlayerConfirmedSkipped', () => {
+        this.socket.on('otherPlayerConfirmedSkipped', async res => {
             // WHEN THE OTHER PLAYER CONFIRMS THE SKIP
-            this.skip_button_loading = false
-            this.submit_disabled = false
-            this.skip_button_text = 'Skip word'
-            this.nextWord()
+            if (res.status && res.user_id !== this.user.user_id) {
+                this.passed_count++
+                this.skip_button_loading = false
+                this.submit_disabled = false
+                this.skip_button_text = 'Skip word'
+                this.nextWord()
+            }
         })
-        this.socket.on('otherPlayerQuit', () => {
+        this.socket.on('otherPlayerQuit', async res => {
             // WHEN THE OTHER PLAYER QUITS THE GAME
-            this.$router.push({
-                name: 'GameResults',
-                query: { token: this.token },
-            })
-            this.$alert('Sorry, it looks like the other player quit the game :(', 'Game ended', {
-                confirmButtonText: 'OK',
-                closeOnClickModal: false,
-                showClose: false,
-                type: 'info',
-            })
+            if (res.status && res.user_id !== this.user.user_id) {
+                this.$router.push({
+                    name: 'GameResults',
+                    query: { token: this.token },
+                })
+                this.$alert(
+                    'Sorry, it looks like the other player quit the game :(',
+                    'Game ended',
+                    {
+                        confirmButtonText: 'OK',
+                        closeOnClickModal: false,
+                        showClose: false,
+                        type: 'info',
+                    }
+                )
+            }
         })
     },
     methods: {
@@ -228,7 +311,7 @@ export default {
         submit(e) {
             const data = {
                 game_id: this.game.id,
-                current_word: this.game.words[this.current_word_index],
+                current_word: this.game.words[this.current_word_index].word,
                 answers: [],
                 user_id: this.user.user_id,
                 player_no: this.player_no,
@@ -240,11 +323,13 @@ export default {
             const words = _.words(_.toLower(this.input))
             words.forEach(word => {
                 const x = { answer: word }
-                if (
-                    !_.filter(this.answers, x).length &&
-                    word.length &&
-                    word !== _.toLower(this.game.words[this.current_word_index])
-                ) {
+                const cond1 = !_.filter(this.answers, x).length
+                const cond2 = word.length
+                const cond3 = word !== _.toLower(this.game.words[this.current_word_index].word)
+                const cond4 = _.words(
+                    _.toLower(this.game.words[this.current_word_index].def)
+                ).includes(_.toLower(word))
+                if (cond1 && cond2 && cond3 && cond4) {
                     this.answers.push(x)
                     data.answers.push(x)
                 }
@@ -258,7 +343,7 @@ export default {
         skipWord() {
             const data = {
                 game_id: this.game.id,
-                current_word: this.game.words[this.current_word_index],
+                current_word: this.game.words[this.current_word_index].word,
                 user_id: this.user.user_id,
                 game_token: this.game.token,
             }
@@ -270,6 +355,7 @@ export default {
         nextWord() {
             this.input = ''
             this.answers = []
+            this.no_of_opponent_answers = 0
             if (this.game.words.length > this.current_word_index + 2) {
                 this.current_word_index++
             } else if (this.game.words.length === this.current_word_index + 2) {
@@ -280,6 +366,7 @@ export default {
         quit() {
             const data = {
                 game_id: this.game.id,
+                user_id: this.user.user_id,
                 game_token: this.game.token,
                 player_no: this.player_no,
             }

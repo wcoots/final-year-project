@@ -1007,6 +1007,7 @@ io.on('connection', socket => {
             )
             socket.to(req.game_token).emit('otherPlayerSkipped', {
                 // EMIT ONLY TO OTHER PLAYER
+                user_id: req.user_id,
                 status: true,
             })
         } catch (error) {
@@ -1018,6 +1019,7 @@ io.on('connection', socket => {
         try {
             socket.to(req.game_token).emit('otherPlayerConfirmedSkipped', {
                 // EMIT ONLY TO OTHER PLAYER
+                user_id: req.user_id,
                 status: true,
             })
         } catch (error) {
@@ -1046,6 +1048,7 @@ io.on('connection', socket => {
             )
             socket.to(req.game_token).emit('otherPlayerQuit', {
                 // EMIT ONLY TO OTHER PLAYER
+                user_id: req.user_id,
                 status: true,
             })
         } catch (error) {

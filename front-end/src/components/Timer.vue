@@ -1,18 +1,17 @@
 <template>
     <div class="timer">
         <el-row v-if="time_has_started">
-            <el-col :span="3">
-                <span v-if="minutes">
-                    <el-tag v-bind:type="tag_type">{{ minutes }} min</el-tag>
-                </span>
-                <span v-if="seconds || minutes">
-                    <el-tag v-bind:type="tag_type">{{ seconds }} sec</el-tag>
-                </span>
-                <span v-if="!(seconds || minutes)">
-                    <el-tag v-bind:type="tag_type">Time up!</el-tag>
-                </span>
+            <el-col :span="2">
+                <p v-if="minutes" :style="timerStyle">{{ minutes }} min</p>
+                <p v-else></p>
             </el-col>
-            <el-col :span="21">
+            <el-col :span="2">
+                <p v-if="seconds || minutes" :style="timerStyle">{{ seconds }} sec</p>
+            </el-col>
+            <el-col :span="1">
+                <br />
+            </el-col>
+            <el-col :span="19">
                 <el-progress
                     v-bind:percentage="bar_percentage"
                     v-bind:color="bar_colour"
@@ -56,6 +55,20 @@ export default {
     },
     mounted() {
         this.termination_date = moment(this.date).format('X')
+    },
+    computed: {
+        timerStyle() {
+            return {
+                // display: 'inline',
+                // margin: 'medium',
+                // padding: 'medium',
+                color: this.bar_colour,
+                fontSize: '150%',
+                fontWeight: 'bold',
+                whiteSpace: 'pre',
+                align: 'left',
+            }
+        },
     },
     methods: {
         incrementTime() {
