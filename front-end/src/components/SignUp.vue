@@ -47,6 +47,7 @@
                                 required
                                 placeholder="e.g. bob@example.co.uk"
                                 :disabled="isInputDisabled"
+                                @keyup.enter.native="login"
                             ></el-input>
                         </el-form-item>
                         <!-- PASSWORD -->
@@ -57,6 +58,7 @@
                                 required
                                 placeholder="Enter Password"
                                 :disabled="isInputDisabled"
+                                @keyup.enter.native="login"
                             ></el-input>
                         </el-form-item>
                         <!-- SUBMIT -->
