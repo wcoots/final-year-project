@@ -100,9 +100,6 @@ app.post('/register', multipartMiddleware, async (req, res) => {
                 user_id: user_id[0].user_id,
                 token,
                 request_date: moment().format('YYYY-MM-DD HH:mm:ss'),
-                token_expiration: moment()
-                    .add(1, 'day')
-                    .format('YYYY-MM-DD HH:mm:ss'),
             }
 
             await db.qry(
@@ -147,7 +144,6 @@ app.post('/verifyNewAccount', multipartMiddleware, async (req, res) => {
             `SELECT *
             FROM sign_up_requests
             WHERE token = ?
-            AND token_expiration > DATE(NOW())
             AND valid = 1
             AND completed = 0`,
             [req.body.new_account_token]
@@ -257,9 +253,6 @@ app.post('/forgottenPassword', multipartMiddleware, async (req, res) => {
                     user_id: user.user_id,
                     token,
                     request_date: moment().format('YYYY-MM-DD HH:mm:ss'),
-                    token_expiration: moment()
-                        .add(1, 'hour')
-                        .format('YYYY-MM-DD HH:mm:ss'),
                 }
                 await db.qry(
                     `UPDATE password_reset_requests
@@ -290,7 +283,6 @@ app.post('/verifyPasswordResetToken', multipartMiddleware, async (req, res) => {
             `SELECT *
             FROM password_reset_requests
             WHERE token = ?
-            AND token_expiration > DATE(NOW())
             AND valid = 1
             AND completed = 0`,
             [req.body.reset_token]
@@ -315,7 +307,6 @@ app.post('/resetPassword', multipartMiddleware, async (req, res) => {
             `SELECT *
             FROM password_reset_requests
             WHERE token = ?
-            AND token_expiration > DATE(NOW())
             AND valid = 1
             AND completed = 0`,
             [req.body.reset_token]
@@ -437,9 +428,6 @@ app.post('/changeEmail', multipartMiddleware, async (req, res) => {
                 requested_email: req.body.new_email,
                 token,
                 request_date: moment().format('YYYY-MM-DD HH:mm:ss'),
-                token_expiration: moment()
-                    .add(1, 'day')
-                    .format('YYYY-MM-DD HH:mm:ss'),
             }
 
             await db.qry(
@@ -468,7 +456,6 @@ app.post('/verifyNewEmail', multipartMiddleware, async (req, res) => {
             `SELECT *
             FROM email_change_requests
             WHERE token = ?
-            AND token_expiration > DATE(NOW())
             AND valid = 1
             AND completed = 0`,
             [req.body.new_email_token]
@@ -712,6 +699,19 @@ app.post('/getGameInfo', multipartMiddleware, async (req, res) => {
             [req.body.token, req.body.user_id, req.body.user_id]
         )
         const game = games[0]
+
+        const words = await db.qry(
+            `SELECT id, p1_user_id, p2_user_id, game_mode, initialisation_date, termination_date, token, words
+            FROM games
+            WHERE valid = 1
+            AND completed = 0
+            AND quitted = 0
+            AND removed = 0
+            AND token = ?
+            AND (p1_user_id = ?
+                OR p2_user_id = ?)`,
+            [req.body.token, req.body.user_id, req.body.user_id]
+        )
 
         if (game) {
             game.words = JSON.parse(game.words)
