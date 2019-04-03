@@ -10,7 +10,7 @@ const checkGames = async () => {
     // GET VALID GAMES
     const games = await db.qry(
         `SELECT *
-        FROM games
+        FROM multiplayer_games
         WHERE valid = 1
         AND completed = 0
         AND removed = 0
@@ -33,7 +33,7 @@ const checkGames = async () => {
         if (dead_games.length) {
             dead_games = `(${dead_games.slice(0, -1)})` // eg: "(1,2,3,4,5)"
             await db.qry(
-                `UPDATE games
+                `UPDATE multiplayer_games
                 SET valid = 0,
                 completed = 1
                 WHERE id IN ${dead_games}
@@ -168,7 +168,7 @@ const checkMatches = async () => {
         )
         // CLEAR PREVIOUS GAMES
         await db.qry(
-            `UPDATE games
+            `UPDATE multiplayer_games
             SET valid = 0, removed = 1
             WHERE valid = 1
             AND completed = 0
@@ -181,7 +181,7 @@ const checkMatches = async () => {
         )
         // INSERT THE GAME DETAILS
         await db.qry(
-            `INSERT INTO games
+            `INSERT INTO multiplayer_games
             (p1_user_id, p2_user_id, game_mode, token, initialisation_date, termination_date, words)
             VALUES ${game_values}`
         )
@@ -190,10 +190,10 @@ const checkMatches = async () => {
     // GET GAMES WHOSE WORDS HAVE NOT BEEN ADDED TO THE WORDS TABLE
     const undocumented_games = await db.qry(
         `SELECT id, words
-        FROM games
+        FROM multiplayer_games
         WHERE id NOT IN (
             SELECT game_id
-            FROM words
+            FROM multiplayer_answers
         )`
     )
     if (undocumented_games.length) {
@@ -207,7 +207,7 @@ const checkMatches = async () => {
         queued_words = queued_words.slice(0, -2) // eg: "(1,2,3),(4,5,6),(7,8,9)"
         // INSERT THE WORDS
         await db.qry(
-            `INSERT INTO words
+            `INSERT INTO multiplayer_answers
             (game_id, word)
             VALUES ${queued_words}`
         )
