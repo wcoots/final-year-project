@@ -604,7 +604,7 @@ app.post('/joinQueue', multipartMiddleware, async (req, res) => {
         )
         // REMOVE PREVIOUS GAMES
         await db.qry(
-            `UPDATE games
+            `UPDATE multiplayer_games
             SET valid = 0, removed = 1
             WHERE valid = 1
             AND completed = 0
@@ -688,7 +688,7 @@ app.post('/getGameInfo', multipartMiddleware, async (req, res) => {
     try {
         const games = await db.qry(
             `SELECT id, p1_user_id, p2_user_id, game_mode, initialisation_date, termination_date, token, words
-            FROM games
+            FROM multiplayer_games
             WHERE valid = 1
             AND completed = 0
             AND quitted = 0
@@ -700,18 +700,19 @@ app.post('/getGameInfo', multipartMiddleware, async (req, res) => {
         )
         const game = games[0]
 
-        const words = await db.qry(
-            `SELECT id, p1_user_id, p2_user_id, game_mode, initialisation_date, termination_date, token, words
-            FROM games
-            WHERE valid = 1
-            AND completed = 0
-            AND quitted = 0
-            AND removed = 0
-            AND token = ?
-            AND (p1_user_id = ?
-                OR p2_user_id = ?)`,
-            [req.body.token, req.body.user_id, req.body.user_id]
-        )
+        // TODO: USE THIS TO DETERMINE WHICH WORD IS THE CURRENT WORD FOR WHEN REFRESHING THE PAGE MID-GAME
+        // const words = await db.qry(
+        //     `SELECT id, p1_user_id, p2_user_id, game_mode, initialisation_date, termination_date, token, words
+        //     FROM multiplayer_answers
+        //     WHERE valid = 1
+        //     AND completed = 0
+        //     AND quitted = 0
+        //     AND removed = 0
+        //     AND token = ?
+        //     AND (p1_user_id = ?
+        //         OR p2_user_id = ?)`,
+        //     [req.body.token, req.body.user_id, req.body.user_id]
+        // )
 
         if (game) {
             game.words = JSON.parse(game.words)
@@ -733,7 +734,7 @@ app.post('/getGameInfo', multipartMiddleware, async (req, res) => {
 app.post('/finishGame', multipartMiddleware, async (req, res) => {
     try {
         await db.qry(
-            `UPDATE games
+            `UPDATE multiplayer_games
             SET completed = 1,
             valid = 0
             WHERE id = ?
@@ -742,7 +743,7 @@ app.post('/finishGame', multipartMiddleware, async (req, res) => {
             [req.body.game_id]
         )
         await db.qry(
-            `UPDATE words
+            `UPDATE multiplayer_answers
             SET uncompleted = 1
             WHERE game_id = ?
             AND matched = 0
@@ -762,7 +763,7 @@ app.post('/getGameResults', multipartMiddleware, async (req, res) => {
     try {
         const games = await db.qry(
             `SELECT id, p1_user_id, p2_user_id
-            FROM games
+            FROM multiplayer_games
             WHERE token = ?`,
             [req.body.token]
         )
@@ -891,7 +892,7 @@ io.on('connection', socket => {
             // GET THE CURRENT ANSWERS PREVIOUSLY ENTERED BY BOTH PLAYERS
             const answers_as_string = await db.qry(
                 `SELECT ${this_player_no_answers} AS this_player, ${other_player_no_answers} AS other_player
-                FROM words
+                FROM multiplayer_answers
                 WHERE game_id = ?
                 AND word = ?`,
                 [req.game_id, req.current_word]
@@ -934,7 +935,7 @@ io.on('connection', socket => {
             if (match.status) {
                 // IF THERE WAS A MATCH
                 await db.qry(
-                    `UPDATE words
+                    `UPDATE multiplayer_answers
                     SET matched = 1,
                     passed = 0,
                     matched_word = ?,
@@ -946,7 +947,7 @@ io.on('connection', socket => {
 
                 if (req.max_word_index === req.current_word_index) {
                     await db.qry(
-                        `UPDATE games
+                        `UPDATE multiplayer_games
                         SET completed = 1,
                         valid = 0
                         WHERE id = ?
@@ -955,7 +956,7 @@ io.on('connection', socket => {
                         [req.game_id]
                     )
                     await db.qry(
-                        `UPDATE words
+                        `UPDATE multiplayer_answers
                         SET uncompleted = 1
                         WHERE game_id = ?
                         AND matched = 0
@@ -974,7 +975,7 @@ io.on('connection', socket => {
             } else {
                 // IF THERE WAS NOT A MATCH
                 await db.qry(
-                    `UPDATE words
+                    `UPDATE multiplayer_answers
                     SET ${this_player_no_answers} = ?
                     WHERE game_id = ?
                     AND word = ?`,
@@ -998,7 +999,7 @@ io.on('connection', socket => {
     socket.on('skipWord', async req => {
         try {
             await db.qry(
-                `UPDATE words
+                `UPDATE multiplayer_answers
                 SET passed = 1,
                 matched = 0
                 WHERE game_id = ?
@@ -1030,7 +1031,7 @@ io.on('connection', socket => {
     socket.on('quitGame', async req => {
         try {
             await db.qry(
-                `UPDATE games
+                `UPDATE multiplayer_games
                 SET valid = 0,
                 quitted = 1
                 WHERE id = ?
@@ -1039,7 +1040,7 @@ io.on('connection', socket => {
                 [req.game_id]
             )
             await db.qry(
-                `UPDATE words
+                `UPDATE multiplayer_answers
                 SET uncompleted = 1
                 WHERE game_id = ?
                 AND matched = 0
