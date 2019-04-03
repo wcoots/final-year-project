@@ -1032,8 +1032,8 @@ io.on('connection', socket => {
         try {
             await db.qry(
                 `UPDATE multiplayer_games
-                SET valid = 0,
-                quitted = 1
+                SET quitted = 1,
+                valid = 0
                 WHERE id = ?
                 AND completed = 0
                 AND removed = 0`,

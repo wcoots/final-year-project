@@ -24,7 +24,7 @@ const getWords = game_mode => {
         words = JSON.stringify([
             { word: 'Hot', def: `High temperature` },
             { word: 'Tall', def: `Long in the verticle sense` },
-            { word: 'Ugly', def: `Thot` },
+            { word: 'Ugly', def: `Unpleasant to look at` },
             { word: 'Clean', def: `Tidy and prestigne` },
             { word: 'Slow', def: `Like a snail` },
         ])
