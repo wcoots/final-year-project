@@ -41,7 +41,7 @@ const getWords = async game_mode => {
         chosen_words.push(random_word)
     }
 
-    return chosen_words
+    return JSON.stringify(chosen_words)
 }
 
 module.exports = {
