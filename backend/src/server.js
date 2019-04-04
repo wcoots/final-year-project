@@ -779,7 +779,7 @@ app.post('/getGameResults', multipartMiddleware, async (req, res) => {
         // GET ALL WORDS FOR THAT GAME
         const words = await db.qry(
             `SELECT word, ${this_player_no_answers} AS this_player, ${other_player_no_answers} AS other_player, matched, matched_word, passed, uncompleted
-            FROM words
+            FROM multiplayer_answers
             WHERE game_id = ?`,
             [game.id]
         )
