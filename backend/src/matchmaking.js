@@ -189,7 +189,7 @@ const checkMatches = async () => {
 
     // GET GAMES WHOSE WORDS HAVE NOT BEEN ADDED TO THE WORDS TABLE
     const undocumented_games = await db.qry(
-        `SELECT id, words
+        `SELECT id, game_mode, words
         FROM multiplayer_games
         WHERE id NOT IN (
             SELECT game_id
@@ -200,7 +200,7 @@ const checkMatches = async () => {
         let queued_words = ''
         undocumented_games.forEach(game => {
             JSON.parse(game.words).forEach(item => {
-                const temp4 = `(${game.id}, '${item.word}'),\n`
+                const temp4 = `(${game.id}, '${game.game_mode}', '${item.word}'),\n`
                 queued_words += temp4
             })
         })
@@ -208,7 +208,7 @@ const checkMatches = async () => {
         // INSERT THE WORDS
         await db.qry(
             `INSERT INTO multiplayer_answers
-            (game_id, word)
+            (game_id, game_mode, word)
             VALUES ${queued_words}`
         )
     }

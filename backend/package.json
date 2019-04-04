@@ -9,7 +9,8 @@
     "scripts": {
         "server": "node --inspect -r dotenv/config ./src/server.js",
         "test": "node --inspect -r dotenv/config ./src/test.js",
-        "match": "node --inspect -r dotenv/config ./src/matchmaking.js"
+        "match": "node --inspect -r dotenv/config ./src/matchmaking.js",
+        "process": "node --inspect -r dotenv/config ./src/result_processing.js"
     },
     "dependencies": {
         "bcrpyt": "^2.0.0",
