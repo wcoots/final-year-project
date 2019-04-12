@@ -24,7 +24,9 @@ const checkGames = async () => {
             // IF DEAD THEN ADD THEIR ID TO THE DEAD_GAMES
             if (
                 !game.initialisation_date ||
-                moment().diff(game.initialisation_date, 'seconds') > 180
+                moment()
+                    .utc()
+                    .diff(game.initialisation_date, 'seconds') > 180
             ) {
                 dead_games += game.id + ','
             }
@@ -63,7 +65,12 @@ const checkMatches = async () => {
     let alive_queued_users = []
     queued_users.forEach(async user => {
         // IF DEAD THEN ADD THEIR QUEUE ID TO THE DEAD_HEARTBEAT_IDS
-        if (!user.last_heartbeat || moment().diff(user.last_heartbeat, 'seconds') > 5) {
+        if (
+            !user.last_heartbeat ||
+            moment()
+                .utc()
+                .diff(user.last_heartbeat, 'seconds') > 5
+        ) {
             dead_heartbeat_ids += user.id + ','
         } else {
             // IF ALIVE THEN ADD THE USER TO THE ALIVE_QUEUED_USERS
@@ -106,14 +113,18 @@ const checkMatches = async () => {
             // RECORD USER A'S DATA AS A STRING
             const temp1 = `(${grouped_users[key][i].id}, ${grouped_users[key][i].user_id}, '${
                 grouped_users[key][i].game_mode
-            }', 0, '${moment(grouped_users[key][i].initialisation_date).format(
-                'YYYY-MM-DD HH:mm:ss'
-            )}', 1, '${moment().format('YYYY-MM-DD HH:mm:ss')}', '${
-                grouped_users[key][i + 1].id
-            }', ${grouped_users[key][i + 1].user_id}, '${moment(
+            }', 0, '${moment(grouped_users[key][i].initialisation_date)
+                .utc()
+                .format('YYYY-MM-DD HH:mm:ss')}', 1, '${moment()
+                .utc()
+                .format('YYYY-MM-DD HH:mm:ss')}', '${grouped_users[key][i + 1].id}', ${
+                grouped_users[key][i + 1].user_id
+            }, '${moment(
                 grouped_users[key][i + 1].last_heartbeat,
                 'ddd MMM DD YYYY hh:mm:ss [GMT]ZZ'
-            ).format('YYYY-MM-DD HH:mm:ss')}', '${token}'),\n`
+            )
+                .utc()
+                .format('YYYY-MM-DD HH:mm:ss')}', '${token}'),\n`
             //
             // (id, user_id, game_mode, valid, initialisation_date, matched, matched_date, match_id, match_user_id, last_heartbeat, game_token)
             // RECORD USER B'S DATA AS A STRING
@@ -121,20 +132,27 @@ const checkMatches = async () => {
                 grouped_users[key][i + 1].user_id
             }, '${grouped_users[key][i + 1].game_mode}', 0, '${moment(
                 grouped_users[key][i + 1].initialisation_date
-            ).format('YYYY-MM-DD HH:mm:ss')}', 1, '${moment().format('YYYY-MM-DD HH:mm:ss')}', ${
-                grouped_users[key][i].id
-            }, ${grouped_users[key][i].user_id}, '${moment(
+            )
+                .utc()
+                .format('YYYY-MM-DD HH:mm:ss')}', 1, '${moment()
+                .utc()
+                .format('YYYY-MM-DD HH:mm:ss')}', ${grouped_users[key][i].id}, ${
+                grouped_users[key][i].user_id
+            }, '${moment(
                 grouped_users[key][i + 1].last_heartbeat,
                 'ddd MMM DD YYYY hh:mm:ss [GMT]ZZ'
-            ).format('YYYY-MM-DD HH:mm:ss')}', '${token}'),\n`
+            )
+                .utc()
+                .format('YYYY-MM-DD HH:mm:ss')}', '${token}'),\n`
             //
             // (p1_user_id, p2_user_id, game_mode, token)
             // RECORD THE GAME'S DATA AS A STRING
             const temp3 = `(${grouped_users[key][i].user_id}, ${
                 grouped_users[key][i + 1].user_id
-            }, '${grouped_users[key][i].game_mode}', '${token}', '${moment().format(
-                'YYYY-MM-DD HH:mm:ss'
-            )}', '${moment()
+            }, '${grouped_users[key][i].game_mode}', '${token}', '${moment()
+                .utc()
+                .format('YYYY-MM-DD HH:mm:ss')}', '${moment()
+                .utc()
                 .add(160, 'seconds')
                 .format('YYYY-MM-DD HH:mm:ss')}', '${words}'),\n`
 
