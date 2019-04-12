@@ -79,8 +79,12 @@ app.post('/register', multipartMiddleware, async (req, res) => {
                 surname: req.body.surname,
                 email: req.body.email,
                 password: hash,
-                account_creation_date: moment().format('YYYY-MM-DD HH:mm:ss'),
-                last_login_date: moment().format('YYYY-MM-DD HH:mm:ss'),
+                account_creation_date: moment()
+                    .utc()
+                    .format('YYYY-MM-DD HH:mm:ss'),
+                last_login_date: moment()
+                    .utc()
+                    .format('YYYY-MM-DD HH:mm:ss'),
             }
 
             await db.qry('INSERT INTO users SET ?', [user])
@@ -99,7 +103,9 @@ app.post('/register', multipartMiddleware, async (req, res) => {
             const request = {
                 user_id: user_id[0].user_id,
                 token,
-                request_date: moment().format('YYYY-MM-DD HH:mm:ss'),
+                request_date: moment()
+                    .utc()
+                    .format('YYYY-MM-DD HH:mm:ss'),
             }
 
             await db.qry(
@@ -170,7 +176,12 @@ app.post('/verifyNewAccount', multipartMiddleware, async (req, res) => {
             completed = 1,
             completed_date = ?
             WHERE token = ?`,
-            [moment().format('YYYY-MM-DD HH:mm:ss'), req.body.new_account_token]
+            [
+                moment()
+                    .utc()
+                    .format('YYYY-MM-DD HH:mm:ss'),
+                req.body.new_account_token,
+            ]
         )
 
         return res.json({
@@ -208,7 +219,12 @@ app.post('/login', multipartMiddleware, async (req, res) => {
                 `UPDATE users
                 SET last_login_date = ?
                 WHERE user_id = ?`,
-                [moment().format('YYYY-MM-DD HH:mm:ss'), user.user_id]
+                [
+                    moment()
+                        .utc()
+                        .format('YYYY-MM-DD HH:mm:ss'),
+                    user.user_id,
+                ]
             )
 
             const payload = { user }
@@ -252,7 +268,9 @@ app.post('/forgottenPassword', multipartMiddleware, async (req, res) => {
                 const request = {
                     user_id: user.user_id,
                     token,
-                    request_date: moment().format('YYYY-MM-DD HH:mm:ss'),
+                    request_date: moment()
+                        .utc()
+                        .format('YYYY-MM-DD HH:mm:ss'),
                 }
                 await db.qry(
                     `UPDATE password_reset_requests
@@ -347,7 +365,12 @@ app.post('/resetPassword', multipartMiddleware, async (req, res) => {
             completed = 1,
             completed_date = ?
             WHERE token = ?`,
-            [moment().format('YYYY-MM-DD HH:mm:ss'), req.body.reset_token]
+            [
+                moment()
+                    .utc()
+                    .format('YYYY-MM-DD HH:mm:ss'),
+                req.body.reset_token,
+            ]
         )
 
         return res.json({
@@ -427,7 +450,9 @@ app.post('/changeEmail', multipartMiddleware, async (req, res) => {
                 user_id: user.user_id,
                 requested_email: req.body.new_email,
                 token,
-                request_date: moment().format('YYYY-MM-DD HH:mm:ss'),
+                request_date: moment()
+                    .utc()
+                    .format('YYYY-MM-DD HH:mm:ss'),
             }
 
             await db.qry(
@@ -482,7 +507,12 @@ app.post('/verifyNewEmail', multipartMiddleware, async (req, res) => {
             completed = 1,
             completed_date = ?
             WHERE token = ?`,
-            [moment().format('YYYY-MM-DD HH:mm:ss'), req.body.new_email_token]
+            [
+                moment()
+                    .utc()
+                    .format('YYYY-MM-DD HH:mm:ss'),
+                req.body.new_email_token,
+            ]
         )
 
         await db.qry(
@@ -574,7 +604,12 @@ app.post('/deleteAccount', multipartMiddleware, async (req, res) => {
                 SET deleted = 1,
                 deleted_date = ?
                 WHERE user_id = ?`,
-                [moment().format('YYYY-MM-DD HH:mm:ss'), user.user_id]
+                [
+                    moment()
+                        .utc()
+                        .format('YYYY-MM-DD HH:mm:ss'),
+                    user.user_id,
+                ]
             )
 
             return res.json({
@@ -629,8 +664,12 @@ app.post('/joinQueue', multipartMiddleware, async (req, res) => {
         const request = {
             user_id: req.body.user_id,
             game_mode: req.body.game_mode,
-            initialisation_date: moment().format('YYYY-MM-DD HH:mm:ss'),
-            last_heartbeat: moment().format('YYYY-MM-DD HH:mm:ss'),
+            initialisation_date: moment()
+                .utc()
+                .format('YYYY-MM-DD HH:mm:ss'),
+            last_heartbeat: moment()
+                .utc()
+                .format('YYYY-MM-DD HH:mm:ss'),
         }
 
         await db.qry(
@@ -657,7 +696,12 @@ app.post('/heartbeat', multipartMiddleware, async (req, res) => {
             AND valid = 1
             AND removed = 0
             AND matched = 0`,
-            [moment().format('YYYY-MM-DD HH:mm:ss'), req.body.user_id]
+            [
+                moment()
+                    .utc()
+                    .format('YYYY-MM-DD HH:mm:ss'),
+                req.body.user_id,
+            ]
         )
 
         const users = await db.qry(

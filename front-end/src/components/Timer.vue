@@ -1,27 +1,27 @@
 <template>
-    <div class="timer">
-        <el-row v-if="time_has_started">
-            <el-col :span="2">
-                <p v-if="minutes" :style="timerStyle">{{ minutes }} min</p>
-                <p v-else></p>
-            </el-col>
-            <el-col :span="2">
-                <p v-if="seconds || minutes" :style="timerStyle">{{ seconds }} sec</p>
-            </el-col>
-            <el-col :span="1">
-                <br />
-            </el-col>
-            <el-col :span="19">
-                <el-progress
-                    v-bind:percentage="bar_percentage"
-                    v-bind:color="bar_colour"
-                    :show-text="false"
-                ></el-progress>
-            </el-col>
-        </el-row>
+  <div class="timer">
+    <el-row v-if="time_has_started">
+      <el-col :span="2">
+        <p v-if="minutes" :style="timerStyle">{{ minutes }} min</p>
+        <p v-else></p>
+      </el-col>
+      <el-col :span="2">
+        <p v-if="seconds || minutes" :style="timerStyle">{{ seconds }} sec</p>
+      </el-col>
+      <el-col :span="1">
+        <br>
+      </el-col>
+      <el-col :span="19">
+        <el-progress
+          v-bind:percentage="bar_percentage"
+          v-bind:color="bar_colour"
+          :show-text="false"
+        ></el-progress>
+      </el-col>
+    </el-row>
 
-        <br />
-    </div>
+    <br>
+  </div>
 </template>
 
 <script>
@@ -36,7 +36,9 @@ export default {
     },
     data() {
         return {
-            actualTime: moment().format('X'),
+            actualTime: moment()
+                .utc()
+                .format('X'),
             game_length: 150,
             termination_date: null,
             minutes: 0,
@@ -54,7 +56,9 @@ export default {
         this.incrementTime()
     },
     mounted() {
-        this.termination_date = moment(this.date).format('X')
+        this.termination_date = moment(this.date)
+            .utc()
+            .format('X')
     },
     computed: {
         timerStyle() {
@@ -72,7 +76,9 @@ export default {
     },
     methods: {
         incrementTime() {
-            this.actualTime = moment().format('X')
+            this.actualTime = moment()
+                .utc()
+                .format('X')
             setTimeout(() => {
                 this.incrementTime()
                 if (
