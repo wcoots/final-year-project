@@ -132,99 +132,99 @@ const getQueryParams = async grouped_users => {
 }
 
 const checkMatches = async () => {
-    // // GET VALID USERS IN THE QUEUE
-    // const queued_users = await db.qry(
-    //     `SELECT *
-    //     FROM queued_users
-    //     WHERE valid = 1
-    //     AND removed = 0
-    //     AND matched = 0`
-    // )
-    // // IF NOT USERS THEN QUIT HERE
-    // if (!queued_users || !queued_users.length) {
-    //     return false
-    // }
-    // // FIND QUEUED USERS WHOSE LAST HEARTBEAT WAS MORE THAN 5 SECONDS AGO
-    // let dead_heartbeat_ids = ''
-    // let alive_queued_users = []
-    // queued_users.forEach(async user => {
-    //     if (
-    //         // IF DEAD THEN ADD THEIR QUEUE ID TO THE DEAD_HEARTBEAT_IDS
-    //         !user.last_heartbeat ||
-    //         moment(
-    //             moment()
-    //                 .utc()
-    //                 .format('YYYY-MM-DD HH:mm:ss')
-    //         ).diff(user.last_heartbeat, 'seconds') > 5
-    //     ) {
-    //         dead_heartbeat_ids += user.id + ','
-    //     } else {
-    //         // IF ALIVE THEN ADD THE USER TO THE ALIVE_QUEUED_USERS
-    //         alive_queued_users.push(user)
-    //     }
-    // })
+    // GET VALID USERS IN THE QUEUE
+    const queued_users = await db.qry(
+        `SELECT *
+        FROM queued_users
+        WHERE valid = 1
+        AND removed = 0
+        AND matched = 0`
+    )
+    // IF NOT USERS THEN QUIT HERE
+    if (!queued_users || !queued_users.length) {
+        return false
+    }
+    // FIND QUEUED USERS WHOSE LAST HEARTBEAT WAS MORE THAN 5 SECONDS AGO
+    let dead_heartbeat_ids = ''
+    let alive_queued_users = []
+    queued_users.forEach(async user => {
+        if (
+            // IF DEAD THEN ADD THEIR QUEUE ID TO THE DEAD_HEARTBEAT_IDS
+            !user.last_heartbeat ||
+            moment(
+                moment()
+                    .utc()
+                    .format('YYYY-MM-DD HH:mm:ss')
+            ).diff(user.last_heartbeat, 'seconds') > 5
+        ) {
+            dead_heartbeat_ids += user.id + ','
+        } else {
+            // IF ALIVE THEN ADD THE USER TO THE ALIVE_QUEUED_USERS
+            alive_queued_users.push(user)
+        }
+    })
 
-    // // SET DEAD QUEUED USERS TO REMOVED
-    // if (dead_heartbeat_ids.length) {
-    //     dead_heartbeat_ids = `(${dead_heartbeat_ids.slice(0, -1)})` // eg: "(1,2,3,4,5)"
-    //     await db.qry(
-    //         `UPDATE queued_users
-    //         SET valid = 0,
-    //         removed = 1
-    //         WHERE id IN ${dead_heartbeat_ids}
-    //         AND valid = 1
-    //         AND removed = 0`
-    //     )
-    // }
+    // SET DEAD QUEUED USERS TO REMOVED
+    if (dead_heartbeat_ids.length) {
+        dead_heartbeat_ids = `(${dead_heartbeat_ids.slice(0, -1)})` // eg: "(1,2,3,4,5)"
+        await db.qry(
+            `UPDATE queued_users
+            SET valid = 0,
+            removed = 1
+            WHERE id IN ${dead_heartbeat_ids}
+            AND valid = 1
+            AND removed = 0`
+        )
+    }
 
-    // if (!alive_queued_users || !alive_queued_users.length) {
-    //     return false
-    // }
+    if (!alive_queued_users || !alive_queued_users.length) {
+        return false
+    }
 
-    // // GROUP THE REMAINING ALIVE USERS BY THEIR CHOSEN GAME MODE
-    // const grouped_users = _.groupBy(alive_queued_users, 'game_mode')
+    // GROUP THE REMAINING ALIVE USERS BY THEIR CHOSEN GAME MODE
+    const grouped_users = _.groupBy(alive_queued_users, 'game_mode')
 
-    // const res = await getQueryParams(grouped_users)
+    const res = await getQueryParams(grouped_users)
 
-    // // IF MATCHES WERE MADE
-    // if (res.queue_ids.length) {
-    //     const queue_ids = `(${res.queue_ids.slice(0, -1)})` // eg: "(1,2,3,4,5)"
-    //     const user_ids = `(${res.user_ids.slice(0, -1)})` // eg: "(1,2,3,4,5)"
-    //     const queued_values = res.queued_values.slice(0, -2) // eg: "(1,2,3),(4,5,6),(7,8,9)"
-    //     const game_values = res.game_values.slice(0, -2) // eg: "(1,2,3),(4,5,6),(7,8,9)"
+    // IF MATCHES WERE MADE
+    if (res.queue_ids.length) {
+        const queue_ids = `(${res.queue_ids.slice(0, -1)})` // eg: "(1,2,3,4,5)"
+        const user_ids = `(${res.user_ids.slice(0, -1)})` // eg: "(1,2,3,4,5)"
+        const queued_values = res.queued_values.slice(0, -2) // eg: "(1,2,3),(4,5,6),(7,8,9)"
+        const game_values = res.game_values.slice(0, -2) // eg: "(1,2,3),(4,5,6),(7,8,9)"
 
-    //     // DELETE THESE QUEUED USERS
-    //     await db.qry(
-    //         `DELETE
-    //         FROM queued_users
-    //         WHERE id IN ${queue_ids}`
-    //     )
-    //     // REINSERT THESE QUEUED USERS WITH THEIR MATCHES
-    //     await db.qry(
-    //         `INSERT INTO queued_users
-    //         (id, user_id, game_mode, valid, initialisation_date, matched, matched_date, match_id, match_user_id, last_heartbeat, game_token)
-    //         VALUES ${queued_values}`
-    //     )
-    //     // CLEAR PREVIOUS GAMES
-    //     await db.qry(
-    //         `UPDATE multiplayer_games
-    //         SET valid = 0, removed = 1
-    //         WHERE valid = 1
-    //         AND completed = 0
-    //         AND quitted = 0
-    //         AND
-    //         (
-    //         p1_user_id IN ${user_ids}
-    //         OR p2_user_id IN ${user_ids}
-    //         )`
-    //     )
-    //     // INSERT THE GAME DETAILS
-    //     await db.qry(
-    //         `INSERT INTO multiplayer_games
-    //         (p1_user_id, p2_user_id, game_mode, token, initialisation_date, termination_date, words)
-    //         VALUES ${game_values}`
-    //     )
-    // }
+        // DELETE THESE QUEUED USERS
+        await db.qry(
+            `DELETE
+            FROM queued_users
+            WHERE id IN ${queue_ids}`
+        )
+        // REINSERT THESE QUEUED USERS WITH THEIR MATCHES
+        await db.qry(
+            `INSERT INTO queued_users
+            (id, user_id, game_mode, valid, initialisation_date, matched, matched_date, match_id, match_user_id, last_heartbeat, game_token)
+            VALUES ${queued_values}`
+        )
+        // CLEAR PREVIOUS GAMES
+        await db.qry(
+            `UPDATE multiplayer_games
+            SET valid = 0, removed = 1
+            WHERE valid = 1
+            AND completed = 0
+            AND quitted = 0
+            AND
+            (
+            p1_user_id IN ${user_ids}
+            OR p2_user_id IN ${user_ids}
+            )`
+        )
+        // INSERT THE GAME DETAILS
+        await db.qry(
+            `INSERT INTO multiplayer_games
+            (p1_user_id, p2_user_id, game_mode, token, initialisation_date, termination_date, words)
+            VALUES ${game_values}`
+        )
+    }
 
     // GET GAMES WHOSE WORDS HAVE NOT BEEN ADDED TO THE WORDS TABLE
     const undocumented_games = await db.qry(
