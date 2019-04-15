@@ -111,12 +111,12 @@
                                     <!-- OTHER PLAYER ANSWER COUNT -->
                                     <div>
                                         The other player has submitted
-                                        <b v-if="no_of_opponent_answers" style="color:#67C23A;">
-                                            {{ no_of_opponent_answers }}
-                                        </b>
-                                        <b v-else style="color:#F56C6C;">
-                                            {{ no_of_opponent_answers }}
-                                        </b>
+                                        <b v-if="no_of_opponent_answers" style="color:#67C23A;">{{
+                                            no_of_opponent_answers
+                                        }}</b>
+                                        <b v-else style="color:#F56C6C;">{{
+                                            no_of_opponent_answers
+                                        }}</b>
                                         answers
                                     </div>
                                     <hr />
@@ -211,6 +211,8 @@ export default {
         this.current_word_index = res.data.current_word_index
         this.matched_count = res.data.matched_count
         this.passed_count = res.data.passed_count
+        this.answers = res.data.current_word_answers
+        this.no_of_opponent_answers = res.data.other_player_answer_count
 
         if (this.game.game_mode === 'SYN') {
             this.input_placeholder = 'Please input a synonym...'

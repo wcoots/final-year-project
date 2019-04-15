@@ -755,39 +755,71 @@ app.post('/getGameInfo', multipartMiddleware, async (req, res) => {
                 [game.id]
             )
 
-            const matched_answers = await db.qry(
-                `SELECT COUNT(*) as matched_count
-                FROM multiplayer_answers
-                WHERE game_id = ?
-                AND matched = 1
-                AND passed = 0
-                AND uncompleted = 0`,
-                [game.id]
-            )
-
-            const passed_answers = await db.qry(
-                `SELECT COUNT(*) as passed_count
-                FROM multiplayer_answers
-                WHERE game_id = ?
-                AND matched = 0
-                AND passed = 1
-                AND uncompleted = 0`,
-                [game.id]
-            )
-
             let current_word_index = 0
+            let matched_answers_count = 0
+            let passed_answers_count = 0
+            let current_word_answers = []
+            let other_player_answer_count = 0
 
             if (max_completed_answer[0].max) {
                 const min_answer = await db.qry(
                     `SELECT MIN(id) as min
-                                FROM multiplayer_answers
-                                WHERE game_id = ?
-                                AND uncompleted = 0`,
+                    FROM multiplayer_answers
+                    WHERE game_id = ?
+                    AND uncompleted = 0`,
                     [game.id]
                 )
 
                 current_word_index = max_completed_answer[0].max - min_answer[0].min + 1
+
+                const matched_answers = await db.qry(
+                    `SELECT COUNT(*) as matched_count
+                    FROM multiplayer_answers
+                    WHERE game_id = ?
+                    AND matched = 1
+                    AND passed = 0
+                    AND uncompleted = 0`,
+                    [game.id]
+                )
+
+                matched_answers_count = matched_answers[0].matched_count
+
+                const passed_answers = await db.qry(
+                    `SELECT COUNT(*) as passed_count
+                    FROM multiplayer_answers
+                    WHERE game_id = ?
+                    AND matched = 0
+                    AND passed = 1
+                    AND uncompleted = 0`,
+                    [game.id]
+                )
+
+                passed_answers_count = passed_answers[0].passed_count
             }
+
+            // DETERMINE PLAYER NUMBER
+            const player_no = game.p1_user_id === req.body.user_id ? 1 : 2
+            // DETERMINE OTHER PLAYER NUMBER
+            const other_player_no = game.p1_user_id === req.body.user_id ? 2 : 1
+
+            const answers = await db.qry(
+                `SELECT p${player_no}_answers as this_player_answers, p${other_player_no}_answers as other_player_answers
+                FROM multiplayer_answers
+                WHERE id = (
+                    SELECT MIN(id)
+                    FROM multiplayer_answers
+                    WHERE game_id = ?
+                    AND matched = 0
+                    AND passed = 0
+                    AND uncompleted = 0
+                )`,
+                [game.id]
+            )
+
+            const answer = answers[0]
+
+            current_word_answers = JSON.parse(answer.this_player_answers)
+            other_player_answer_count = JSON.parse(answer.other_player_answers).length
 
             game.initialisation_date = moment(game.initialisation_date)
                 .add(1, 'hours')
@@ -801,14 +833,21 @@ app.post('/getGameInfo', multipartMiddleware, async (req, res) => {
             } catch (e) {
                 throw e
             }
-            return res.json({
+
+            const data = {
                 status: true,
                 game,
                 player_no: game.p1_user_id === req.body.user_id ? 1 : 2,
                 current_word_index,
-                matched_count: matched_answers[0].matched_count,
-                passed_count: passed_answers[0].passed_count,
-            })
+                matched_answers_count,
+                passed_answers_count,
+                current_word_answers,
+                other_player_answer_count,
+            }
+
+            console.log(data)
+
+            return res.json(data)
         }
 
         return res.json({
