@@ -8,40 +8,42 @@ const _ = require('lodash')
 const words_per_game = 5
 
 const getWords = async game_mode => {
-    // var wn = new wordnet(wndb)
-    // const value = 'cold'
-    // wn.lookup(value, results => {
-    //     results.forEach(result => {
-    //         console.log('------------------------------------')
-    //         console.log(result)
-    //     })
-    // })
+    return new Promise(async (resolve, reject) => {
+        // var wn = new wordnet(wndb)
+        // const value = 'cold'
+        // wn.lookup(value, results => {
+        //     results.forEach(result => {
+        //         console.log('------------------------------------')
+        //         console.log(result)
+        //     })
+        // })
 
-    let table = null
+        let table = null
 
-    if (game_mode === 'SYN') {
-        table = 'synonyms'
-    } else if (game_mode === 'ANT') {
-        table = 'antonyms'
-    } else if (game_mode === 'HYP') {
-        table = 'hypernyms'
-    }
+        if (game_mode === 'SYN') {
+            table = 'synonyms'
+        } else if (game_mode === 'ANT') {
+            table = 'antonyms'
+        } else if (game_mode === 'HYP') {
+            table = 'hypernyms'
+        }
 
-    const answers = await db.qry(
-        `SELECT id, word, definition
+        const answers = await db.qry(
+            `SELECT id, word, definition
         FROM ${table}
         WHERE multiplayer_availability = 1`
-    )
+        )
 
-    const chosen_words = []
-    for (let i = 0; i < words_per_game; i++) {
-        const random_word = answers[Math.floor(Math.random() * answers.length)]
-        _.remove(answers, { id: random_word.id })
-        delete random_word.id
-        chosen_words.push(random_word)
-    }
+        const chosen_words = []
+        for (let i = 0; i < words_per_game; i++) {
+            const random_word = answers[Math.floor(Math.random() * answers.length)]
+            _.remove(answers, { id: random_word.id })
+            delete random_word.id
+            chosen_words.push(random_word)
+        }
 
-    return JSON.stringify(chosen_words)
+        resolve(JSON.stringify(chosen_words))
+    })
 }
 
 module.exports = {
