@@ -759,7 +759,11 @@ app.post('/getGameInfo', multipartMiddleware, async (req, res) => {
         // )
 
         if (game) {
-            game.words = JSON.parse(game.words)
+            try {
+                game.words = JSON.parse(game.words)
+            } catch (e) {
+                throw e
+            }
             return res.json({
                 status: true,
                 game,
@@ -842,12 +846,16 @@ app.post('/getGameResults', multipartMiddleware, async (req, res) => {
                 }
                 let this_player_words = ''
                 let other_player_words = ''
-                JSON.parse(word.this_player).forEach(answer => {
-                    this_player_words += `${answer}, `
-                })
-                JSON.parse(word.other_player).forEach(answer => {
-                    other_player_words += `${answer}, `
-                })
+                try {
+                    JSON.parse(word.this_player).forEach(answer => {
+                        this_player_words += `${answer}, `
+                    })
+                    JSON.parse(word.other_player).forEach(answer => {
+                        other_player_words += `${answer}, `
+                    })
+                } catch (e) {
+                    throw e
+                }
                 word.this_player = this_player_words.slice(0, -2)
                 word.other_player = other_player_words.slice(0, -2)
             })
@@ -949,8 +957,12 @@ io.on('connection', socket => {
             const answers = answers_as_string[0]
 
             // CONVERT STRINGS TO ACTUAL
-            const this_players_words = JSON.parse(answers.this_player)
-            const other_players_words = JSON.parse(answers.other_player)
+            try {
+                const this_players_words = JSON.parse(answers.this_player)
+                const other_players_words = JSON.parse(answers.other_player)
+            } catch (e) {
+                throw e
+            }
 
             const match = {
                 status: false,

@@ -77,7 +77,11 @@ const checkWords = async () => {
                         words[answer.word].uncompleted
                     words[answer.word].matched += answer.multiplayer_matches
                     words[answer.word].passed += answer.multiplayer_passes
-                    words[answer.word].previous_answers = JSON.parse(answer.answers)
+                    try {
+                        words[answer.word].previous_answers = JSON.parse(answer.answers)
+                    } catch (e) {
+                        throw e
+                    }
                 })
                 console.log(words)
 

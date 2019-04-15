@@ -239,9 +239,13 @@ const checkMatches = async () => {
     if (undocumented_games.length) {
         let queued_words = ''
         undocumented_games.forEach(game => {
-            JSON.parse(game.words).forEach(item => {
-                queued_words += `(${game.id}, '${game.game_mode}', '${item.word}'),\n`
-            })
+            try {
+                JSON.parse(game.words).forEach(item => {
+                    queued_words += `(${game.id}, '${game.game_mode}', '${item.word}'),\n`
+                })
+            } catch (e) {
+                throw e
+            }
         })
         queued_words = queued_words.slice(0, -2) // eg: "(1,2,3),(4,5,6),(7,8,9)"
         // INSERT THE WORDS
