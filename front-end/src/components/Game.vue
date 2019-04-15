@@ -111,12 +111,12 @@
                                     <!-- OTHER PLAYER ANSWER COUNT -->
                                     <div>
                                         The other player has submitted
-                                        <b v-if="no_of_opponent_answers" style="color:#67C23A;">{{
-                                            no_of_opponent_answers
-                                        }}</b>
-                                        <b v-else style="color:#F56C6C;">{{
-                                            no_of_opponent_answers
-                                        }}</b>
+                                        <b v-if="no_of_opponent_answers" style="color:#67C23A;">
+                                            {{ no_of_opponent_answers }}
+                                        </b>
+                                        <b v-else style="color:#F56C6C;">
+                                            {{ no_of_opponent_answers }}
+                                        </b>
                                         answers
                                     </div>
                                     <hr />
@@ -208,6 +208,9 @@ export default {
         const res = await apiRequest('post', 'getGameInfo', data)
         res.data.status ? (this.game = res.data.game) : this.$router.push({ name: 'Home' })
         this.player_no = res.data.player_no
+        this.current_word_index = res.data.current_word_index
+        this.matched_count = res.data.matched_count
+        this.passed_count = res.data.passed_count
 
         if (this.game.game_mode === 'SYN') {
             this.input_placeholder = 'Please input a synonym...'

@@ -5,14 +5,49 @@
             <div v-loading="loading" class="container">
                 <br />
                 <br />
-                <h3>Choose game mode</h3>
+                <h3>
+                    Hello
+                    <span v-if="user">{{ user.forename }}</span
+                    >!
+                </h3>
                 <br />
-                <el-button type="primary" round disabled @click="redirect('OnePlayerMeny')"
-                    >Single Player</el-button
-                >
-                <el-button type="success" round @click="redirect('TwoPlayerMenu')"
-                    >Two Player</el-button
-                >
+                <h4>Choose game mode</h4>
+                <br />
+
+                <el-row :gutter="12">
+                    <!-- SINGLE PLAYER -->
+                    <el-col :span="8">
+                        <el-card shadow="hover">
+                            <div slot="header" class="clearfix">
+                                <el-button
+                                    type="primary"
+                                    round
+                                    disabled
+                                    @click="redirect('OnePlayerMenu')"
+                                    >Single Player</el-button
+                                >
+                            </div>
+                            <div>Coming soon!</div>
+                        </el-card>
+                    </el-col>
+                    <!-- MULTIPLAYER -->
+                    <el-col :span="8">
+                        <el-card shadow="hover">
+                            <div slot="header" class="clearfix">
+                                <el-button type="success" round @click="redirect('TwoPlayerMenu')"
+                                    >Two Player</el-button
+                                >
+                            </div>
+                            <div>Match and play with another player</div>
+                        </el-card>
+                    </el-col>
+                    <!-- HYPERNYMS -->
+                    <el-col :span="8">
+                        <p></p>
+                    </el-col>
+                </el-row>
+
+                <br />
             </div>
         </div>
     </div>

@@ -744,27 +744,58 @@ app.post('/getGameInfo', multipartMiddleware, async (req, res) => {
         )
         const game = games[0]
 
-        // TODO: USE THIS TO DETERMINE WHICH WORD IS THE CURRENT WORD FOR WHEN REFRESHING THE PAGE MID-GAME
-        // const words = await db.qry(
-        //     `SELECT id, p1_user_id, p2_user_id, game_mode, initialisation_date, termination_date, token, words
-        //     FROM multiplayer_answers
-        //     WHERE valid = 1
-        //     AND completed = 0
-        //     AND quitted = 0
-        //     AND removed = 0
-        //     AND token = ?
-        //     AND (p1_user_id = ?
-        //         OR p2_user_id = ?)`,
-        //     [req.body.token, req.body.user_id, req.body.user_id]
-        // )
-
         if (game) {
+            const max_completed_answer = await db.qry(
+                `SELECT MAX(id) as max
+                FROM multiplayer_answers
+                WHERE game_id = ?
+                AND (matched = 1
+                    OR passed = 1)
+                AND uncompleted = 0`,
+                [game.id]
+            )
+
+            const matched_answers = await db.qry(
+                `SELECT COUNT(*) as matched_count
+                FROM multiplayer_answers
+                WHERE game_id = ?
+                AND matched = 1
+                AND passed = 0
+                AND uncompleted = 0`,
+                [game.id]
+            )
+
+            const passed_answers = await db.qry(
+                `SELECT COUNT(*) as passed_count
+                FROM multiplayer_answers
+                WHERE game_id = ?
+                AND matched = 0
+                AND passed = 1
+                AND uncompleted = 0`,
+                [game.id]
+            )
+
+            let current_word_index = 0
+
+            if (max_completed_answer[0].max) {
+                const min_answer = await db.qry(
+                    `SELECT MIN(id) as min
+                                FROM multiplayer_answers
+                                WHERE game_id = ?
+                                AND uncompleted = 0`,
+                    [game.id]
+                )
+
+                current_word_index = max_completed_answer[0].max - min_answer[0].min + 1
+            }
+
             game.initialisation_date = moment(game.initialisation_date)
                 .add(1, 'hours')
                 .format('YYYY-MM-DD HH:mm:ss')
             game.termination_date = moment(game.termination_date)
                 .add(1, 'hours')
                 .format('YYYY-MM-DD HH:mm:ss')
+
             try {
                 game.words = JSON.parse(game.words)
             } catch (e) {
@@ -774,6 +805,9 @@ app.post('/getGameInfo', multipartMiddleware, async (req, res) => {
                 status: true,
                 game,
                 player_no: game.p1_user_id === req.body.user_id ? 1 : 2,
+                current_word_index,
+                matched_count: matched_answers[0].matched_count,
+                passed_count: passed_answers[0].passed_count,
             })
         }
 
