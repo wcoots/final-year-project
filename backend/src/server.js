@@ -759,6 +759,12 @@ app.post('/getGameInfo', multipartMiddleware, async (req, res) => {
         // )
 
         if (game) {
+            game.initialisation_date = moment(game.initialisation_date)
+                .add(1, 'hours')
+                .format('YYYY-MM-DD HH:mm:ss')
+            game.termination_date = moment(game.termination_date)
+                .add(1, 'hours')
+                .format('YYYY-MM-DD HH:mm:ss')
             try {
                 game.words = JSON.parse(game.words)
             } catch (e) {
@@ -957,9 +963,11 @@ io.on('connection', socket => {
             const answers = answers_as_string[0]
 
             // CONVERT STRINGS TO ACTUAL
+            let this_players_words = null
+            let other_players_words = null
             try {
-                const this_players_words = JSON.parse(answers.this_player)
-                const other_players_words = JSON.parse(answers.other_player)
+                this_players_words = JSON.parse(answers.this_player)
+                other_players_words = JSON.parse(answers.other_player)
             } catch (e) {
                 throw e
             }
