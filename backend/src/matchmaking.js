@@ -236,8 +236,6 @@ const checkMatches = async () => {
         )`
     )
 
-    console.log(undocumented_games)
-
     if (undocumented_games.length) {
         let queued_words = ''
         undocumented_games.forEach(game => {
