@@ -206,16 +206,16 @@ export default {
             token: this.token,
         }
         const res = await apiRequest('post', 'getGameInfo', data)
-        res.data.status ? (this.game = res.data.game) : this.$router.push({ name: 'Home' })
-        this.player_no = res.data.player_no
 
-        if (this.game.game_mode === 'SYN') {
-            this.input_placeholder = 'Please input a synonym...'
-        } else if (this.game.game_mode === 'ANT') {
-            this.input_placeholder = 'Please input an antonym...'
-        } else if (this.game.game_mode === 'HYP') {
-            this.input_placeholder = 'Please input a hypernym...'
-        }
+        res.data.status ? (this.game = res.data.game) : this.$router.push({ name: 'Home' })
+
+        this.player_no = res.data.player_no
+        this.current_word_index = res.data.current_word_index
+        this.matched_count = res.data.matched_answers_count
+        this.passed_count = res.data.passed_answers_count
+        this.answers = res.data.current_word_answers
+        this.no_of_opponent_answers = res.data.other_player_answer_count
+        this.input_placeholder = res.data.input_placeholder
 
         if (process.env.NODE_ENV === 'development') {
             this.socket = io.connect('localhost:8080', { query: `token=${this.token}` })
@@ -321,6 +321,7 @@ export default {
             }
             // DONE IN FRONTEND SO AS TO NOT ADD MUTLIPLE WORDS TO THE LIST
             const words = _.words(_.toLower(this.input))
+
             words.forEach(word => {
                 const x = { answer: word }
                 const cond1 = !_.filter(this.answers, x).length

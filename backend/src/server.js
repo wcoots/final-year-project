@@ -730,6 +730,9 @@ app.post('/heartbeat', multipartMiddleware, async (req, res) => {
 
 app.post('/getGameInfo', multipartMiddleware, async (req, res) => {
     try {
+        // must give all game details (player_no, mode, termination_date, token, words)
+        // must give all game progress (current_word_index, matched_answers_count, passed_answers_count, current_word_answers, other_player_answer_count)
+
         const games = await db.qry(
             `SELECT id, p1_user_id, p2_user_id, game_mode, initialisation_date, termination_date, token, words
             FROM multiplayer_games
@@ -744,30 +747,69 @@ app.post('/getGameInfo', multipartMiddleware, async (req, res) => {
         )
         const game = games[0]
 
-        // TODO: USE THIS TO DETERMINE WHICH WORD IS THE CURRENT WORD FOR WHEN REFRESHING THE PAGE MID-GAME
-        // const words = await db.qry(
-        //     `SELECT id, p1_user_id, p2_user_id, game_mode, initialisation_date, termination_date, token, words
-        //     FROM multiplayer_answers
-        //     WHERE valid = 1
-        //     AND completed = 0
-        //     AND quitted = 0
-        //     AND removed = 0
-        //     AND token = ?
-        //     AND (p1_user_id = ?
-        //         OR p2_user_id = ?)`,
-        //     [req.body.token, req.body.user_id, req.body.user_id]
-        // )
-
         if (game) {
+            game.initialisation_date = moment(game.initialisation_date)
+                .add(1, 'hours')
+                .format('YYYY-MM-DD HH:mm:ss')
+            game.termination_date = moment(game.termination_date)
+                .add(1, 'hours')
+                .format('YYYY-MM-DD HH:mm:ss')
+
             try {
                 game.words = JSON.parse(game.words)
             } catch (e) {
                 throw e
             }
+
+            let input_placeholder = null
+            if (game.game_mode === 'SYN') {
+                input_placeholder = 'Please input a synonym...'
+            } else if (game.game_mode === 'ANT') {
+                input_placeholder = 'Please input an antonym...'
+            } else if (game.game_mode === 'HYP') {
+                input_placeholder = 'Please input a hypernym...'
+            }
+
+            // DETERMINE PLAYER NUMBER
+            const this_player_no = game.p1_user_id === req.body.user_id ? 1 : 2
+            // DETERMINE OTHER PLAYER NUMBER
+            const other_player_no = game.p1_user_id === req.body.user_id ? 2 : 1
+
+            const answers = await db.qry(
+                `SELECT id, game_id, word, p${this_player_no}_answers AS this_player_answers, p${other_player_no}_answers AS other_player_answers, matched, passed
+                FROM multiplayer_answers
+                WHERE game_id = ?`,
+                [game.id]
+            )
+
+            const current_word_index =
+                answers.length -
+                _.sortBy(_.filter(answers, { matched: 0, passed: 0 }), ['id']).length
+
+            const matched_answers_count = _.filter(answers, { matched: 1 }).length
+            const passed_answers_count = _.filter(answers, { passed: 1 }).length
+
+            const current_word_answers = []
+            JSON.parse(_.sortBy(answers, ['id'])[current_word_index].this_player_answers).forEach(
+                ans => {
+                    current_word_answers.push({ answer: ans })
+                }
+            )
+
+            const other_player_answer_count = JSON.parse(
+                _.sortBy(answers, ['id'])[current_word_index].other_player_answers
+            ).length
+
             return res.json({
                 status: true,
                 game,
-                player_no: game.p1_user_id === req.body.user_id ? 1 : 2,
+                player_no: this_player_no,
+                current_word_index,
+                matched_answers_count,
+                passed_answers_count,
+                current_word_answers,
+                other_player_answer_count,
+                input_placeholder,
             })
         }
 
@@ -957,9 +999,11 @@ io.on('connection', socket => {
             const answers = answers_as_string[0]
 
             // CONVERT STRINGS TO ACTUAL
+            let this_players_words = null
+            let other_players_words = null
             try {
-                const this_players_words = JSON.parse(answers.this_player)
-                const other_players_words = JSON.parse(answers.other_player)
+                this_players_words = JSON.parse(answers.this_player)
+                other_players_words = JSON.parse(answers.other_player)
             } catch (e) {
                 throw e
             }
