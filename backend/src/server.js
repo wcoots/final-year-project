@@ -730,6 +730,9 @@ app.post('/heartbeat', multipartMiddleware, async (req, res) => {
 
 app.post('/getGameInfo', multipartMiddleware, async (req, res) => {
     try {
+        // must give all game details (player_no, mode, termination_date, token, words)
+        // must give all game progress (current_word_index, matched_answers_count, passed_answers_count, current_word_answers, other_player_answer_count)
+
         const games = await db.qry(
             `SELECT id, p1_user_id, p2_user_id, game_mode, initialisation_date, termination_date, token, words
             FROM multiplayer_games
@@ -745,82 +748,6 @@ app.post('/getGameInfo', multipartMiddleware, async (req, res) => {
         const game = games[0]
 
         if (game) {
-            const max_completed_answer = await db.qry(
-                `SELECT MAX(id) as max
-                FROM multiplayer_answers
-                WHERE game_id = ?
-                AND (matched = 1
-                    OR passed = 1)
-                AND uncompleted = 0`,
-                [game.id]
-            )
-
-            let current_word_index = 0
-            let matched_answers_count = 0
-            let passed_answers_count = 0
-            let current_word_answers = []
-            let other_player_answer_count = 0
-
-            if (max_completed_answer[0].max) {
-                const min_answer = await db.qry(
-                    `SELECT MIN(id) as min
-                    FROM multiplayer_answers
-                    WHERE game_id = ?
-                    AND uncompleted = 0`,
-                    [game.id]
-                )
-
-                current_word_index = max_completed_answer[0].max - min_answer[0].min + 1
-
-                const matched_answers = await db.qry(
-                    `SELECT COUNT(*) as matched_count
-                    FROM multiplayer_answers
-                    WHERE game_id = ?
-                    AND matched = 1
-                    AND passed = 0
-                    AND uncompleted = 0`,
-                    [game.id]
-                )
-
-                matched_answers_count = matched_answers[0].matched_count
-
-                const passed_answers = await db.qry(
-                    `SELECT COUNT(*) as passed_count
-                    FROM multiplayer_answers
-                    WHERE game_id = ?
-                    AND matched = 0
-                    AND passed = 1
-                    AND uncompleted = 0`,
-                    [game.id]
-                )
-
-                passed_answers_count = passed_answers[0].passed_count
-            }
-
-            // DETERMINE PLAYER NUMBER
-            const player_no = game.p1_user_id === req.body.user_id ? 1 : 2
-            // DETERMINE OTHER PLAYER NUMBER
-            const other_player_no = game.p1_user_id === req.body.user_id ? 2 : 1
-
-            const answers = await db.qry(
-                `SELECT p${player_no}_answers as this_player_answers, p${other_player_no}_answers as other_player_answers
-                FROM multiplayer_answers
-                WHERE id = (
-                    SELECT MIN(id)
-                    FROM multiplayer_answers
-                    WHERE game_id = ?
-                    AND matched = 0
-                    AND passed = 0
-                    AND uncompleted = 0
-                )`,
-                [game.id]
-            )
-
-            const answer = answers[0]
-
-            current_word_answers = JSON.parse(answer.this_player_answers)
-            other_player_answer_count = JSON.parse(answer.other_player_answers).length
-
             game.initialisation_date = moment(game.initialisation_date)
                 .add(1, 'hours')
                 .format('YYYY-MM-DD HH:mm:ss')
@@ -834,20 +761,56 @@ app.post('/getGameInfo', multipartMiddleware, async (req, res) => {
                 throw e
             }
 
-            const data = {
+            let input_placeholder = null
+            if (game.game_mode === 'SYN') {
+                input_placeholder = 'Please input a synonym...'
+            } else if (game.game_mode === 'ANT') {
+                input_placeholder = 'Please input an antonym...'
+            } else if (game.game_mode === 'HYP') {
+                input_placeholder = 'Please input a hypernym...'
+            }
+
+            // DETERMINE PLAYER NUMBER
+            const this_player_no = game.p1_user_id === req.body.user_id ? 1 : 2
+            // DETERMINE OTHER PLAYER NUMBER
+            const other_player_no = game.p1_user_id === req.body.user_id ? 2 : 1
+
+            const answers = await db.qry(
+                `SELECT id, game_id, word, p${this_player_no}_answers AS this_player_answers, p${other_player_no}_answers AS other_player_answers, matched, passed
+                FROM multiplayer_answers
+                WHERE game_id = ?`,
+                [game.id]
+            )
+
+            const current_word_index =
+                answers.length -
+                _.sortBy(_.filter(answers, { matched: 0, passed: 0 }), ['id']).length
+
+            const matched_answers_count = _.filter(answers, { matched: 1 }).length
+            const passed_answers_count = _.filter(answers, { passed: 1 }).length
+
+            const current_word_answers = []
+            JSON.parse(_.sortBy(answers, ['id'])[current_word_index].this_player_answers).forEach(
+                ans => {
+                    current_word_answers.push({ answer: ans })
+                }
+            )
+
+            const other_player_answer_count = JSON.parse(
+                _.sortBy(answers, ['id'])[current_word_index].other_player_answers
+            ).length
+
+            return res.json({
                 status: true,
                 game,
-                player_no: game.p1_user_id === req.body.user_id ? 1 : 2,
+                player_no: this_player_no,
                 current_word_index,
                 matched_answers_count,
                 passed_answers_count,
                 current_word_answers,
                 other_player_answer_count,
-            }
-
-            console.log(data)
-
-            return res.json(data)
+                input_placeholder,
+            })
         }
 
         return res.json({
