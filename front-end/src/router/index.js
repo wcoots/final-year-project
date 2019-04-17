@@ -14,6 +14,7 @@ import OnePlayerMenu from '@/components/OnePlayerMenu'
 import TwoPlayerMenu from '@/components/TwoPlayerMenu'
 import Game from '@/components/Game'
 import GameResults from '@/components/GameResults'
+import SinglePlayerGame from '@/components/SinglePlayerGame'
 
 Vue.use(Router)
 
@@ -84,6 +85,11 @@ export default new Router({
             path: '/game',
             name: 'Game',
             component: Game,
+        },
+        {
+            path: '/singleplayergame',
+            name: 'SinglePlayerGame',
+            component: SinglePlayerGame,
         },
         {
             path: '/gameresults',

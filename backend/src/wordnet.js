@@ -60,7 +60,7 @@ const getWordsForSingleplayer = async game_mode => {
         const max_loop_val = answers.length > words_per_game ? words_per_game : answers.length
 
         if (answers.length) {
-            for (let i = 0; i <= max_loop_val; i++) {
+            for (let i = 0; i < max_loop_val; i++) {
                 const random_word = answers[Math.floor(Math.random() * answers.length)]
                 _.remove(answers, { id: random_word.id })
                 delete random_word.id

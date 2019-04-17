@@ -105,12 +105,12 @@ export default {
 
             const res = await apiRequest('post', 'startSinglePlayerGame', data)
 
-            // if (res.data.status) {
-            //     this.$router.push({
-            //         name: 'SinglePlayerGame',
-            //         query: { token: res.data.game_token },
-            //     })
-            // }
+            if (res.data.status) {
+                this.$router.push({
+                    name: 'SinglePlayerGame',
+                    query: { token: res.data.game_token },
+                })
+            }
         },
     },
 }
