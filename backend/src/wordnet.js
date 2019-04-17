@@ -30,8 +30,8 @@ const getWords = async game_mode => {
 
         const answers = await db.qry(
             `SELECT id, word, definition
-        FROM ${table}
-        WHERE multiplayer_availability = 1`
+            FROM ${table}
+            WHERE multiplayer_availability = 1`
         )
 
         const chosen_words = []
