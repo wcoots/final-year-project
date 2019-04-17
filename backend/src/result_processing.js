@@ -106,6 +106,46 @@ const checkWords = async () => {
                 )
             })
         }
+
+        const all_words = await db.qry(
+            `SELECT id, word, answers, multiplayer_occurances, multiplayer_matches, multiplayer_passes
+            FROM ${game_mode_type.table}`
+        )
+
+        let available_ids = `(`
+        let unavailable_ids = `(`
+
+        all_words.forEach(word => {
+            const cond1 = word.multiplayer_matches > 4 // must have at least 5 matches
+            const cond2 =
+                word.multiplayer_passes / (word.multiplayer_passes + word.multiplayer_matches) < 0.5 // must have less than a 50% pass rate
+            const cond3 = _.keys(JSON.parse(word.answers)).length > 1 // must have at least 2 unique matches
+
+            if (cond1 && cond2 && cond3) {
+                available_ids += `${word.id}, `
+            } else {
+                unavailable_ids += `${word.id}, `
+            }
+        })
+
+        available_ids = available_ids.length > 1 ? available_ids.slice(0, -2) + `)` : null
+        unavailable_ids = unavailable_ids.length > 1 ? unavailable_ids.slice(0, -2) + `)` : null
+
+        if (available_ids) {
+            await db.qry(
+                `UPDATE ${game_mode_type.table}
+                SET singleplayer_availability = 1
+                WHERE id IN ${available_ids}`
+            )
+        }
+
+        if (unavailable_ids) {
+            await db.qry(
+                `UPDATE ${game_mode_type.table}
+                SET singleplayer_availability = 0
+                WHERE id IN ${unavailable_ids}`
+            )
+        }
     })
 
     // set the answers to completed in multiplayer_answers

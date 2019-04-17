@@ -3,6 +3,7 @@ const bodyParser = require('body-parser')
 
 const db = require('./db')
 const mail = require('./mail')
+const wordnet = require('./wordnet')
 
 const multipart = require('connect-multiparty')
 
@@ -728,7 +729,7 @@ app.post('/heartbeat', multipartMiddleware, async (req, res) => {
     }
 })
 
-app.post('/getGameInfo', multipartMiddleware, async (req, res) => {
+app.post('/getGameInfoMulti', multipartMiddleware, async (req, res) => {
     try {
         // must give all game details (player_no, mode, termination_date, token, words)
         // must give all game progress (current_word_index, matched_answers_count, passed_answers_count, current_word_answers, other_player_answer_count)
@@ -821,7 +822,7 @@ app.post('/getGameInfo', multipartMiddleware, async (req, res) => {
     }
 })
 
-app.post('/finishGame', multipartMiddleware, async (req, res) => {
+app.post('/finishGameMulti', multipartMiddleware, async (req, res) => {
     try {
         await db.qry(
             `UPDATE multiplayer_games
@@ -849,7 +850,7 @@ app.post('/finishGame', multipartMiddleware, async (req, res) => {
     }
 })
 
-app.post('/getGameResults', multipartMiddleware, async (req, res) => {
+app.post('/getGameResultsMulti', multipartMiddleware, async (req, res) => {
     try {
         const games = await db.qry(
             `SELECT id, p1_user_id, p2_user_id
@@ -912,6 +913,68 @@ app.post('/getGameResults', multipartMiddleware, async (req, res) => {
 
         return res.json({
             status: false,
+        })
+    } catch (error) {
+        throw error
+    }
+})
+
+app.post('/startSinglePlayerGame', multipartMiddleware, async (req, res) => {
+    try {
+        // REMOVE PREVIOUS GAMES
+        await db.qry(
+            `UPDATE singleplayer_games
+            SET valid = 0, removed = 1
+            WHERE valid = 1
+            AND completed = 0
+            AND quitted = 0
+            AND user_id = ?`,
+            [req.body.user_id]
+        )
+
+        const game_modes = ['SYN', 'ANT', 'HYP']
+
+        if (game_modes.indexOf(req.body.game_mode) === -1) {
+            return res.json({
+                status: false,
+                message: `${req.body.game_mode} is not a valid game mode`,
+            })
+        }
+
+        const token_val = crypto.randomBytes(20)
+        const token = token_val.toString('hex')
+        const words = await wordnet.getWordsForSingleplayer(req.body.game_mode)
+
+        if (!JSON.parse(words).length) {
+            return res.json({
+                status: false,
+                message: `Not enough words in singleplayer for this game mode`,
+            })
+        }
+
+        const request = {
+            user_id: req.body.user_id,
+            game_mode: req.body.game_mode,
+            token,
+            initialisation_date: moment()
+                .utc()
+                .format('YYYY-MM-DD HH:mm:ss'),
+            termination_date: moment()
+                .utc()
+                .add(160, 'seconds')
+                .format('YYYY-MM-DD HH:mm:ss'),
+            words,
+        }
+
+        await db.qry(
+            `INSERT INTO singleplayer_games
+            SET ?`,
+            [request]
+        )
+
+        return res.json({
+            status: true,
+            message: 'success',
         })
     } catch (error) {
         throw error

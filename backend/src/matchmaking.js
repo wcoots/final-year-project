@@ -67,7 +67,7 @@ const getQueryParams = async grouped_users => {
             for (let i = 0; i < grouped_users[key].length - 1; i += 2) {
                 const token_val = crypto.randomBytes(20)
                 const token = token_val.toString('hex')
-                const words = await wordnet.getWords(grouped_users[key][i].game_mode)
+                const words = await wordnet.getWordsForMultiplayer(grouped_users[key][i].game_mode)
                 // (id, user_id, game_mode, valid, initialisation_date, matched, matched_date, match_id, match_user_id, last_heartbeat, game_token)
                 // RECORD USER A'S DATA AS A STRING
                 const temp1 = `(${grouped_users[key][i].id}, ${grouped_users[key][i].user_id}, '${

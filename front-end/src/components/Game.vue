@@ -7,14 +7,14 @@
                     <el-header height="100px">
                         <br />
                         <br />
-                        <Timer
+                        <TimerMultiplayer
                             v-bind:date="game.termination_date"
                             v-bind:game_id="game.id"
                             v-bind:token="token"
                             style="float:centre;"
                             @start_game="startGame"
                             @delay_game="delayGame"
-                        ></Timer>
+                        ></TimerMultiplayer>
                         <br />
                     </el-header>
 
@@ -111,12 +111,12 @@
                                     <!-- OTHER PLAYER ANSWER COUNT -->
                                     <div>
                                         The other player has submitted
-                                        <b v-if="no_of_opponent_answers" style="color:#67C23A;">
-                                            {{ no_of_opponent_answers }}
-                                        </b>
-                                        <b v-else style="color:#F56C6C;">
-                                            {{ no_of_opponent_answers }}
-                                        </b>
+                                        <b v-if="no_of_opponent_answers" style="color:#67C23A;">{{
+                                            no_of_opponent_answers
+                                        }}</b>
+                                        <b v-else style="color:#F56C6C;">{{
+                                            no_of_opponent_answers
+                                        }}</b>
                                         answers
                                     </div>
                                     <hr />
@@ -160,13 +160,13 @@ import { apiRequest } from '../api/auth'
 import _ from 'lodash'
 import io from 'socket.io-client'
 
-import Timer from './Timer.vue'
+import TimerMultiplayer from './TimerMultiplayer.vue'
 
 export default {
     name: 'Game',
     components: {
         Header,
-        Timer,
+        TimerMultiplayer,
     },
     data() {
         return {
@@ -205,7 +205,7 @@ export default {
             user_id: JSON.parse(localStorage.getItem('user')).user_id,
             token: this.token,
         }
-        const res = await apiRequest('post', 'getGameInfo', data)
+        const res = await apiRequest('post', 'getGameInfoMulti', data)
 
         res.data.status ? (this.game = res.data.game) : this.$router.push({ name: 'Home' })
 

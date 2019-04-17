@@ -110,7 +110,7 @@ export default {
             user_id: JSON.parse(localStorage.getItem('user')).user_id,
             token: this.token,
         }
-        const res = await apiRequest('post', 'getGameResults', data)
+        const res = await apiRequest('post', 'getGameResultsMulti', data)
 
         this.table_data = res.data.words
         this.matched_count = res.data.matched_count
