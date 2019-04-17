@@ -1,5 +1,5 @@
 <template>
-    <div class="timer">
+    <div class="timerMultiplayer">
         <el-row v-if="time_has_started">
             <el-col :span="2">
                 <p v-if="minutes" :style="timerStyle">{{ minutes }} min</p>
@@ -121,7 +121,7 @@ export default {
                     const data = {
                         game_id: this.game_id,
                     }
-                    await apiRequest('post', 'finishGame', data)
+                    await apiRequest('post', 'finishGameMulti', data)
                     this.$router.push({
                         name: 'GameResults',
                         query: { token: this.token },
