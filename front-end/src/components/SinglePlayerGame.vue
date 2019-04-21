@@ -60,7 +60,7 @@
                                     type="danger"
                                     plain
                                     style="float:left;"
-                                    @click="nextWord()"
+                                    @click="skipWord()"
                                     >Skip word</el-button
                                 >
 
@@ -145,7 +145,6 @@
 import Header from './Header'
 import { apiRequest } from '../api/auth'
 import _ from 'lodash'
-import io from 'socket.io-client'
 
 import TimerSingleplayer from './TimerSingleplayer.vue'
 
@@ -196,6 +195,10 @@ export default {
         this.passed_count = res.data.passed_answers_count
         this.answers = res.data.current_word_answers
         this.input_placeholder = res.data.input_placeholder
+
+        if (this.game.words.length === 1) {
+            this.skip_button_disabled = true
+        }
     },
     methods: {
         startGame() {
@@ -204,7 +207,7 @@ export default {
         delayGame(time) {
             this.time_until_start = time - 150
         },
-        async submit(e) {
+        async submit() {
             const data = {
                 game_id: this.game.id,
                 current_word: this.game.words[this.current_word_index].word,
@@ -248,38 +251,36 @@ export default {
                 }
             }
         },
-        nextWord() {
+        async skipWord() {
             const data = {
                 game_id: this.game.id,
                 current_word: this.game.words[this.current_word_index].word,
-                user_id: this.user.user_id,
-                game_token: this.game.token,
             }
-            // TODO: add a post request to let the server know the word was skipped
-
+            await apiRequest('post', 'skipWordSingle', data)
+            this.nextWord()
+        },
+        nextWord() {
             this.input = ''
             this.answers = []
-            if (this.game.words.length > this.current_word_index + 2) {
+            if (this.game.words.length <= this.current_word_index + 1) {
+                this.$router.push({
+                    name: 'SinglePlayerGameResults',
+                    query: { token: this.token },
+                })
+            } else if (this.game.words.length > this.current_word_index + 2) {
                 this.current_word_index++
             } else if (this.game.words.length === this.current_word_index + 2) {
                 this.current_word_index++
                 this.skip_button_disabled = true
             }
         },
-        quit() {
-            const data = {
-                game_id: this.game.id,
-                user_id: this.user.user_id,
-                game_token: this.game.token,
-                player_no: this.player_no,
-            }
-            // TODO: make this a post request
-            // this.socket.emit('quitGame', data)
-            // TODO: make this go to the correct page
-            // this.$router.push({
-            //     name: 'GameResults',
-            //     query: { token: this.token },
-            // })
+        async quit() {
+            const data = { game_id: this.game.id }
+            await apiRequest('post', 'quitGameSingle', data)
+            this.$router.push({
+                name: 'SinglePlayerGameResults',
+                query: { token: this.token },
+            })
         },
     },
 }

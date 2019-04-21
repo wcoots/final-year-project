@@ -8,7 +8,10 @@ const checkWords = async () => {
     const answers = await db.qry(
         `SELECT id, game_mode, word, matched, matched_word, passed, uncompleted
         FROM multiplayer_answers
-        WHERE processed = 0`
+        WHERE processed = 0
+        AND (matched = 1
+            OR passed = 1
+            OR uncompleted = 1)`
     )
     if (!answers.length) {
         return

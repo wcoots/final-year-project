@@ -15,15 +15,22 @@
                     <el-col :span="8">
                         <el-card shadow="hover">
                             <div slot="header" class="clearfix">
-                                <el-button type="warning" round @click="initialise('SYN')"
+                                <el-button
+                                    type="warning"
+                                    round
+                                    :disabled="syn_button_disabled"
+                                    @click="initialise('SYN')"
                                     >Synonyms</el-button
                                 >
                             </div>
-                            <div>
-                                Words with the
-                                <b>same</b> meaning
-                            </div>
-                            <div>eg: fast → quick</div>
+                            <span v-if="syn_button_disabled">Coming soon!</span>
+                            <span v-else>
+                                <div>
+                                    Words with the
+                                    <b>same</b> meaning
+                                </div>
+                                <div>eg: fast → quick</div>
+                            </span>
                         </el-card>
                     </el-col>
                     <!-- ANTONYMS -->
@@ -34,15 +41,19 @@
                                     slot="reference"
                                     type="warning"
                                     round
+                                    :disabled="ant_button_disabled"
                                     @click="initialise('ANT')"
                                     >Antonyms</el-button
                                 >
                             </div>
-                            <div>
-                                Words with the
-                                <b>opposite</b> meaning
-                            </div>
-                            <div>eg: fast → slow</div>
+                            <span v-if="ant_button_disabled">Coming soon!</span>
+                            <span v-else>
+                                <div>
+                                    Words with the
+                                    <b>opposite</b> meaning
+                                </div>
+                                <div>eg: fast → slow</div>
+                            </span>
                         </el-card>
                     </el-col>
                     <!-- HYPERNYMS -->
@@ -53,15 +64,19 @@
                                     slot="reference"
                                     type="warning"
                                     round
+                                    :disabled="hyp_button_disabled"
                                     @click="initialise('HYP')"
                                     >Hypernyms</el-button
                                 >
                             </div>
-                            <div>
-                                Words with a
-                                <b>more general</b> meaning
-                            </div>
-                            <div>eg: chair → furniture</div>
+                            <span v-if="hyp_button_disabled">Coming soon!</span>
+                            <span v-else>
+                                <div>
+                                    Words with a
+                                    <b>more general</b> meaning
+                                </div>
+                                <div>eg: chair → furniture</div>
+                            </span>
                         </el-card>
                     </el-col>
                 </el-row>
@@ -84,14 +99,23 @@ export default {
     data() {
         return {
             user: null,
+            syn_button_disabled: true,
+            ant_button_disabled: true,
+            hyp_button_disabled: true,
         }
     },
-    created() {
+    async created() {
         if (localStorage.getItem('token') === 'null' || localStorage.getItem('token') === null) {
             localStorage.setItem('token', JSON.stringify(null))
             localStorage.setItem('user', JSON.stringify(null))
             this.$router.push({ name: 'SignUp' })
         }
+
+        const res = await apiRequest('post', 'getGameModeAvailabilitySingle', {})
+
+        this.syn_button_disabled = res.data.game_modes.synonyms ? false : true
+        this.ant_button_disabled = res.data.game_modes.antonyms ? false : true
+        this.hyp_button_disabled = res.data.game_modes.hypernyms ? false : true
     },
     mounted() {
         this.user = JSON.parse(localStorage.getItem('user'))
@@ -104,6 +128,8 @@ export default {
             }
 
             const res = await apiRequest('post', 'startSinglePlayerGame', data)
+
+            console.log(res)
 
             if (res.data.status) {
                 this.$router.push({

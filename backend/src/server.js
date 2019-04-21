@@ -919,6 +919,19 @@ app.post('/getGameResultsMulti', multipartMiddleware, async (req, res) => {
     }
 })
 
+app.post('/getGameModeAvailabilitySingle', multipartMiddleware, async (req, res) => {
+    try {
+        const game_modes = await wordnet.getGameModeAvailability()
+
+        return res.json({
+            status: true,
+            game_modes,
+        })
+    } catch (error) {
+        throw error
+    }
+})
+
 app.post('/startSinglePlayerGame', multipartMiddleware, async (req, res) => {
     try {
         // REMOVE PREVIOUS GAMES
@@ -1032,7 +1045,9 @@ app.post('/getGameInfoSingle', multipartMiddleware, async (req, res) => {
             try {
                 game.words = JSON.parse(game.words)
             } catch (e) {
-                throw e
+                return res.json({
+                    status: false,
+                })
             }
 
             let input_placeholder = null
@@ -1059,9 +1074,15 @@ app.post('/getGameInfoSingle', multipartMiddleware, async (req, res) => {
             const passed_answers_count = _.filter(answers, { passed: 1 }).length
 
             const current_word_answers = []
-            JSON.parse(_.sortBy(answers, ['id'])[current_word_index].answers).forEach(ans => {
-                current_word_answers.push({ answer: ans })
-            })
+            try {
+                JSON.parse(_.sortBy(answers, ['id'])[current_word_index].answers).forEach(ans => {
+                    current_word_answers.push({ answer: ans })
+                })
+            } catch (e) {
+                return res.json({
+                    status: false,
+                })
+            }
 
             return res.json({
                 status: true,
@@ -1168,6 +1189,108 @@ app.post('/submitAnswerSingle', multipartMiddleware, async (req, res) => {
                 word: matches[0],
             })
         }
+    } catch (error) {
+        throw error
+    }
+})
+
+app.post('/skipWordSingle', multipartMiddleware, async (req, res) => {
+    try {
+        await db.qry(
+            `UPDATE singleplayer_answers
+            SET passed = 1,
+            matched = 0
+            WHERE game_id = ?
+            AND word = ?`,
+            [req.body.game_id, req.body.current_word]
+        )
+        return res.json({
+            status: true,
+        })
+    } catch (error) {
+        throw error
+    }
+})
+
+app.post('/quitGameSingle', multipartMiddleware, async (req, res) => {
+    try {
+        await db.qry(
+            `UPDATE singleplayer_games
+            SET quitted = 1,
+            valid = 0
+            WHERE id = ?
+            AND completed = 0
+            AND removed = 0`,
+            [req.body.game_id]
+        )
+        await db.qry(
+            `UPDATE singleplayer_answers
+            SET uncompleted = 1
+            WHERE game_id = ?
+            AND matched = 0
+            AND passed = 0`,
+            [req.body.game_id]
+        )
+        return res.json({
+            status: true,
+        })
+    } catch (error) {
+        throw error
+    }
+})
+
+app.post('/getGameResultsSingle', multipartMiddleware, async (req, res) => {
+    try {
+        const games = await db.qry(
+            `SELECT id
+            FROM singleplayer_games
+            WHERE token = ?`,
+            [req.body.token]
+        )
+        const game = games[0]
+
+        // GET ALL WORDS FOR THAT GAME
+        const words = await db.qry(
+            `SELECT word, answers, matched, matched_word, passed, uncompleted
+            FROM singleplayer_answers
+            WHERE game_id = ?`,
+            [game.id]
+        )
+
+        if (words.length) {
+            let matched_count = 0
+            let passed_count = 0
+            let uncompleted_count = 0
+            words.forEach(word => {
+                if (word.matched) {
+                    matched_count++
+                } else if (word.passed) {
+                    passed_count++
+                } else if (word.uncompleted) {
+                    uncompleted_count++
+                }
+                let answers = ''
+                try {
+                    JSON.parse(word.answers).forEach(answer => {
+                        answers += `${answer}, `
+                    })
+                } catch (e) {
+                    throw e
+                }
+                word.answers = answers.slice(0, -2)
+            })
+            return res.json({
+                status: true,
+                words,
+                matched_count,
+                passed_count,
+                uncompleted_count,
+            })
+        }
+
+        return res.json({
+            status: false,
+        })
     } catch (error) {
         throw error
     }

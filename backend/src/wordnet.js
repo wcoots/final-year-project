@@ -72,7 +72,27 @@ const getWordsForSingleplayer = async game_mode => {
     })
 }
 
+const getGameModeAvailability = async game_mode => {
+    return new Promise(async (resolve, reject) => {
+        const game_modes = { synonyms: null, antonyms: null, hypernyms: null }
+
+        for (let key in game_modes) {
+            if (game_modes.hasOwnProperty(key)) {
+                const answers = await db.qry(
+                    `SELECT word
+                    FROM ${key}
+                    WHERE singleplayer_availability = 1`
+                )
+                game_modes[key] = answers.length
+            }
+        }
+
+        resolve(game_modes)
+    })
+}
+
 module.exports = {
     getWordsForMultiplayer,
     getWordsForSingleplayer,
+    getGameModeAvailability,
 }
