@@ -145,7 +145,7 @@
 import Header from './Header'
 import { apiRequest } from '../api/auth'
 import _ from 'lodash'
-
+import { mobileCheck } from '../assets/mobileCheck'
 import TimerSingleplayer from './TimerSingleplayer.vue'
 
 export default {
@@ -173,6 +173,7 @@ export default {
         }
     },
     async created() {
+        mobileCheck() ? this.$router.push({ name: 'MobileRedirect' }) : console.log()
         if (localStorage.getItem('token') === 'null' || localStorage.getItem('token') === null) {
             localStorage.setItem('token', JSON.stringify(null))
             localStorage.setItem('user', JSON.stringify(null))

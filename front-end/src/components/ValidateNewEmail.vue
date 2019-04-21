@@ -19,6 +19,7 @@
 <script>
 import Header from './Header'
 import { apiRequest } from '../api/auth'
+import { mobileCheck } from '../assets/mobileCheck'
 
 export default {
     name: 'ValidateNewEmail',
@@ -34,6 +35,7 @@ export default {
         }
     },
     async created() {
+        mobileCheck() ? this.$router.push({ name: 'MobileRedirect' }) : console.log()
         localStorage.setItem('token', JSON.stringify(null))
         localStorage.setItem('user', JSON.stringify(null))
         if (!this.new_email_token) {

@@ -40,6 +40,7 @@
 <script>
 import Header from './Header'
 import { apiRequest } from '../api/auth'
+import { mobileCheck } from '../assets/mobileCheck'
 
 export default {
     name: 'ForgottenPassword',
@@ -55,6 +56,9 @@ export default {
             loading: false,
             status: '',
         }
+    },
+    created() {
+        mobileCheck() ? this.$router.push({ name: 'MobileRedirect' }) : console.log()
     },
     computed: {
         isSubmitDisabled() {
