@@ -16,6 +16,7 @@ import Game from '@/components/Game'
 import GameResults from '@/components/GameResults'
 import SinglePlayerGame from '@/components/SinglePlayerGame'
 import SinglePlayerGameResults from '@/components/SinglePlayerGameResults'
+import MobileRedirect from '@/components/MobileRedirect'
 
 Vue.use(Router)
 
@@ -101,6 +102,11 @@ export default new Router({
             path: '/singleplayergameresults',
             name: 'SinglePlayerGameResults',
             component: SinglePlayerGameResults,
+        },
+        {
+            path: '/Mobileredirect',
+            name: 'MobileRedirect',
+            component: MobileRedirect,
         },
     ],
 })

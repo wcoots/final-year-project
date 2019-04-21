@@ -2,7 +2,7 @@
     <div>
         <Header v-bind:user="user" />
 
-        <div v-if="!isMobile()">
+        <div>
             <div v-loading="loading" class="container">
                 <br />
                 <br />
@@ -51,14 +51,12 @@
                 <br />
             </div>
         </div>
-        <div v-else>
-            <h3>Hello there mobile user</h3>
-        </div>
     </div>
 </template>
 
 <script>
 import Header from './Header'
+import { mobileCheck } from '../assets/mobileCheck'
 
 export default {
     name: 'Home',
@@ -77,6 +75,8 @@ export default {
             localStorage.setItem('user', JSON.stringify(null))
             this.$router.push({ name: 'SignUp' })
         }
+
+        mobileCheck() ? this.$router.push({ name: 'MobileRedirect' }) : console.log()
     },
     mounted() {
         this.user = JSON.parse(localStorage.getItem('user'))
@@ -84,12 +84,6 @@ export default {
     methods: {
         redirect(location) {
             this.$router.push({ name: location })
-        },
-        isMobile() {
-            return (
-                typeof window.orientation !== 'undefined' ||
-                navigator.userAgent.indexOf('IEMobile') !== -1
-            )
         },
     },
 }
