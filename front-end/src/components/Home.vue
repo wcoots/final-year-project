@@ -19,7 +19,11 @@
                     <el-col :span="8">
                         <el-card shadow="hover">
                             <div slot="header" class="clearfix">
-                                <el-button type="primary" round @click="redirect('OnePlayerMenu')"
+                                <el-button
+                                    type="primary"
+                                    round
+                                    disabled
+                                    @click="redirect('OnePlayerMenu')"
                                     >Single Player</el-button
                                 >
                             </div>
