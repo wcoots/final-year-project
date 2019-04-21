@@ -919,6 +919,19 @@ app.post('/getGameResultsMulti', multipartMiddleware, async (req, res) => {
     }
 })
 
+app.post('/getGameModeAvailabilitySingle', multipartMiddleware, async (req, res) => {
+    try {
+        const game_modes = await wordnet.getGameModeAvailability()
+
+        return res.json({
+            status: true,
+            game_modes,
+        })
+    } catch (error) {
+        throw error
+    }
+})
+
 app.post('/startSinglePlayerGame', multipartMiddleware, async (req, res) => {
     try {
         // REMOVE PREVIOUS GAMES
@@ -961,7 +974,7 @@ app.post('/startSinglePlayerGame', multipartMiddleware, async (req, res) => {
                 .format('YYYY-MM-DD HH:mm:ss'),
             termination_date: moment()
                 .utc()
-                .add(160, 'seconds')
+                .add(155, 'seconds')
                 .format('YYYY-MM-DD HH:mm:ss'),
             words,
         }
@@ -972,9 +985,311 @@ app.post('/startSinglePlayerGame', multipartMiddleware, async (req, res) => {
             [request]
         )
 
+        const game_id = await db.qry(
+            `SELECT id
+            FROM singleplayer_games
+            WHERE valid = 1
+            AND completed = 0
+            AND removed = 0
+            AND user_id = ?`,
+            [req.body.user_id]
+        )
+
+        let insert = ``
+
+        JSON.parse(words).forEach(word => {
+            insert += `(${game_id[0].id}, '${req.body.game_mode}', '${word.word}'), `
+        })
+
+        insert = insert.slice(0, -2)
+
+        await db.qry(
+            `INSERT INTO singleplayer_answers
+            (game_id, game_mode, word)
+            VALUES ${insert}`
+        )
+
         return res.json({
             status: true,
             message: 'success',
+            game_token: token,
+        })
+    } catch (error) {
+        throw error
+    }
+})
+
+app.post('/getGameInfoSingle', multipartMiddleware, async (req, res) => {
+    try {
+        const games = await db.qry(
+            `SELECT id, game_mode, initialisation_date, termination_date, token, words
+            FROM singleplayer_games
+            WHERE valid = 1
+            AND completed = 0
+            AND quitted = 0
+            AND removed = 0
+            AND token = ?
+            AND user_id = ?`,
+            [req.body.token, req.body.user_id]
+        )
+        const game = games[0]
+
+        if (game) {
+            game.initialisation_date = moment(game.initialisation_date)
+                .add(1, 'hours')
+                .format('YYYY-MM-DD HH:mm:ss')
+            game.termination_date = moment(game.termination_date)
+                .add(1, 'hours')
+                .format('YYYY-MM-DD HH:mm:ss')
+
+            try {
+                game.words = JSON.parse(game.words)
+            } catch (e) {
+                return res.json({
+                    status: false,
+                })
+            }
+
+            let input_placeholder = null
+            if (game.game_mode === 'SYN') {
+                input_placeholder = 'Please input a synonym...'
+            } else if (game.game_mode === 'ANT') {
+                input_placeholder = 'Please input an antonym...'
+            } else if (game.game_mode === 'HYP') {
+                input_placeholder = 'Please input a hypernym...'
+            }
+
+            const answers = await db.qry(
+                `SELECT id, game_id, word, answers, matched, passed
+                FROM singleplayer_answers
+                WHERE game_id = ?`,
+                [game.id]
+            )
+
+            const current_word_index =
+                answers.length -
+                _.sortBy(_.filter(answers, { matched: 0, passed: 0 }), ['id']).length
+
+            const matched_answers_count = _.filter(answers, { matched: 1 }).length
+            const passed_answers_count = _.filter(answers, { passed: 1 }).length
+
+            const current_word_answers = []
+            try {
+                JSON.parse(_.sortBy(answers, ['id'])[current_word_index].answers).forEach(ans => {
+                    current_word_answers.push({ answer: ans })
+                })
+            } catch (e) {
+                return res.json({
+                    status: false,
+                })
+            }
+
+            return res.json({
+                status: true,
+                game,
+                current_word_index,
+                matched_answers_count,
+                passed_answers_count,
+                current_word_answers,
+                input_placeholder,
+            })
+        }
+
+        return res.json({
+            status: false,
+        })
+    } catch (error) {
+        throw error
+    }
+})
+
+app.post('/submitAnswerSingle', multipartMiddleware, async (req, res) => {
+    try {
+        let table = null
+
+        if (req.body.game_mode === 'SYN') {
+            table = 'synonyms'
+        } else if (req.body.game_mode === 'ANT') {
+            table = 'antonyms'
+        } else if (req.body.game_mode === 'HYP') {
+            table = 'hypernyms'
+        }
+
+        if (!table) {
+            return res.json({
+                status: false,
+            })
+        }
+
+        // GET ALL POTENTIAL MATCHES WITH THIS WORD
+        const potential_answers_db = await db.qry(
+            `SELECT answers
+            FROM ${table}
+            WHERE word = ?`,
+            [req.body.current_word]
+        )
+
+        let potential_answers = null
+        try {
+            potential_answers = _.keys(JSON.parse(potential_answers_db[0].answers))
+        } catch (e) {
+            throw e
+        }
+
+        const given_answers = []
+
+        req.body.answers.forEach(answer => {
+            given_answers.push(answer.answer)
+        })
+
+        const matches = _.intersection(given_answers, potential_answers)
+
+        const previous_answers_db = await db.qry(
+            `SELECT answers
+            FROM singleplayer_answers
+            WHERE word = ?
+            AND game_id = ?`,
+            [req.body.current_word, req.body.game_id]
+        )
+
+        let previous_answers = null
+        try {
+            previous_answers = JSON.parse(previous_answers_db[0].answers)
+        } catch (e) {
+            throw e
+        }
+
+        const all_answers = _.union(previous_answers, given_answers)
+
+        if (!matches.length) {
+            await db.qry(
+                `UPDATE singleplayer_answers
+                SET answers = ?
+                WHERE word = ?
+                AND game_id = ?`,
+                [JSON.stringify(all_answers), req.body.current_word, req.body.game_id]
+            )
+
+            return res.json({
+                status: false,
+            })
+        } else {
+            await db.qry(
+                `UPDATE singleplayer_answers
+                SET answers = ?,
+                matched = 1,
+                matched_word = ?
+                WHERE word = ?
+                AND game_id = ?`,
+                [JSON.stringify(all_answers), matches[0], req.body.current_word, req.body.game_id]
+            )
+
+            return res.json({
+                status: true,
+                word: matches[0],
+            })
+        }
+    } catch (error) {
+        throw error
+    }
+})
+
+app.post('/skipWordSingle', multipartMiddleware, async (req, res) => {
+    try {
+        await db.qry(
+            `UPDATE singleplayer_answers
+            SET passed = 1,
+            matched = 0
+            WHERE game_id = ?
+            AND word = ?`,
+            [req.body.game_id, req.body.current_word]
+        )
+        return res.json({
+            status: true,
+        })
+    } catch (error) {
+        throw error
+    }
+})
+
+app.post('/quitGameSingle', multipartMiddleware, async (req, res) => {
+    try {
+        await db.qry(
+            `UPDATE singleplayer_games
+            SET quitted = 1,
+            valid = 0
+            WHERE id = ?
+            AND completed = 0
+            AND removed = 0`,
+            [req.body.game_id]
+        )
+        await db.qry(
+            `UPDATE singleplayer_answers
+            SET uncompleted = 1
+            WHERE game_id = ?
+            AND matched = 0
+            AND passed = 0`,
+            [req.body.game_id]
+        )
+        return res.json({
+            status: true,
+        })
+    } catch (error) {
+        throw error
+    }
+})
+
+app.post('/getGameResultsSingle', multipartMiddleware, async (req, res) => {
+    try {
+        const games = await db.qry(
+            `SELECT id
+            FROM singleplayer_games
+            WHERE token = ?`,
+            [req.body.token]
+        )
+        const game = games[0]
+
+        // GET ALL WORDS FOR THAT GAME
+        const words = await db.qry(
+            `SELECT word, answers, matched, matched_word, passed, uncompleted
+            FROM singleplayer_answers
+            WHERE game_id = ?`,
+            [game.id]
+        )
+
+        if (words.length) {
+            let matched_count = 0
+            let passed_count = 0
+            let uncompleted_count = 0
+            words.forEach(word => {
+                if (word.matched) {
+                    matched_count++
+                } else if (word.passed) {
+                    passed_count++
+                } else if (word.uncompleted) {
+                    uncompleted_count++
+                }
+                let answers = ''
+                try {
+                    JSON.parse(word.answers).forEach(answer => {
+                        answers += `${answer}, `
+                    })
+                } catch (e) {
+                    throw e
+                }
+                word.answers = answers.slice(0, -2)
+            })
+            return res.json({
+                status: true,
+                words,
+                matched_count,
+                passed_count,
+                uncompleted_count,
+            })
+        }
+
+        return res.json({
+            status: false,
         })
     } catch (error) {
         throw error

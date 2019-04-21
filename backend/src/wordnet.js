@@ -60,7 +60,7 @@ const getWordsForSingleplayer = async game_mode => {
         const max_loop_val = answers.length > words_per_game ? words_per_game : answers.length
 
         if (answers.length) {
-            for (let i = 0; i <= max_loop_val; i++) {
+            for (let i = 0; i < max_loop_val; i++) {
                 const random_word = answers[Math.floor(Math.random() * answers.length)]
                 _.remove(answers, { id: random_word.id })
                 delete random_word.id
@@ -72,7 +72,27 @@ const getWordsForSingleplayer = async game_mode => {
     })
 }
 
+const getGameModeAvailability = async game_mode => {
+    return new Promise(async (resolve, reject) => {
+        const game_modes = { synonyms: null, antonyms: null, hypernyms: null }
+
+        for (let key in game_modes) {
+            if (game_modes.hasOwnProperty(key)) {
+                const answers = await db.qry(
+                    `SELECT word
+                    FROM ${key}
+                    WHERE singleplayer_availability = 1`
+                )
+                game_modes[key] = answers.length
+            }
+        }
+
+        resolve(game_modes)
+    })
+}
+
 module.exports = {
     getWordsForMultiplayer,
     getWordsForSingleplayer,
+    getGameModeAvailability,
 }
