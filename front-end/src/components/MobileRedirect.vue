@@ -35,12 +35,12 @@ export default {
         return {}
     },
     created() {
-        if (
-            typeof window.orientation === 'undefined' ||
-            navigator.userAgent.indexOf('IEMobile') === -1
-        ) {
-            this.$router.push({ name: 'SignUp' })
-        }
+        // if (
+        //     typeof window.orientation === 'undefined' ||
+        //     navigator.userAgent.indexOf('IEMobile') === -1
+        // ) {
+        //     this.$router.push({ name: 'SignUp' })
+        // }
     },
 }
 </script>
