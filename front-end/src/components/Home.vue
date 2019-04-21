@@ -1,7 +1,8 @@
 <template>
     <div>
         <Header v-bind:user="user" />
-        <div>
+
+        <div v-if="!isMobile()">
             <div v-loading="loading" class="container">
                 <br />
                 <br />
@@ -50,6 +51,9 @@
                 <br />
             </div>
         </div>
+        <div v-else>
+            <h3>Hello there mobile user</h3>
+        </div>
     </div>
 </template>
 
@@ -80,6 +84,12 @@ export default {
     methods: {
         redirect(location) {
             this.$router.push({ name: location })
+        },
+        isMobile() {
+            return (
+                typeof window.orientation !== 'undefined' ||
+                navigator.userAgent.indexOf('IEMobile') !== -1
+            )
         },
     },
 }

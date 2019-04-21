@@ -111,12 +111,12 @@
                                     <!-- OTHER PLAYER ANSWER COUNT -->
                                     <div>
                                         The other player has submitted
-                                        <b v-if="no_of_opponent_answers" style="color:#67C23A;">{{
-                                            no_of_opponent_answers
-                                        }}</b>
-                                        <b v-else style="color:#F56C6C;">{{
-                                            no_of_opponent_answers
-                                        }}</b>
+                                        <b v-if="no_of_opponent_answers" style="color:#67C23A;">
+                                            {{ no_of_opponent_answers }}
+                                        </b>
+                                        <b v-else style="color:#F56C6C;">
+                                            {{ no_of_opponent_answers }}
+                                        </b>
                                         answers
                                     </div>
                                     <hr />
