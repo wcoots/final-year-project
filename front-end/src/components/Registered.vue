@@ -18,6 +18,7 @@
 
 <script>
 import Header from './Header'
+import { mobileCheck } from '../assets/mobileCheck'
 
 export default {
     name: 'Registered',
@@ -30,6 +31,7 @@ export default {
         }
     },
     created() {
+        mobileCheck() ? this.$router.push({ name: 'MobileRedirect' }) : console.log()
         if (localStorage.getItem('user') === 'null' || localStorage.getItem('token') === null) {
             this.$router.push({ name: 'SignUp' })
         } else {

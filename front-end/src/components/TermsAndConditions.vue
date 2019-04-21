@@ -99,11 +99,15 @@
 
 <script>
 import Header from './Header'
+import { mobileCheck } from '../assets/mobileCheck'
 
 export default {
     name: 'TermsAndConditions',
     components: {
         Header,
+    },
+    created() {
+        mobileCheck() ? this.$router.push({ name: 'MobileRedirect' }) : console.log()
     },
     methods: {
         redirect() {

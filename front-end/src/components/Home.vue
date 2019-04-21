@@ -70,13 +70,12 @@ export default {
         }
     },
     created() {
+        mobileCheck() ? this.$router.push({ name: 'MobileRedirect' }) : console.log()
         if (localStorage.getItem('token') === 'null' || localStorage.getItem('token') === null) {
             localStorage.setItem('token', JSON.stringify(null))
             localStorage.setItem('user', JSON.stringify(null))
             this.$router.push({ name: 'SignUp' })
         }
-
-        mobileCheck() ? this.$router.push({ name: 'MobileRedirect' }) : console.log()
     },
     mounted() {
         this.user = JSON.parse(localStorage.getItem('user'))

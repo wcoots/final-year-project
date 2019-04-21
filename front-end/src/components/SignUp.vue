@@ -187,6 +187,7 @@
 import Header from './Header'
 import Password from 'vue-password-strength-meter'
 import { apiRequest } from '../api/auth'
+import { mobileCheck } from '../assets/mobileCheck'
 
 export default {
     name: 'SignUp',
@@ -285,6 +286,7 @@ export default {
         }
     },
     created() {
+        mobileCheck() ? this.$router.push({ name: 'MobileRedirect' }) : console.log()
         if (localStorage.getItem('token') !== 'null' && localStorage.getItem('token') !== null) {
             this.$router.push({ name: 'Home' })
         }

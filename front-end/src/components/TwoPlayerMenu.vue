@@ -88,6 +88,7 @@
 import Header from './Header'
 import { apiRequest } from '../api/auth'
 import io from 'socket.io-client'
+import { mobileCheck } from '../assets/mobileCheck'
 
 export default {
     name: 'TwoPlayerMenu',
@@ -106,6 +107,7 @@ export default {
         }
     },
     created() {
+        mobileCheck() ? this.$router.push({ name: 'MobileRedirect' }) : console.log()
         if (localStorage.getItem('token') === 'null' || localStorage.getItem('token') === null) {
             localStorage.setItem('token', JSON.stringify(null))
             localStorage.setItem('user', JSON.stringify(null))

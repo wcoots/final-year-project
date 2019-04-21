@@ -56,6 +56,7 @@
 import Header from './Header'
 import Password from 'vue-password-strength-meter'
 import { apiRequest } from '../api/auth'
+import { mobileCheck } from '../assets/mobileCheck'
 
 export default {
     name: 'ResetPassword',
@@ -96,6 +97,7 @@ export default {
         }
     },
     async created() {
+        mobileCheck() ? this.$router.push({ name: 'MobileRedirect' }) : console.log()
         localStorage.setItem('token', JSON.stringify(null))
         localStorage.setItem('user', JSON.stringify(null))
         if (this.reset_token === null) {

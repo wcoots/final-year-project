@@ -111,12 +111,12 @@
                                     <!-- OTHER PLAYER ANSWER COUNT -->
                                     <div>
                                         The other player has submitted
-                                        <b v-if="no_of_opponent_answers" style="color:#67C23A;">
-                                            {{ no_of_opponent_answers }}
-                                        </b>
-                                        <b v-else style="color:#F56C6C;">
-                                            {{ no_of_opponent_answers }}
-                                        </b>
+                                        <b v-if="no_of_opponent_answers" style="color:#67C23A;">{{
+                                            no_of_opponent_answers
+                                        }}</b>
+                                        <b v-else style="color:#F56C6C;">{{
+                                            no_of_opponent_answers
+                                        }}</b>
                                         answers
                                     </div>
                                     <hr />
@@ -159,6 +159,7 @@ import Header from './Header'
 import { apiRequest } from '../api/auth'
 import _ from 'lodash'
 import io from 'socket.io-client'
+import { mobileCheck } from '../assets/mobileCheck'
 
 import TimerMultiplayer from './TimerMultiplayer.vue'
 
@@ -192,6 +193,7 @@ export default {
         }
     },
     async created() {
+        mobileCheck() ? this.$router.push({ name: 'MobileRedirect' }) : console.log()
         if (localStorage.getItem('token') === 'null' || localStorage.getItem('token') === null) {
             localStorage.setItem('token', JSON.stringify(null))
             localStorage.setItem('user', JSON.stringify(null))
