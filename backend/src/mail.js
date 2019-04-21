@@ -27,7 +27,7 @@ const newMail = async req => {
         )
 
         const mailOptions = {
-            from: `"Werdz" <${EMAIL_USER}>`,
+            from: `EMAIL_USER`,
             to: req.address,
             subject: req.subject,
             html: req.html,

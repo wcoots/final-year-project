@@ -1,7 +1,7 @@
 <template>
     <div>
         <Header v-bind:user="user" />
-        <div>
+        <div v-if="game_mode_availability_loaded">
             <div class="container">
                 <br />
                 <br />
@@ -75,7 +75,7 @@
                                     Words with a
                                     <b>more general</b> meaning
                                 </div>
-                                <div>eg: chair → furniture</div>
+                                <div>eg: fast → speed</div>
                             </span>
                         </el-card>
                     </el-col>
@@ -102,6 +102,7 @@ export default {
             syn_button_disabled: true,
             ant_button_disabled: true,
             hyp_button_disabled: true,
+            game_mode_availability_loaded: false,
         }
     },
     async created() {
@@ -112,6 +113,8 @@ export default {
         }
 
         const res = await apiRequest('post', 'getGameModeAvailabilitySingle', {})
+
+        this.game_mode_availability_loaded = true
 
         this.syn_button_disabled = res.data.game_modes.synonyms ? false : true
         this.ant_button_disabled = res.data.game_modes.antonyms ? false : true
@@ -128,8 +131,6 @@ export default {
             }
 
             const res = await apiRequest('post', 'startSinglePlayerGame', data)
-
-            console.log(res)
 
             if (res.data.status) {
                 this.$router.push({

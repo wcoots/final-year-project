@@ -1,7 +1,7 @@
 const db = require('./db')
 const _ = require('lodash')
 
-const words_per_game = 5
+const words_per_game = 10
 
 const getWordsForMultiplayer = async game_mode => {
     return new Promise(async (resolve, reject) => {

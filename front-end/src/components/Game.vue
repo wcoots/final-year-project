@@ -105,7 +105,7 @@
                                             Words with a
                                             <b>more general</b> meaning
                                         </div>
-                                        <div>eg: chair → furniture</div>
+                                        <div>eg: fast → speed</div>
                                     </span>
                                     <hr />
                                     <!-- OTHER PLAYER ANSWER COUNT -->
