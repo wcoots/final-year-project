@@ -24,10 +24,10 @@
                                     round
                                     disabled
                                     @click="redirect('OnePlayerMenu')"
-                                    >Single Player</el-button
+                                    >One Player</el-button
                                 >
                             </div>
-                            <div>Coming soon!</div>
+                            <div>Play by yourself</div>
                         </el-card>
                     </el-col>
                     <!-- MULTIPLAYER -->

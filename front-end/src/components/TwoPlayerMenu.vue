@@ -69,7 +69,7 @@
                                 Words with a
                                 <b>more general</b> meaning
                             </div>
-                            <div>eg: chair → furniture</div>
+                            <div>eg: fast → speed</div>
                             <hr />
                             <b v-if="hyp_queueing" style="color:#67C23A;">{{ hyp_queueing }}</b>
                             <b v-else style="color:#F56C6C;">{{ hyp_queueing }}</b>
