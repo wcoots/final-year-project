@@ -20,11 +20,11 @@
                     </el-dropdown-item>
                     <el-dropdown-item index="1" command="OnePlayerMenu" disabled>
                         <i class="el-icon-star-off"></i>
-                        Single Player
+                        Singleplayer
                     </el-dropdown-item>
                     <el-dropdown-item index="1" command="TwoPlayerMenu">
                         <i class="el-icon-star-on"></i>
-                        Two Player
+                        Multiplayer
                     </el-dropdown-item>
                     <el-dropdown-item index="1" command="AccountSettings">
                         <i class="el-icon-setting"></i>

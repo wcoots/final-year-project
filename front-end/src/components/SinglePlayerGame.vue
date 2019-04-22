@@ -197,7 +197,10 @@ export default {
         this.answers = res.data.current_word_answers
         this.input_placeholder = res.data.input_placeholder
 
-        if (this.game.words.length === 1) {
+        if (
+            this.game.words.length === 1 ||
+            this.game.words.length === this.current_word_index + 1
+        ) {
             this.skip_button_disabled = true
         }
     },
@@ -248,6 +251,7 @@ export default {
                         }</strong>"`,
                         type: 'success',
                     })
+                    this.matched_count++
                     this.nextWord()
                 }
             }
@@ -258,6 +262,7 @@ export default {
                 current_word: this.game.words[this.current_word_index].word,
             }
             await apiRequest('post', 'skipWordSingle', data)
+            this.passed_count++
             this.nextWord()
         },
         nextWord() {
