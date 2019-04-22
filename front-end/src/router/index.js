@@ -10,12 +10,12 @@ import ForgottenPassword from '@/components/ForgottenPassword'
 import ResetPassword from '@/components/ResetPassword'
 import ValidateNewAccount from '@/components/ValidateNewAccount'
 import ValidateNewEmail from '@/components/ValidateNewEmail'
-import OnePlayerMenu from '@/components/OnePlayerMenu'
-import TwoPlayerMenu from '@/components/TwoPlayerMenu'
-import Game from '@/components/Game'
-import GameResults from '@/components/GameResults'
-import SinglePlayerGame from '@/components/SinglePlayerGame'
-import SinglePlayerGameResults from '@/components/SinglePlayerGameResults'
+import SingleplayerGame from '@/components/SingleplayerGame'
+import SingleplayerMenu from '@/components/SingleplayerMenu'
+import SingleplayerResults from '@/components/SingleplayerResults'
+import MultiplayerGame from '@/components/MultiplayerGame'
+import MultiplayerMenu from '@/components/MultiplayerMenu'
+import MultiplayerResults from '@/components/MultiplayerResults'
 import MobileRedirect from '@/components/MobileRedirect'
 
 Vue.use(Router)
@@ -74,34 +74,34 @@ export default new Router({
             component: ValidateNewEmail,
         },
         {
-            path: '/oneplayermenu',
-            name: 'OnePlayerMenu',
-            component: OnePlayerMenu,
-        },
-        {
-            path: '/twoplayermenu',
-            name: 'TwoPlayerMenu',
-            component: TwoPlayerMenu,
-        },
-        {
-            path: '/game',
-            name: 'Game',
-            component: Game,
-        },
-        {
             path: '/singleplayergame',
-            name: 'SinglePlayerGame',
-            component: SinglePlayerGame,
+            name: 'SingleplayerGame',
+            component: SingleplayerGame,
         },
         {
-            path: '/gameresults',
-            name: 'GameResults',
-            component: GameResults,
+            path: '/singleplayermenu',
+            name: 'SingleplayerMenu',
+            component: SingleplayerMenu,
         },
         {
-            path: '/singleplayergameresults',
-            name: 'SinglePlayerGameResults',
-            component: SinglePlayerGameResults,
+            path: '/singleplayerresults',
+            name: 'SingleplayerResults',
+            component: SingleplayerResults,
+        },
+        {
+            path: '/multiplayergame',
+            name: 'MultiplayerGame',
+            component: MultiplayerGame,
+        },
+        {
+            path: '/multiplayermenu',
+            name: 'MultiplayerMenu',
+            component: MultiplayerMenu,
+        },
+        {
+            path: '/multiplayerresults',
+            name: 'MultiplayerResults',
+            component: MultiplayerResults,
         },
         {
             path: '/Mobileredirect',

@@ -1,5 +1,5 @@
 <template>
-    <div class="timerMultiplayer">
+    <div class="MultiplayerTimer">
         <el-row v-if="time_has_started">
             <el-col :span="2">
                 <p v-if="minutes" :style="timerStyle">{{ minutes }} min</p>
@@ -29,6 +29,7 @@ import moment from 'moment'
 import { apiRequest } from '../api/auth'
 
 export default {
+    name: 'MultiplayerTimer',
     props: {
         date: String,
         game_id: Number,
@@ -123,7 +124,7 @@ export default {
                     }
                     await apiRequest('post', 'finishGameMulti', data)
                     this.$router.push({
-                        name: 'GameResults',
+                        name: 'MultiplayerResults',
                         query: { token: this.token },
                     })
                 } else {

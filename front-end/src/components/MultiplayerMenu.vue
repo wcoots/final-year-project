@@ -91,7 +91,7 @@ import io from 'socket.io-client'
 import { mobileCheck } from '../assets/mobileCheck'
 
 export default {
-    name: 'TwoPlayerMenu',
+    name: 'MultiplayerMenu',
     components: {
         Header,
     },
@@ -160,7 +160,7 @@ export default {
                 if (hb_res.data.status) {
                     this.loading.close()
                     this.$router.push({
-                        name: 'Game',
+                        name: 'MultiplayerGame',
                         query: { token: hb_res.data.user.game_token },
                     })
                     clearInterval(this.alive)

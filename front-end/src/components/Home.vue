@@ -24,7 +24,7 @@
                                     type="primary"
                                     round
                                     disabled
-                                    @click="redirect('OnePlayerMenu')"
+                                    @click="redirect('SingleplayerMenu')"
                                     >Singleplayer</el-button
                                 >
                             </div>
@@ -36,7 +36,7 @@
                     <el-col :span="8">
                         <el-card shadow="hover">
                             <div slot="header" class="clearfix">
-                                <el-button type="success" round @click="redirect('TwoPlayerMenu')"
+                                <el-button type="success" round @click="redirect('MultiplayerMenu')"
                                     >Multiplayer</el-button
                                 >
                             </div>

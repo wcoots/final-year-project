@@ -93,7 +93,7 @@ import { apiRequest } from '../api/auth'
 import { mobileCheck } from '../assets/mobileCheck'
 
 export default {
-    name: 'OnePlayerMenu',
+    name: 'SingleplayerMenu',
     components: {
         Header,
     },
@@ -136,7 +136,7 @@ export default {
 
             if (res.data.status) {
                 this.$router.push({
-                    name: 'SinglePlayerGame',
+                    name: 'SingleplayerGame',
                     query: { token: res.data.game_token },
                 })
             }

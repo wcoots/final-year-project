@@ -80,7 +80,7 @@ import { apiRequest } from '../api/auth'
 import { mobileCheck } from '../assets/mobileCheck'
 
 export default {
-    name: 'GameResults',
+    name: 'SingleplayerResults',
     components: {
         Header,
     },

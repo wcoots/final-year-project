@@ -18,11 +18,11 @@
                         <i class="el-icon-menu"></i>
                         Home
                     </el-dropdown-item>
-                    <el-dropdown-item index="1" disabled command="OnePlayerMenu">
+                    <el-dropdown-item index="1" disabled command="SingleplayerMenu">
                         <i class="el-icon-star-off"></i>
                         Singleplayer
                     </el-dropdown-item>
-                    <el-dropdown-item index="1" command="TwoPlayerMenu">
+                    <el-dropdown-item index="1" command="MultiplayerMenu">
                         <i class="el-icon-star-on"></i>
                         Multiplayer
                     </el-dropdown-item>

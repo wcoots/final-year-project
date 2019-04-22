@@ -1,5 +1,5 @@
 <template>
-    <div class="timerSingleplayer">
+    <div class="SingleplayerTimer">
         <el-row v-if="time_has_started">
             <el-col :span="2">
                 <p v-if="minutes" :style="timerStyle">{{ minutes }} min</p>
@@ -29,6 +29,7 @@ import moment from 'moment'
 import { apiRequest } from '../api/auth'
 
 export default {
+    name: 'SingleplayerTimer',
     props: {
         date: String,
         game_id: Number,
@@ -123,7 +124,7 @@ export default {
                     }
                     await apiRequest('post', 'finishGameSingle', data)
                     this.$router.push({
-                        name: 'GameResultsSingle',
+                        name: 'SingleplayerResults',
                         query: { token: this.token },
                     })
                 } else {

@@ -7,14 +7,14 @@
                     <el-header height="100px">
                         <br />
                         <br />
-                        <TimerSingleplayer
+                        <SingleplayerTimer
                             v-bind:date="game.termination_date"
                             v-bind:game_id="game.id"
                             v-bind:token="token"
                             style="float:centre;"
                             @start_game="startGame"
                             @delay_game="delayGame"
-                        ></TimerSingleplayer>
+                        ></SingleplayerTimer>
                         <br />
                     </el-header>
 
@@ -146,13 +146,13 @@ import Header from './Header'
 import { apiRequest } from '../api/auth'
 import _ from 'lodash'
 import { mobileCheck } from '../assets/mobileCheck'
-import TimerSingleplayer from './TimerSingleplayer.vue'
+import SingleplayerTimer from './SingleplayerTimer.vue'
 
 export default {
-    name: 'SinglePlayerGame',
+    name: 'SingleplayerGame',
     components: {
         Header,
-        TimerSingleplayer,
+        SingleplayerTimer,
     },
     data() {
         return {
@@ -265,7 +265,7 @@ export default {
             this.answers = []
             if (this.game.words.length <= this.current_word_index + 1) {
                 this.$router.push({
-                    name: 'SinglePlayerGameResults',
+                    name: 'SingleplayerResults',
                     query: { token: this.token },
                 })
             } else if (this.game.words.length > this.current_word_index + 2) {
@@ -279,7 +279,7 @@ export default {
             const data = { game_id: this.game.id }
             await apiRequest('post', 'quitGameSingle', data)
             this.$router.push({
-                name: 'SinglePlayerGameResults',
+                name: 'SingleplayerResults',
                 query: { token: this.token },
             })
         },

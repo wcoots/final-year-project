@@ -7,14 +7,14 @@
                     <el-header height="100px">
                         <br />
                         <br />
-                        <TimerMultiplayer
+                        <MultiplayerTimer
                             v-bind:date="game.termination_date"
                             v-bind:game_id="game.id"
                             v-bind:token="token"
                             style="float:centre;"
                             @start_game="startGame"
                             @delay_game="delayGame"
-                        ></TimerMultiplayer>
+                        ></MultiplayerTimer>
                         <br />
                     </el-header>
 
@@ -111,12 +111,12 @@
                                     <!-- OTHER PLAYER ANSWER COUNT -->
                                     <div>
                                         The other player has submitted
-                                        <b v-if="no_of_opponent_answers" style="color:#67C23A;">{{
-                                            no_of_opponent_answers
-                                        }}</b>
-                                        <b v-else style="color:#F56C6C;">{{
-                                            no_of_opponent_answers
-                                        }}</b>
+                                        <b v-if="no_of_opponent_answers" style="color:#67C23A;">
+                                            {{ no_of_opponent_answers }}
+                                        </b>
+                                        <b v-else style="color:#F56C6C;">
+                                            {{ no_of_opponent_answers }}
+                                        </b>
                                         answers
                                     </div>
                                     <hr />
@@ -161,13 +161,13 @@ import _ from 'lodash'
 import io from 'socket.io-client'
 import { mobileCheck } from '../assets/mobileCheck'
 
-import TimerMultiplayer from './TimerMultiplayer.vue'
+import MultiplayerTimer from './MultiplayerTimer.vue'
 
 export default {
-    name: 'Game',
+    name: 'MultiplayerGame',
     components: {
         Header,
-        TimerMultiplayer,
+        MultiplayerTimer,
     },
     data() {
         return {
@@ -238,7 +238,7 @@ export default {
                 })
                 if (this.current_word_index === this.game.words.length - 1) {
                     this.$router.push({
-                        name: 'GameResults',
+                        name: 'MultiplayerResults',
                         query: { token: this.token },
                     })
                 } else {
@@ -287,7 +287,7 @@ export default {
             // WHEN THE OTHER PLAYER QUITS THE GAME
             if (res.status && res.user_id !== this.user.user_id) {
                 this.$router.push({
-                    name: 'GameResults',
+                    name: 'MultiplayerResults',
                     query: { token: this.token },
                 })
                 this.$alert(
@@ -375,7 +375,7 @@ export default {
             }
             this.socket.emit('quitGame', data)
             this.$router.push({
-                name: 'GameResults',
+                name: 'MultiplayerResults',
                 query: { token: this.token },
             })
         },
