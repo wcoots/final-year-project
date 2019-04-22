@@ -1212,6 +1212,34 @@ app.post('/skipWordSingle', multipartMiddleware, async (req, res) => {
     }
 })
 
+app.post('/finishGameSingle', multipartMiddleware, async (req, res) => {
+    try {
+        await db.qry(
+            `UPDATE singleplayer_games
+            SET completed = 1,
+            valid = 0
+            WHERE id = ?
+            AND quitted = 0
+            AND removed = 0`,
+            [req.body.game_id]
+        )
+        await db.qry(
+            `UPDATE singleplayer_answers
+            SET uncompleted = 1
+            WHERE game_id = ?
+            AND matched = 0
+            AND passed = 0`,
+            [req.body.game_id]
+        )
+
+        return res.json({
+            status: true,
+        })
+    } catch (error) {
+        throw error
+    }
+})
+
 app.post('/quitGameSingle', multipartMiddleware, async (req, res) => {
     try {
         await db.qry(
