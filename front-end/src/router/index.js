@@ -74,17 +74,17 @@ export default new Router({
             component: ValidateNewEmail,
         },
         {
-            path: '/oneplayermenu',
+            path: '/singleplayermenu',
             name: 'OnePlayerMenu',
             component: OnePlayerMenu,
         },
         {
-            path: '/twoplayermenu',
+            path: '/multiplayermenu',
             name: 'TwoPlayerMenu',
             component: TwoPlayerMenu,
         },
         {
-            path: '/game',
+            path: '/multiplayergame',
             name: 'Game',
             component: Game,
         },
@@ -94,17 +94,17 @@ export default new Router({
             component: SinglePlayerGame,
         },
         {
-            path: '/gameresults',
+            path: '/multiplayerresults',
             name: 'GameResults',
             component: GameResults,
         },
         {
-            path: '/singleplayergameresults',
+            path: '/singleplayerresults',
             name: 'SinglePlayerGameResults',
             component: SinglePlayerGameResults,
         },
         {
-            path: '/Mobileredirect',
+            path: '/mobileredirect',
             name: 'MobileRedirect',
             component: MobileRedirect,
         },

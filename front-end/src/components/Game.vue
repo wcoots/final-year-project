@@ -111,12 +111,12 @@
                                     <!-- OTHER PLAYER ANSWER COUNT -->
                                     <div>
                                         The other player has submitted
-                                        <b v-if="no_of_opponent_answers" style="color:#67C23A;">{{
-                                            no_of_opponent_answers
-                                        }}</b>
-                                        <b v-else style="color:#F56C6C;">{{
-                                            no_of_opponent_answers
-                                        }}</b>
+                                        <b v-if="no_of_opponent_answers" style="color:#67C23A;">
+                                            {{ no_of_opponent_answers }}
+                                        </b>
+                                        <b v-else style="color:#F56C6C;">
+                                            {{ no_of_opponent_answers }}
+                                        </b>
                                         answers
                                     </div>
                                     <hr />
@@ -225,6 +225,13 @@ export default {
             this.socket = io.connect('api.werdz.fun', { query: `token=${this.token}` })
         } else {
             this.$router.push({ name: 'Home' })
+        }
+
+        if (
+            this.game.words.length === 1 ||
+            this.game.words.length === this.current_word_index + 1
+        ) {
+            this.skip_button_disabled = true
         }
 
         this.socket.on('answerSubmitted', async res => {

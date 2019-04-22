@@ -25,7 +25,7 @@
                                     round
                                     disabled
                                     @click="redirect('OnePlayerMenu')"
-                                    >One Player</el-button
+                                    >Singleplayer</el-button
                                 >
                             </div>
                             <div>Play by yourself</div>
@@ -36,7 +36,7 @@
                         <el-card shadow="hover">
                             <div slot="header" class="clearfix">
                                 <el-button type="success" round @click="redirect('TwoPlayerMenu')"
-                                    >Two Player</el-button
+                                    >Multiplayer</el-button
                                 >
                             </div>
                             <div>Match and play with another player</div>
