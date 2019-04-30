@@ -71,7 +71,6 @@
                 <h2></h2>
               </el-col>
 
-<<<<<<< HEAD
               <el-col :span="8">
                 <el-card shadow="always">
                   <!-- GAME MODE -->
@@ -114,16 +113,8 @@
                     <b
                       v-if="no_of_opponent_answers"
                       style="color:#67C23A;"
-                    >
-                      {{
-                      no_of_opponent_answers
-                      }}
-                    </b>
-                    <b v-else style="color:#F56C6C;">
-                      {{
-                      no_of_opponent_answers
-                      }}
-                    </b>
+                    >{{ no_of_opponent_answers }}</b>
+                    <b v-else style="color:#F56C6C;">{{ no_of_opponent_answers }}</b>
                     answers
                   </div>
                   <hr>
@@ -151,86 +142,6 @@
               <el-button style="float:right;" @click="quit()">Quit</el-button>
             </el-footer>
           </span>
-=======
-                            <el-col :span="8">
-                                <el-card shadow="always">
-                                    <!-- GAME MODE -->
-                                    <div slot="header" class="clearfix">
-                                        <span v-if="game.game_mode === 'SYN'">Syno</span>
-                                        <span v-if="game.game_mode === 'ANT'">Anto</span>
-                                        <span v-if="game.game_mode === 'HYP'">Hyper</span>nym
-                                        <!-- Yes this is ridiculuous but who cares -->
-                                        <b>{{ current_word_index + 1 }}</b> of
-                                        <b>{{ game.words.length }}</b>
-                                    </div>
-                                    <!-- SYNONYM DESC -->
-                                    <span v-if="game.game_mode === 'SYN'">
-                                        <div>
-                                            Words with the
-                                            <b>same</b> meaning
-                                        </div>
-                                        <div>eg: fast → quick</div>
-                                    </span>
-                                    <!-- ANTONYM DESC -->
-                                    <span v-if="game.game_mode === 'ANT'">
-                                        <div>
-                                            Words with the
-                                            <b>opposite</b> meaning
-                                        </div>
-                                        <div>eg: fast → slow</div>
-                                    </span>
-                                    <!-- HYPERNYM DESC -->
-                                    <span v-if="game.game_mode === 'HYP'">
-                                        <div>
-                                            Words with a
-                                            <b>more general</b> meaning
-                                        </div>
-                                        <div>eg: fast → speed</div>
-                                    </span>
-                                    <hr />
-                                    <!-- OTHER PLAYER ANSWER COUNT -->
-                                    <div>
-                                        The other player has submitted
-                                        <b v-if="no_of_opponent_answers" style="color:#67C23A;">
-                                            {{ no_of_opponent_answers }}
-                                        </b>
-                                        <b v-else style="color:#F56C6C;">
-                                            {{ no_of_opponent_answers }}
-                                        </b>
-                                        answers
-                                    </div>
-                                    <hr />
-                                    <!-- RESULTS SO FAR -->
-                                    <el-tag type="success">
-                                        <i class="el-icon-success"></i>
-                                        Matched:
-                                        <b>{{ matched_count }}</b>
-                                    </el-tag>
-                                    <el-tag type="warning" style="margin:10px;">
-                                        <i class="el-icon-error" style="color:#E6A23C;"></i>
-                                        Passed:
-                                        <b>{{ passed_count }}</b>
-                                    </el-tag>
-                                </el-card>
-                                <br />
-                                <br />
-                                <el-table :data="answers" width="180">
-                                    <el-table-column
-                                        prop="answer"
-                                        label="Answers"
-                                        width="180"
-                                    ></el-table-column>
-                                </el-table>
-                            </el-col>
-                        </el-row>
-                        <el-footer>
-                            <br />
-                            <el-button style="float:right;" @click="quit()">Quit</el-button>
-                        </el-footer>
-                    </span>
-                </div>
-            </div>
->>>>>>> parent of 29a4560... Improved answer filtering
         </div>
       </div>
     </div>
@@ -401,6 +312,16 @@ export default {
             this.time_until_start = time - 150
         },
         submit(e) {
+            const data = {
+                game_id: this.game.id,
+                current_word: this.game.words[this.current_word_index].word,
+                answers: [],
+                user_id: this.user.user_id,
+                player_no: this.player_no,
+                game_token: this.game.token,
+                current_word_index: this.current_word_index,
+                max_word_index: this.game.words.length - 1,
+            }
             // DONE IN FRONTEND SO AS TO NOT ADD MUTLIPLE WORDS TO THE LIST
             const words = _.words(_.toLower(this.input))
 
@@ -413,26 +334,11 @@ export default {
                     _.toLower(this.game.words[this.current_word_index].definition)
                 ).includes(_.toLower(word))
                 if (cond1 && cond2 && cond3 && cond4) {
-                    this.answers.push(word)
+                    this.answers.push(x)
                     data.answers.push(word)
                 }
             })
-<<<<<<< HEAD
-            console.log(this.answers)
 
-            const data = {
-                game_id: this.game.id,
-                current_word: this.game.words[this.current_word_index].word,
-                answers: this.answers,
-                user_id: this.user.user_id,
-                player_no: this.player_no,
-                game_token: this.game.token,
-                current_word_index: this.current_word_index,
-                max_word_index: this.game.words.length - 1,
-            }
-
-=======
->>>>>>> parent of 29a4560... Improved answer filtering
             if (data.answers.length) {
                 e.preventDefault()
                 this.socket.emit('submitAnswer', data)
