@@ -86,7 +86,7 @@
             <h2>Contact Us</h2>
             <p>
                 If you have any questions about these Terms, please contact us at
-                <b>will@cooters.co.uk</b>.
+                <b>game.cooter@gmail.com</b>.
             </p>
             <br />
             <el-button type="primary" plain v-on:click="redirect">Back to login</el-button>
