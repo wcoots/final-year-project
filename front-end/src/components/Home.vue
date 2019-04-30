@@ -28,8 +28,7 @@
                                     >Singleplayer</el-button
                                 >
                             </div>
-                            <!-- <div>Play by yourself</div> -->
-                            <div>Coming soon!</div>
+                            <div>Play by yourself</div>
                         </el-card>
                     </el-col>
                     <!-- MULTIPLAYER -->
