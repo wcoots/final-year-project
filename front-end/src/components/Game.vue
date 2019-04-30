@@ -1,157 +1,151 @@
 <template>
+  <div>
+    <Header/>
     <div>
-        <Header />
-        <div>
-            <div class="container">
-                <div v-if="game">
-                    <el-header height="100px">
-                        <br />
-                        <br />
-                        <TimerMultiplayer
-                            v-bind:date="game.termination_date"
-                            v-bind:game_id="game.id"
-                            v-bind:token="token"
-                            style="float:centre;"
-                            @start_game="startGame"
-                            @delay_game="delayGame"
-                        ></TimerMultiplayer>
-                        <br />
-                    </el-header>
+      <div class="container">
+        <div v-if="game">
+          <el-header height="100px">
+            <br>
+            <br>
+            <TimerMultiplayer
+              v-bind:date="game.termination_date"
+              v-bind:game_id="game.id"
+              v-bind:token="token"
+              style="float:centre;"
+              @start_game="startGame"
+              @delay_game="delayGame"
+            ></TimerMultiplayer>
+            <br>
+          </el-header>
 
-                    <br />
-                    <br />
+          <br>
+          <br>
 
-                    <span v-if="!game_started && time_until_start">
-                        <h1 style="text-align: center;">Game starts in</h1>
-                        <h1 style="text-align: center;">
-                            <b style="font-size: 150%;>">{{ time_until_start }}</b>
-                        </h1>
-                        <h1 style="text-align: center;">seconds</h1>
-                    </span>
+          <span v-if="!game_started && time_until_start">
+            <h1 style="text-align: center;">Game starts in</h1>
+            <h1 style="text-align: center;">
+              <b style="font-size: 150%;>">{{ time_until_start }}</b>
+            </h1>
+            <h1 style="text-align: center;">seconds</h1>
+          </span>
 
-                    <span v-if="game_started">
-                        <el-row :gutter="20">
-                            <el-col :span="14">
-                                <h1>{{ game.words[current_word_index].word }}</h1>
-                                <br />
-                                <!-- WORD INPUT -->
-                                <el-input
-                                    v-model="input"
-                                    :placeholder="input_placeholder"
-                                    :disabled="submit_disabled"
-                                    @keyup.enter.native="submit"
-                                >
-                                    <el-button
-                                        slot="append"
-                                        icon="el-icon-caret-right"
-                                        :disabled="submit_disabled"
-                                        @click="submit"
-                                    ></el-button>
-                                </el-input>
+          <span v-if="game_started">
+            <el-row :gutter="20">
+              <el-col :span="14">
+                <h1>{{ game.words[current_word_index].word }}</h1>
+                <br>
+                <!-- WORD INPUT -->
+                <el-input
+                  v-model="input"
+                  :placeholder="input_placeholder"
+                  :disabled="submit_disabled"
+                  @keyup.enter.native="submit"
+                >
+                  <el-button
+                    slot="append"
+                    icon="el-icon-caret-right"
+                    :disabled="submit_disabled"
+                    @click="submit"
+                  ></el-button>
+                </el-input>
 
-                                <br />
-                                <br />
-                                {{ game.words[current_word_index].definition }}
-                                <br />
-                                <br />
-                                <!-- SKIP WORD BUTTON -->
-                                <el-button
-                                    :disabled="skip_button_disabled"
-                                    :loading="skip_button_loading"
-                                    type="danger"
-                                    plain
-                                    style="float:left;"
-                                    @click="skipWord()"
-                                    >{{ skip_button_text }}</el-button
-                                >
+                <br>
+                <br>
+                {{ game.words[current_word_index].definition }}
+                <br>
+                <br>
+                <!-- SKIP WORD BUTTON -->
+                <el-button
+                  :disabled="skip_button_disabled"
+                  :loading="skip_button_loading"
+                  type="danger"
+                  plain
+                  style="float:left;"
+                  @click="skipWord()"
+                >{{ skip_button_text }}</el-button>
 
-                                <br />
-                            </el-col>
-                            <!-- JUST FOR SPACING -->
-                            <el-col :span="2">
-                                <h2></h2>
-                            </el-col>
+                <br>
+              </el-col>
+              <!-- JUST FOR SPACING -->
+              <el-col :span="2">
+                <h2></h2>
+              </el-col>
 
-                            <el-col :span="8">
-                                <el-card shadow="always">
-                                    <!-- GAME MODE -->
-                                    <div slot="header" class="clearfix">
-                                        <span v-if="game.game_mode === 'SYN'">Syno</span>
-                                        <span v-if="game.game_mode === 'ANT'">Anto</span>
-                                        <span v-if="game.game_mode === 'HYP'">Hyper</span>nym
-                                        <!-- Yes this is ridiculuous but who cares -->
-                                        <b>{{ current_word_index + 1 }}</b> of
-                                        <b>{{ game.words.length }}</b>
-                                    </div>
-                                    <!-- SYNONYM DESC -->
-                                    <span v-if="game.game_mode === 'SYN'">
-                                        <div>
-                                            Words with the
-                                            <b>same</b> meaning
-                                        </div>
-                                        <div>eg: fast → quick</div>
-                                    </span>
-                                    <!-- ANTONYM DESC -->
-                                    <span v-if="game.game_mode === 'ANT'">
-                                        <div>
-                                            Words with the
-                                            <b>opposite</b> meaning
-                                        </div>
-                                        <div>eg: fast → slow</div>
-                                    </span>
-                                    <!-- HYPERNYM DESC -->
-                                    <span v-if="game.game_mode === 'HYP'">
-                                        <div>
-                                            Words with a
-                                            <b>more general</b> meaning
-                                        </div>
-                                        <div>eg: fast → speed</div>
-                                    </span>
-                                    <hr />
-                                    <!-- OTHER PLAYER ANSWER COUNT -->
-                                    <div>
-                                        The other player has submitted
-                                        <b v-if="no_of_opponent_answers" style="color:#67C23A;">{{
-                                            no_of_opponent_answers
-                                        }}</b>
-                                        <b v-else style="color:#F56C6C;">{{
-                                            no_of_opponent_answers
-                                        }}</b>
-                                        answers
-                                    </div>
-                                    <hr />
-                                    <!-- RESULTS SO FAR -->
-                                    <el-tag type="success">
-                                        <i class="el-icon-success"></i>
-                                        Matched:
-                                        <b>{{ matched_count }}</b>
-                                    </el-tag>
-                                    <el-tag type="warning" style="margin:10px;">
-                                        <i class="el-icon-error" style="color:#E6A23C;"></i>
-                                        Passed:
-                                        <b>{{ passed_count }}</b>
-                                    </el-tag>
-                                </el-card>
-                                <br />
-                                <br />
-                                <el-table :data="answers" width="180">
-                                    <el-table-column
-                                        prop="answer"
-                                        label="Answers"
-                                        width="180"
-                                    ></el-table-column>
-                                </el-table>
-                            </el-col>
-                        </el-row>
-                        <el-footer>
-                            <br />
-                            <el-button style="float:right;" @click="quit()">Quit</el-button>
-                        </el-footer>
-                    </span>
-                </div>
-            </div>
+              <el-col :span="8">
+                <el-card shadow="always">
+                  <!-- GAME MODE -->
+                  <div slot="header" class="clearfix">
+                    <span v-if="game.game_mode === 'SYN'">Syno</span>
+                    <span v-if="game.game_mode === 'ANT'">Anto</span>
+                    <span v-if="game.game_mode === 'HYP'">Hyper</span>nym
+                    <!-- Yes this is ridiculuous but who cares -->
+                    <b>{{ current_word_index + 1 }}</b> of
+                    <b>{{ game.words.length }}</b>
+                  </div>
+                  <!-- SYNONYM DESC -->
+                  <span v-if="game.game_mode === 'SYN'">
+                    <div>
+                      Words with the
+                      <b>same</b> meaning
+                    </div>
+                    <div>eg: fast → quick</div>
+                  </span>
+                  <!-- ANTONYM DESC -->
+                  <span v-if="game.game_mode === 'ANT'">
+                    <div>
+                      Words with the
+                      <b>opposite</b> meaning
+                    </div>
+                    <div>eg: fast → slow</div>
+                  </span>
+                  <!-- HYPERNYM DESC -->
+                  <span v-if="game.game_mode === 'HYP'">
+                    <div>
+                      Words with a
+                      <b>more general</b> meaning
+                    </div>
+                    <div>eg: fast → speed</div>
+                  </span>
+                  <hr>
+                  <!-- OTHER PLAYER ANSWER COUNT -->
+                  <div>
+                    The other player has submitted
+                    <b
+                      v-if="no_of_opponent_answers"
+                      style="color:#67C23A;"
+                    >{{ no_of_opponent_answers }}</b>
+                    <b v-else style="color:#F56C6C;">{{ no_of_opponent_answers }}</b>
+                    answers
+                  </div>
+                  <hr>
+                  <!-- RESULTS SO FAR -->
+                  <el-tag type="success">
+                    <i class="el-icon-success"></i>
+                    Matched:
+                    <b>{{ matched_count }}</b>
+                  </el-tag>
+                  <el-tag type="warning" style="margin:10px;">
+                    <i class="el-icon-error" style="color:#E6A23C;"></i>
+                    Passed:
+                    <b>{{ passed_count }}</b>
+                  </el-tag>
+                </el-card>
+                <br>
+                <br>
+                <el-table :data="answers" width="180">
+                  <el-table-column prop="answer" label="Answers" width="180"></el-table-column>
+                </el-table>
+              </el-col>
+            </el-row>
+            <el-footer>
+              <br>
+              <el-button style="float:right;" @click="quit()">Quit</el-button>
+            </el-footer>
+          </span>
         </div>
+      </div>
     </div>
+  </div>
 </template>
 
 <script>
@@ -332,19 +326,16 @@ export default {
             const words = _.words(_.toLower(this.input))
 
             words.forEach(word => {
-                const cond1 = !this.answers.includes(word)
-                const cond2 = !!word.length
-                const cond3 =
-                    word.indexOf(_.toLower(this.game.words[this.current_word_index].word)) === -1 &&
-                    _.toLower(this.game.words[this.current_word_index].word).indexOf(word) === -1
-                const cond4 =
-                    word.indexOf(_.toLower(this.game.words[this.current_word_index].definition)) ===
-                        -1 &&
-                    _.toLower(this.game.words[this.current_word_index].definition).indexOf(word) ===
-                        -1
+                const x = { answer: word }
+                const cond1 = !_.filter(this.answers, x).length
+                const cond2 = word.length
+                const cond3 = word !== _.toLower(this.game.words[this.current_word_index].word)
+                const cond4 = !_.words(
+                    _.toLower(this.game.words[this.current_word_index].definition)
+                ).includes(_.toLower(word))
                 if (cond1 && cond2 && cond3 && cond4) {
                     this.answers.push(x)
-                    data.answers.push(x)
+                    data.answers.push(word)
                 }
             })
 

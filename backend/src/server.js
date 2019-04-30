@@ -1421,7 +1421,7 @@ io.on('connection', socket => {
 
             // FOR EACH NEW ANSWER, ADD IT TO THIS PLAYER'S ANSWERS
             req.answers.forEach(answer => {
-                this_players_words.push(answer.answer)
+                this_players_words.push(answer)
             })
 
             // FIND ANSWERS THAT ARE IN BOTH PLAYER'S ARRAYS OF ANSWERS

@@ -225,16 +225,13 @@ export default {
             const words = _.words(_.toLower(this.input))
 
             words.forEach(word => {
-                const cond1 = !this.answers.includes(word)
-                const cond2 = !!word.length
-                const cond3 =
-                    word.indexOf(_.toLower(this.game.words[this.current_word_index].word)) === -1 &&
-                    _.toLower(this.game.words[this.current_word_index].word).indexOf(word) === -1
-                const cond4 =
-                    word.indexOf(_.toLower(this.game.words[this.current_word_index].definition)) ===
-                        -1 &&
-                    _.toLower(this.game.words[this.current_word_index].definition).indexOf(word) ===
-                        -1
+                const x = { answer: word }
+                const cond1 = !_.filter(this.answers, x).length
+                const cond2 = word.length
+                const cond3 = word !== _.toLower(this.game.words[this.current_word_index].word)
+                const cond4 = !_.words(
+                    _.toLower(this.game.words[this.current_word_index].definition)
+                ).includes(_.toLower(word))
                 if (cond1 && cond2 && cond3 && cond4) {
                     this.answers.push(x)
                     data.answers.push(x)
