@@ -1,19 +1,11 @@
-
-
 <template>
-  <div>
-    <el-header/>
-  </div>
+    <div></div>
 </template>
 
 <script>
-import Header from './Header'
-
 export default {
     name: 'Template',
-    components: {
-        Header,
-    },
+    components: {},
     data() {
         return {
             user: null,
@@ -28,7 +20,4 @@ export default {
 }
 </script>
 
-<style>
-</style>
-
-
+<style></style>
