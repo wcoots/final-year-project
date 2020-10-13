@@ -1,5 +1,4 @@
-## [Visit the website here](https://werdz.fun "werdz.fun")
-___
+
 ## Start Frontend
 
 ```bash
