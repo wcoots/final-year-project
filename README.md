@@ -26,16 +26,3 @@ ___
 cd backend
 npm run process
 ```
-___
-You will need to create your own .env file with the following structure and place it in the backend directory:
-```env
-NODE_ENV = "development"
-DB_HOST = "example.host.com"
-DB_USER = "username"
-DB_PASSWORD = "password"
-DB_DATABASE = "database_name"
-EMAIL_SERVICE = "gmail"
-EMAIL_USER = "example@gmail.com"
-EMAIL_PASS = "password"
-```
-___
